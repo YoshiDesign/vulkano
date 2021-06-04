@@ -76,6 +76,20 @@ namespace aveng {
 		vertexInputInfo.vertexBindingDescriptionCount = 0;
 		vertexInputInfo.pVertexAttributeDescriptions = nullptr;
 		vertexInputInfo.pVertexBindingDescriptions = nullptr;
+		vertexInputInfo.flags = 0;
+		vertexInputInfo.pNext = nullptr;
+
+
+		// Combine our viewport and our scissor. On some GFX Cards you can have multiple viewports/scissors
+		VkPipelineViewportStateCreateInfo viewportInfo{};
+		viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+		viewportInfo.viewportCount = 1;
+		viewportInfo.pViewports = &configInfo.viewport;
+		viewportInfo.scissorCount = 1;
+		viewportInfo.pScissors = &configInfo.scissor;
+		viewportInfo.flags = 0;
+		viewportInfo.pNext = nullptr;
+
 
 		// Collect all of the necessary configurations and 
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -83,10 +97,13 @@ namespace aveng {
 		pipelineInfo.stageCount = 2;
 		pipelineInfo.pStages = shaderStages;
 		pipelineInfo.pVertexInputState = &vertexInputInfo;
+		pipelineInfo.flags = 0;
+		pipelineInfo.pNext = nullptr;
+		
 
 		// Apply the pipeline creation information to the config information we already setup
 		pipelineInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;
-		pipelineInfo.pViewportState = &configInfo.viewportInfo;
+		pipelineInfo.pViewportState = &viewportInfo;
 		pipelineInfo.pMultisampleState = &configInfo.multisampleInfo;
 		pipelineInfo.pRasterizationState = &configInfo.rasterizationInfo;
 		pipelineInfo.pColorBlendState = &configInfo.colorBlendInfo;
@@ -183,13 +200,6 @@ namespace aveng {
 		// Anything outside of the "Scissor rectangle" (extent) will be discarded
 		configInfo.scissor.offset = { 0, 0 };
 		configInfo.scissor.extent = { width, height };
-
-		// Combine our viewport and our scissor. On some GFX Cards you can have multiple viewports/scissors
-		configInfo.viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-		configInfo.viewportInfo.viewportCount = 1;
-		configInfo.viewportInfo.pViewports = &configInfo.viewport;
-		configInfo.viewportInfo.scissorCount = 1;
-		configInfo.viewportInfo.pScissors = &configInfo.scissor;
 
 		// Rasterization phase
 		configInfo.rasterizationInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;

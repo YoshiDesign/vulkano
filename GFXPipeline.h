@@ -18,7 +18,7 @@ namespace aveng {
 	struct PipelineConfig {
 		VkViewport viewport;
 		VkRect2D scissor;
-		VkPipelineViewportStateCreateInfo viewportInfo;
+
 		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
 		VkPipelineRasterizationStateCreateInfo rasterizationInfo;
 		VkPipelineMultisampleStateCreateInfo multisampleInfo;
@@ -69,8 +69,6 @@ namespace aveng {
 
 		// Used to create module and init variable for shaders
 		void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
-
-
 
 	};
 
