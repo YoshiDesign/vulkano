@@ -27,6 +27,9 @@
     <ClCompile Include="GFXPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EngineDevice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aveng_window.h">
@@ -38,6 +41,9 @@
     <ClInclude Include="GFXPipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="EngineDevice.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\simple_shader.vert" />
@@ -47,5 +53,8 @@
     </None>
     <None Include="shaders\simple_shader.frag.spv" />
     <None Include="shaders\simple_shader.vert.spv" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include=".gitignore" />
   </ItemGroup>
 </Project>

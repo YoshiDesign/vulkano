@@ -7,9 +7,6 @@
 namespace aveng {
 
 	class AvengWindow {
-
-	private:
-
 		const int width;
 		const int height;
 		std::string windowName;
@@ -24,6 +21,7 @@ namespace aveng {
 		AvengWindow& operator=(const AvengWindow&) = delete;
 
 		bool shouldClose();
+		void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
 
 	private:
 

@@ -2,6 +2,8 @@
 
 #include "aveng_window.h"
 #include "GFXPipeline.h"
+#include "EngineDevice.hpp"
+
 
 namespace aveng {
 
@@ -14,9 +16,18 @@ namespace aveng {
 		void run();
 
 	private:
-		// Not a dynamic allocation
+		// The window API - Stack allocated
 		AvengWindow aveng_window{ WIDTH, HEIGHT, "Vulkan 0" };
-		GFXPipeline gfxPipeline{"shaders/simple_shader.vert.spv", "shaders/simple_shader.frag.spv" };
+
+		EngineDevice engineDevice{ aveng_window };
+
+		// The Graphics API - Stack allocated
+		GFXPipeline gfxPipeline{
+			engineDevice, 
+			"shaders/simple_shader.vert.spv", 
+			"shaders/simple_shader.frag.spv", 
+			GFXPipeline::defaultPipelineConfig(WIDTH, HEIGHT) 
+		};
 	};
 
 }

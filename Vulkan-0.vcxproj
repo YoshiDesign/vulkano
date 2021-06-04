@@ -148,11 +148,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="aveng_window.cpp" />
+    <ClCompile Include="EngineDevice.cpp" />
     <ClCompile Include="GFXPipeline.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="XOne.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="EngineDevice.hpp" />
     <ClInclude Include="GFXPipeline.h" />
     <ClInclude Include="aveng_window.h" />
     <ClInclude Include="XOne.h" />
@@ -163,6 +165,9 @@
     <None Include="shaders\simple_shader.frag.spv" />
     <None Include="shaders\simple_shader.vert" />
     <None Include="shaders\simple_shader.vert.spv" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include=".gitignore" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
