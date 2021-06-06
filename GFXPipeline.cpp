@@ -125,6 +125,12 @@ namespace aveng {
 
 	}
 
+	void GFXPipeline::bind(VkCommandBuffer commandBuffer)
+	{
+		// Establish the type of pipeline we're using e.g. Computer only, graphics, ray-tracing
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+	}
+
 	/**
 	 *	Read our shader binary into a vector
 	 */

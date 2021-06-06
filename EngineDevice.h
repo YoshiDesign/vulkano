@@ -74,7 +74,9 @@ namespace aveng {
             VkBuffer &buffer,
             VkDeviceMemory &bufferMemory
         );
+
         VkCommandBuffer beginSingleTimeCommands();
+
         void endSingleTimeCommands(VkCommandBuffer commandBuffer);
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
         void copyBufferToImage(
@@ -112,9 +114,14 @@ namespace aveng {
         bool checkDeviceExtensionSupport(VkPhysicalDevice device);
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 
-        // Specify the validation layers to enable
+
+        /*
+            Extensions
+        */
+
+        // Validation layer to be enabled
         const std::vector<const char *> validationLayers = {"VK_LAYER_KHRONOS_validation"};
-        //
+        // Extensions to be enabled
         const std::vector<const char *> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
     };
 

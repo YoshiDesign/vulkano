@@ -37,7 +37,7 @@ namespace aveng {
 	{
 		if (glfwCreateWindowSurface(instance, window, nullptr, surface) != VK_SUCCESS)
 		{
-			throw std::runtime_error("failed to create window");
+			throw std::runtime_error("failed to create window surface");
 		}
 	}
 	bool AvengWindow::shouldClose() { return glfwWindowShouldClose(window); }

@@ -151,12 +151,14 @@
     <ClCompile Include="EngineDevice.cpp" />
     <ClCompile Include="GFXPipeline.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="swapchain.cpp" />
     <ClCompile Include="XOne.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="EngineDevice.hpp" />
+    <ClInclude Include="EngineDevice.h" />
     <ClInclude Include="GFXPipeline.h" />
     <ClInclude Include="aveng_window.h" />
+    <ClInclude Include="swapchain.h" />
     <ClInclude Include="XOne.h" />
   </ItemGroup>
   <ItemGroup>

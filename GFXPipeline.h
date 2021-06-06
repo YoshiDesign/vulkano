@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EngineDevice.hpp"
+#include "EngineDevice.h"
 
 #include <string>
 #include <vector>
@@ -54,7 +54,7 @@ namespace aveng {
 		~GFXPipeline();
 		GFXPipeline(const GFXPipeline&) = delete;
 		void operator=(const GFXPipeline&) = delete;
-
+		void bind(VkCommandBuffer commandBuffer);
 		static PipelineConfig defaultPipelineConfig(uint32_t width, uint32_t height);
 
 	private:

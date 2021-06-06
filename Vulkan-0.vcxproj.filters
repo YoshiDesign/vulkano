@@ -30,6 +30,9 @@
     <ClCompile Include="EngineDevice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="swapchain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aveng_window.h">
@@ -41,7 +44,10 @@
     <ClInclude Include="GFXPipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EngineDevice.hpp">
+    <ClInclude Include="EngineDevice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="swapchain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
