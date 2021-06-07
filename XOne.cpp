@@ -8,6 +8,7 @@ namespace aveng {
 
 	XOne::XOne() 
 	{
+		loadModels();
 		createPipelineLayout();
 		createPipeline();
 		createCommandBuffers();
@@ -33,6 +34,7 @@ namespace aveng {
 	void XOne::createPipelineLayout() 
 	{
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+		//  Structure specifying the parameters of a newly created pipeline layout object
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutInfo.setLayoutCount = 0;
 		// used to send additional data, other than vertex information, to our shaders 
@@ -46,8 +48,25 @@ namespace aveng {
 		}
 	}
 
+	/*
+	*/
+	void XOne::loadModels()
+	{
+		std::vector<AvengModel::Vertex> vertices { // vector
+			{ {0.0f, -0.5f} /* glm vec2 position */ }, // Model Vertex
+			{ {0.5f,  0.5f } },
+			{ {-0.5f, 0.5f} }
+		};
+
+		avengModel = std::make_unique<AvengModel>(engineDevice, vertices);
+
+	}
+
+	/*
+	*/
 	void XOne::createPipeline()
 	{
+		// Initialize the pipeline configuration
 		auto pipelineConfig = GFXPipeline::defaultPipelineConfig(aveng_swapchain.width(), aveng_swapchain.height());
 		pipelineConfig.renderPass = aveng_swapchain.getRenderPass();
 		pipelineConfig.pipelineLayout = pipelineLayout;
@@ -59,7 +78,8 @@ namespace aveng {
 		);
 	}
 
-
+	/*
+	*/
 	void XOne::createCommandBuffers() {
 	
 		commandBuffers.resize(aveng_swapchain.imageCount());
@@ -84,9 +104,7 @@ namespace aveng {
 
 			if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
 			{
-			
 				std::runtime_error("Command Buffer failed to begin recording.");
-			
 			}
 			/*
 				Record Commands
@@ -117,18 +135,19 @@ namespace aveng {
 			gfxPipeline->bind(commandBuffers[i]);
 			// Records a draw command. 3 vertices in 1 instance. Instances can be used when you want to draw multiple copies of the same vertex data
 			// e.g. particle systems
-			vkCmdDraw(commandBuffers[i], 3, 1, 0, 0); // There are no data offsets here, we hardcoded vertices here.
+			// vkCmdDraw(commandBuffers[i], 3, 1, 0, 0); // Updated with line below -- There are no data offsets here, we hardcoded vertices here.
+			avengModel->bind(commandBuffers[i]);
+			avengModel->draw(commandBuffers[i]);
 			vkCmdEndRenderPass(commandBuffers[i]);
 			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
 			{
 				throw std::runtime_error("Failed to record command buffer.");
 			}
-
-
 		}
-
 	}
 
+	/*
+	*/
 	void XOne:: drawFrame() {
 		uint32_t imageIndex;
 		auto result = aveng_swapchain.acquireNextImage(&imageIndex);

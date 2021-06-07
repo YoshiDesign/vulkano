@@ -1,4 +1,5 @@
 #include "GFXPipeline.h"
+#include "aveng_model.h"
 
 #include <iostream>
 #include <fstream>
@@ -24,7 +25,6 @@ namespace aveng {
 		vkDestroyShaderModule(engDevice.device(), vertShaderModule, nullptr);
 		vkDestroyShaderModule(engDevice.device(), fragShaderModule, nullptr);
 		vkDestroyPipeline(engDevice.device(), graphicsPipeline, nullptr);
-
 	}
 
 	/**
@@ -47,7 +47,6 @@ namespace aveng {
 		createShaderModule(vertCode, &vertShaderModule);
 		createShaderModule(fragCode, &fragShaderModule);
 
-
 		VkPipelineShaderStageCreateInfo shaderStages[2];
 
 		// Vertex
@@ -69,16 +68,18 @@ namespace aveng {
 		shaderStages[1].pNext = nullptr;
 		shaderStages[1].pSpecializationInfo = nullptr;
 
+		auto bindingDescriptions = AvengModel::Vertex::getBindingDescriptions();
+		auto attributeDescriptions = AvengModel::Vertex::getAttributeDescriptions();
+
 		// Struct to ddescribe how we interperet our vertex buffer data as initial input into our pipeline
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexAttributeDescriptionCount = 0;
-		vertexInputInfo.vertexBindingDescriptionCount = 0;
-		vertexInputInfo.pVertexAttributeDescriptions = nullptr;
-		vertexInputInfo.pVertexBindingDescriptions = nullptr;
-		vertexInputInfo.flags = 0;
-		vertexInputInfo.pNext = nullptr;
-
+		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());	// Updated
+		vertexInputInfo.vertexBindingDescriptionCount	= static_cast<uint32_t>(bindingDescriptions.size());		// Updated
+		vertexInputInfo.pVertexAttributeDescriptions	= attributeDescriptions.data();
+		vertexInputInfo.pVertexBindingDescriptions		= bindingDescriptions.data();
+		vertexInputInfo.flags = 0;			// I added this
+		vertexInputInfo.pNext = nullptr;	// I added this
 
 		// Combine our viewport and our scissor. On some GFX Cards you can have multiple viewports/scissors
 		VkPipelineViewportStateCreateInfo viewportInfo{};
@@ -90,7 +91,6 @@ namespace aveng {
 		viewportInfo.flags = 0;
 		viewportInfo.pNext = nullptr;
 
-
 		// Collect all of the necessary configurations and 
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -100,7 +100,6 @@ namespace aveng {
 		pipelineInfo.flags = 0;
 		pipelineInfo.pNext = nullptr;
 		
-
 		// Apply the pipeline creation information to the config information we already setup
 		pipelineInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;
 		pipelineInfo.pViewportState = &viewportInfo;
@@ -121,7 +120,6 @@ namespace aveng {
 		{
 			throw std::runtime_error("failed to create graphics pipeline");
 		}
-
 
 	}
 

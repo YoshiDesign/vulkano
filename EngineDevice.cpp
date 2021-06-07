@@ -108,9 +108,9 @@ namespace aveng {
 
         VkApplicationInfo appInfo = {};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = "LittleVulkanEngine App";
+        appInfo.pApplicationName = "Zero App";
         appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.pEngineName = "No Engine";
+        appInfo.pEngineName = "NonEngine";
         appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
         appInfo.apiVersion = VK_API_VERSION_1_0;
 
@@ -545,6 +545,7 @@ namespace aveng {
         VkBuffer &buffer,
         VkDeviceMemory &bufferMemory
     ) {
+        // Create the Buffer given the provided information
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         bufferInfo.size = size;
@@ -555,9 +556,11 @@ namespace aveng {
             throw std::runtime_error("failed to create vertex buffer!");
         }
 
+        // Query the buffer's memory requirements so we can allocate according to proper size & properties
         VkMemoryRequirements memRequirements;
         vkGetBufferMemoryRequirements(device_, buffer, &memRequirements);
 
+        // 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
@@ -567,6 +570,7 @@ namespace aveng {
             throw std::runtime_error("failed to allocate vertex buffer memory!");
         }
 
+        // Bind the buffer to the memory we've allocated
         vkBindBufferMemory(device_, buffer, bufferMemory, 0);
     }
 

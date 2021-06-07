@@ -6,7 +6,8 @@
 #include "GFXPipeline.h"
 #include "EngineDevice.h"
 #include "swapchain.h"
-
+#include "aveng_model.h"
+#include "cool.h"
 
 namespace aveng {
 
@@ -25,6 +26,7 @@ namespace aveng {
 		void run();
 
 	private:
+		void loadModels();
 		void createPipelineLayout();
 		void createPipeline();
 		void createCommandBuffers();
@@ -37,20 +39,24 @@ namespace aveng {
 
 		SwapChain aveng_swapchain{ engineDevice, aveng_window.getExtent() };
 
-		// The Graphics API - Stack allocated
-		//GFXPipeline gfxPipeline{
-		//	engineDevice, 
-		//	"shaders/simple_shader.vert.spv", 
-		//	"shaders/simple_shader.frag.spv", 
-		//	GFXPipeline::defaultPipelineConfig(WIDTH, HEIGHT) 
-		//};
+
 
 		// The Graphics API - Pointer Allocated
 		std::unique_ptr<GFXPipeline> gfxPipeline;
 		VkPipelineLayout pipelineLayout;
 		std::vector<VkCommandBuffer> commandBuffers;
-
+		std::unique_ptr<AvengModel> avengModel;
 
 	};
 
 }
+
+
+/* Note */
+// The Graphics API - Previously stack allocated
+//GFXPipeline gfxPipeline{
+//	engineDevice, 
+//	"shaders/simple_shader.vert.spv", 
+//	"shaders/simple_shader.frag.spv", 
+//	GFXPipeline::defaultPipelineConfig(WIDTH, HEIGHT) 
+//};
