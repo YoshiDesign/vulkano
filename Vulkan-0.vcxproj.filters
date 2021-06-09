@@ -56,6 +56,9 @@
     <ClInclude Include="aveng_model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\simple_shader.vert" />
@@ -63,6 +66,8 @@
     <None Include="compile.bat">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="shaders\simple_shader.frag.spv" />
+    <None Include="shaders\simple_shader.vert.spv" />
   </ItemGroup>
   <ItemGroup>
     <Text Include=".gitignore" />

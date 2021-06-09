@@ -48,19 +48,47 @@ namespace aveng {
 		}
 	}
 
+	void XOne::sierpinski(
+		std::vector<AvengModel::Vertex>& vertices,
+		int depth,
+		glm::vec2 left,
+		glm::vec2 right,
+		glm::vec2 top
+	) {
+		if (depth <= 0) {
+			vertices.push_back({ top });
+			vertices.push_back({ right });
+			vertices.push_back({ left });
+		}
+		else {
+			auto leftTop = 0.5f * (left + top);
+			auto rightTop = 0.5f * (right + top);
+			auto leftRight = 0.5f * (left + right);
+			sierpinski(vertices, depth - 1, left, leftRight, leftTop);
+			sierpinski(vertices, depth - 1, leftRight, right, rightTop);
+			sierpinski(vertices, depth - 1, leftTop, rightTop, top);
+		}
+	}
+
+	void XOne::loadModels() {
+		std::vector<AvengModel::Vertex> vertices{};
+		sierpinski(vertices, 5, { -0.5f, 0.5f }, { 0.5f, 0.5f }, { 0.0f, -0.5f });
+		avengModel = std::make_unique<AvengModel>(engineDevice, vertices);
+	}
+
 	/*
 	*/
-	void XOne::loadModels()
-	{
-		std::vector<AvengModel::Vertex> vertices { // vector
-			{ {0.0f, -0.5f} /* glm vec2 position */ }, // Model Vertex
-			{ {0.5f,  0.5f } },
-			{ {-0.5f, 0.5f} }
-		};
+	//void XOne::loadModels()
+	//{
+	//	std::vector<AvengModel::Vertex> vertices { // vector
+	//		{ {0.0f, -0.5f} /* glm vec2 position */ }, // Model Vertex
+	//		{ {0.5f,  0.5f } },
+	//		{ {-0.5f, 0.5f} }
+	//	};
 
-		avengModel = std::make_unique<AvengModel>(engineDevice, vertices);
+	//	avengModel = std::make_unique<AvengModel>(engineDevice, vertices);
 
-	}
+	//}
 
 	/*
 	*/
