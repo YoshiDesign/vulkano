@@ -78,12 +78,22 @@ namespace aveng {
 			uint32_t    offset;
 		 */
 		// return { {0, 0, VK_FORMAT_R32G32_SFLOAT, 0} };
-		std::vector<VkVertexInputAttributeDescription> attributeDescriptions(1);
+		std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
+
+
+		/*
+			Note that we are using an interleaved vertex buffer, of color and position
+		*/
 
 		attributeDescriptions[0].binding = 0;
-		attributeDescriptions[0].location = 0;
-		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT; // Datatype - 2 components each 32bit signed floats
-		attributeDescriptions[0].offset = 0;
+		attributeDescriptions[0].location = 0; // The location from the vertex shader of this attribute (position)
+		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT; // Datatype Format: 2 components each 32bit signed floats
+		attributeDescriptions[0].offset = offsetof(Vertex, position); // Offset:  type, membername. Calculates the byte offset of the position member from the Vertex struct
+
+		attributeDescriptions[1].binding = 0;
+		attributeDescriptions[1].location = 1; // The location from the vertex shader of this attribute (color)
+		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT; // Datatype Format: 2 components each 32bit signed floats
+		attributeDescriptions[1].offset = offsetof(Vertex, color); // Offset:  type, membername. Calculates the byte offset of the color member from the Vertex struct
 
 		return attributeDescriptions;
 
