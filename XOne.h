@@ -38,19 +38,22 @@ namespace aveng {
 		void createPipelineLayout();
 		void createPipeline();
 		void createCommandBuffers();
+		void freeCommandBuffers();
 		void drawFrame();
+		void recreateSwapChain();
+		void recordCommandBuffer(int imageIndex);
 
 		// The window API - Stack allocated
 		AvengWindow aveng_window{ WIDTH, HEIGHT, "Vulkan 0" };
 
 		EngineDevice engineDevice{ aveng_window };
 
-		SwapChain aveng_swapchain{ engineDevice, aveng_window.getExtent() };
-
-
+		// SwapChain aveng_swapchain{ engineDevice, aveng_window.getExtent() };	// previous stack allocated. Ptr makes it easier to rebuild when the window resizes
+		std::unique_ptr<SwapChain> aveng_swapchain;
 
 		// The Graphics API - Pointer Allocated
 		std::unique_ptr<GFXPipeline> gfxPipeline;
+
 		VkPipelineLayout pipelineLayout;
 		std::vector<VkCommandBuffer> commandBuffers;
 		std::unique_ptr<AvengModel> avengModel;

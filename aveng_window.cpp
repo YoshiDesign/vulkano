@@ -25,12 +25,18 @@ namespace aveng {
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 		// Open in windowed mode - Since we're using Vulkan we need to handle window resizing in a different way : See : TODO
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 		// @type GLFWwindow* window;
 		// @4th arg - Using windowed mode
 		// @5th arg - Using OpenGL context
 		window = glfwCreateWindow(width, height, windowName.c_str(), nullptr, nullptr);
+
+		// The parent AvengWindow object is 'this'
+		glfwSetWindowUserPointer(window, this);
+
+		// Whenever our window is resized, this callback is executed with the args in the callback's signature (new width and height)
+		glfwSetFramebufferSizeCallback(window, framebufferResizedCallback);
 	}
 
 	void AvengWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface)
@@ -41,5 +47,13 @@ namespace aveng {
 		}
 	}
 	bool AvengWindow::shouldClose() { return glfwWindowShouldClose(window); }
+
+	void AvengWindow::framebufferResizedCallback(GLFWwindow* window, int width, int height)
+	{
+		auto avengWindow = reinterpret_cast<AvengWindow*>(glfwGetWindowUserPointer(window));
+		avengWindow->framebufferResized = true;
+		avengWindow->width = width;
+		avengWindow->height = height;
+	}
 
 } // NS

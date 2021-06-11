@@ -1,4 +1,6 @@
 #pragma once
+#include <iostream>
+#define LOG(a) std::cout<<a<<std::endl;
 
 #include "XOne.h"
 #include <stdexcept>
@@ -10,7 +12,7 @@ namespace aveng {
 	{
 		loadModels();
 		createPipelineLayout();
-		createPipeline();
+		recreateSwapChain();
 		createCommandBuffers();
 	}
 
@@ -95,8 +97,12 @@ namespace aveng {
 	void XOne::createPipeline()
 	{
 		// Initialize the pipeline configuration
-		auto pipelineConfig = GFXPipeline::defaultPipelineConfig(aveng_swapchain.width(), aveng_swapchain.height());
-		pipelineConfig.renderPass = aveng_swapchain.getRenderPass();
+		assert(lveSwapChain != nullptr && "Cannot create pipeline before swap chain");
+		assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
+
+		PipelineConfig pipelineConfig{};
+		GFXPipeline::defaultPipelineConfig(pipelineConfig);
+		pipelineConfig.renderPass = aveng_swapchain->getRenderPass();
 		pipelineConfig.pipelineLayout = pipelineLayout;
 		gfxPipeline = std::make_unique<GFXPipeline>(
 			engineDevice,
@@ -106,11 +112,63 @@ namespace aveng {
 		);
 	}
 
+
+	void XOne::recreateSwapChain()
+	{
+		// Gety current window size
+		auto extent = aveng_window.getExtent();
+
+		// If the program has at least 1 dimension of 0 size (it's minimized); wait
+		while (extent.width == 0 || extent.height == 0)
+		{
+			extent = aveng_window.getExtent();
+			glfwWaitEvents(); 
+		}
+
+		// Wait until the current swap chain isn't being used before we attempt to construct the next one.
+		vkDeviceWaitIdle(engineDevice.device());
+
+		aveng_swapchain = nullptr;
+
+		if (aveng_swapchain == nullptr) {
+			// Create the new swapchain object
+			aveng_swapchain = std::make_unique<SwapChain>(engineDevice, extent);
+			
+		}
+		else {
+			// 
+			aveng_swapchain = std::make_unique<SwapChain>(engineDevice, extent, std::move(aveng_swapchain));
+			if (aveng_swapchain->imageCount() != commandBuffers.size())
+			{
+				freeCommandBuffers();
+				createCommandBuffers();
+			}
+		}
+
+		// The pipeline needs to be recreated || TODO - but not if the render pass is already compatible
+		createPipeline();
+
+	}
+
+
+	void XOne::freeCommandBuffers()
+	{
+		vkFreeCommandBuffers(
+			engineDevice.device(), 
+			engineDevice.getCommandPool(), 
+			static_cast<uint32_t>(commandBuffers.size()), 
+			commandBuffers.data()
+		);
+
+		commandBuffers.clear();
+	}
+
+
 	/*
 	*/
 	void XOne::createCommandBuffers() {
 	
-		commandBuffers.resize(aveng_swapchain.imageCount());
+		commandBuffers.resize(aveng_swapchain->imageCount());
 
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -124,75 +182,112 @@ namespace aveng {
 			throw std::runtime_error("Failed to allocate command buffers.");
 		}
 
-		for (int i = 0; i < commandBuffers.size(); i++)
+	}
+	void XOne::recordCommandBuffer(int imageIndex)
+	{
+	
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+		if (vkBeginCommandBuffer(commandBuffers[imageIndex], &beginInfo) != VK_SUCCESS)
 		{
-		
-			VkCommandBufferBeginInfo beginInfo{};
-			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			std::runtime_error("Command Buffer failed to begin recording.");
+		}
+		/*
+			Record Commands
+		*/
 
-			if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
-			{
-				std::runtime_error("Command Buffer failed to begin recording.");
-			}
-			/*
-				Record Commands
-			*/
+		// 1. Begin a render pass
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = aveng_swapchain->getRenderPass();
+		renderPassInfo.framebuffer = aveng_swapchain->getFrameBuffer(imageIndex);
 
-			// 1. Begin a render pass
-			VkRenderPassBeginInfo renderPassInfo{};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = aveng_swapchain.getRenderPass();
-			renderPassInfo.framebuffer = aveng_swapchain.getFrameBuffer(i);
-			
-			// The area where shader loading and storing takes place.
-			renderPassInfo.renderArea.offset = { 0,0 };
-			renderPassInfo.renderArea.extent = aveng_swapchain.getSwapChainExtent();
-		
-			std::array<VkClearValue, 2> clearValues{};
-			clearValues[0].color = { 0.1f, 0.1f, 0.1f, 1.0f };
-			clearValues[1].depthStencil = { 1.0f, 0 };
-			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-			renderPassInfo.pClearValues = clearValues.data();
+		// The area where shader loading and storing takes place.
+		renderPassInfo.renderArea.offset = { 0,0 };
+		renderPassInfo.renderArea.extent = aveng_swapchain->getSwapChainExtent();
 
-			// 2. Submit to command buffers to begin the render pass
+		std::array<VkClearValue, 2> clearValues{};
+		clearValues[0].color = { 0.1f, 0.1f, 0.1f, 1.0f };
+		clearValues[1].depthStencil = { 1.0f, 0 };
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassInfo.pClearValues = clearValues.data();
 
-			// VK_SUBPASS_CONTENTS_INLINE signals that subsequent renderpass commands come directly from the primary command buffer.
-			// No secondary buffers are currently being utilized.
-			// For this reason we cannot Mix both Inline command buffers AND secondary command buffers in our render pass execution.
-			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-			gfxPipeline->bind(commandBuffers[i]);
-			// Records a draw command. 3 vertices in 1 instance. Instances can be used when you want to draw multiple copies of the same vertex data
-			// e.g. particle systems
-			// vkCmdDraw(commandBuffers[i], 3, 1, 0, 0); // Updated with line below -- There are no data offsets here, we hardcoded vertices here.
-			avengModel->bind(commandBuffers[i]);
-			avengModel->draw(commandBuffers[i]);
-			vkCmdEndRenderPass(commandBuffers[i]);
-			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
-			{
-				throw std::runtime_error("Failed to record command buffer.");
-			}
+		// 2. Submit to command buffers to begin the render pass
+
+		// VK_SUBPASS_CONTENTS_INLINE signals that subsequent renderpass commands come directly from the primary command buffer.
+		// No secondary buffers are currently being utilized.
+		// For this reason we cannot Mix both Inline command buffers AND secondary command buffers in our render pass execution.
+		vkCmdBeginRenderPass(commandBuffers[imageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		// Configure the viewport and scissor
+		VkViewport viewport{};
+		viewport.x = 0.0f;
+		viewport.y = 0.0f;
+		viewport.width = static_cast<float>(aveng_swapchain->getSwapChainExtent().width);
+		viewport.height = static_cast<float>(aveng_swapchain->getSwapChainExtent().height);
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+		VkRect2D scissor{ {0, 0}, aveng_swapchain->getSwapChainExtent() };
+		vkCmdSetViewport(commandBuffers[imageIndex], 0, 1, &viewport);
+		vkCmdSetScissor(commandBuffers[imageIndex], 0, 1, &scissor);
+
+		gfxPipeline->bind(commandBuffers[imageIndex]);
+		// Records a draw command. 3 vertices in 1 instance. Instances can be used when you want to draw multiple copies of the same vertex data
+		// e.g. particle systems
+		// vkCmdDraw(commandBuffers[imageIndex], 3, 1, 0, 0); // Updated with line below -- There are no data offsets here, we hardcoded vertices here.
+		avengModel->bind(commandBuffers[imageIndex]);
+		avengModel->draw(commandBuffers[imageIndex]);
+		vkCmdEndRenderPass(commandBuffers[imageIndex]);
+		if (vkEndCommandBuffer(commandBuffers[imageIndex]) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to record command buffer.");
 		}
 	}
 
 	/*
+	* In this function we'll not only draw the frame but we'll decide if
+	* the swapchain needs to be recreated prior to doing so
 	*/
 	void XOne:: drawFrame() {
+
 		uint32_t imageIndex;
-		auto result = aveng_swapchain.acquireNextImage(&imageIndex);
+
+		auto result = aveng_swapchain->acquireNextImage(&imageIndex);
+
+		// This error will occur after window resize
+		if (result == VK_ERROR_OUT_OF_DATE_KHR)
+		{
+			recreateSwapChain();
+			return;
+		}
 		// This could potentially occur during window resize events
 		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
 		{
 			throw std::runtime_error("Failed to acquire swap chain image.");
 		}
 
-		// Submit to graphics queue while handlind cpu and gpu sync
-		result = aveng_swapchain.submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
-		// The command buffer will now be executed
+		recordCommandBuffer(imageIndex);
 
+		// Submit to graphics queue while handlind cpu and gpu sync, executing the command buffers
+		result = aveng_swapchain->submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
+
+		LOG("- 1 -");
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || aveng_window.wasWindowResized())
+		{
+			LOG("- 2 -");
+			aveng_window.resetWindowResizedFlag();
+			recreateSwapChain();
+			return;
+		}
 		if (result != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to present swap chain image.");
 		}
+
+		// The command buffer will now be executed
+
 	}
 
 
