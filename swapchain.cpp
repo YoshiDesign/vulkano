@@ -66,12 +66,14 @@ namespace aveng {
     }
 
     VkResult SwapChain::acquireNextImage(uint32_t* imageIndex) {
+
         vkWaitForFences(
             device.device(),
             1,
             &inFlightFences[currentFrame],
             VK_TRUE,
-            std::numeric_limits<uint64_t>::max());
+            std::numeric_limits<uint64_t>::max()
+        );
 
         VkResult result = vkAcquireNextImageKHR(
             device.device(),
@@ -79,7 +81,8 @@ namespace aveng {
             std::numeric_limits<uint64_t>::max(),
             imageAvailableSemaphores[currentFrame],  // must be a not signaled semaphore
             VK_NULL_HANDLE,
-            imageIndex);
+            imageIndex
+        );
 
         return result;
     }
