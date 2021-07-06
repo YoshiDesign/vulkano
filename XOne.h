@@ -2,11 +2,11 @@
 
 #include <memory>
 #include <vector>
+#include "app_objects/app_object.h"
 #include "aveng_window.h"
 #include "GFXPipeline.h"
 #include "EngineDevice.h"
 #include "swapchain.h"
-#include "aveng_model.h"
 #include "cool.h"
 
 namespace aveng {
@@ -36,7 +36,7 @@ namespace aveng {
 		);
 
 	private:
-		void loadModels();
+		void loadAppObjects();
 		void createPipelineLayout();
 		void createPipeline();
 		void createCommandBuffers();
@@ -44,6 +44,7 @@ namespace aveng {
 		void drawFrame();
 		void recreateSwapChain();
 		void recordCommandBuffer(int imageIndex);
+		void renderAppObjects(VkCommandBuffer commandBuffer);
 
 		// The window API - Stack allocated
 		AvengWindow aveng_window{ WIDTH, HEIGHT, "Vulkan 0" };
@@ -58,7 +59,8 @@ namespace aveng {
 
 		VkPipelineLayout pipelineLayout;
 		std::vector<VkCommandBuffer> commandBuffers;
-		std::unique_ptr<AvengModel> avengModel;
+		std::vector<AvengAppObject> appObjects;
+
 
 	};
 

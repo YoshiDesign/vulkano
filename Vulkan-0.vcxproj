@@ -156,6 +156,7 @@
     <ClCompile Include="XOne.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="app_objects\app_object.h" />
     <ClInclude Include="aveng_model.h" />
     <ClInclude Include="cool.h" />
     <ClInclude Include="EngineDevice.h" />

@@ -5,14 +5,16 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
-
-#include "XOne.h"
+#include <glm/gtc/constants.hpp>
 #include <stdexcept>
 #include <array>
+
+#include "XOne.h"
 
 namespace aveng {
 
 	struct SimplePushConstantData {
+		glm::mat2 transform{1.f};	// a glm::mat2 constructed in this fashion constructs an identity matrix by default
 		glm::vec2 offset;
 		alignas(16) glm::vec3 color;
 	};
@@ -20,7 +22,7 @@ namespace aveng {
 
 	XOne::XOne() 
 	{
-		loadModels();
+		loadAppObjects();
 		createPipelineLayout();
 		recreateSwapChain();
 		createCommandBuffers();
@@ -95,7 +97,7 @@ namespace aveng {
 
 	/*
 	*/
-	void XOne::loadModels()
+	void XOne::loadAppObjects() 
 	{
 		std::vector<AvengModel::Vertex> vertices { // vector
 			{ {0.0f, -0.5f }, {1.0f, 0.0f, 0.0f} }, // Model Vertex
@@ -103,7 +105,18 @@ namespace aveng {
 			{ {-0.5f, 0.5f }, {0.0f, 0.0f, 1.0f} }
 		};
 
-		avengModel = std::make_unique<AvengModel>(engineDevice, vertices);
+		// By using a shared ptr here we are making sure that 1 model instance can be used by multiple AppObjects
+		// It will stay in memory so long as 1 object is still using it
+		auto avengModel = std::make_shared<AvengModel>(engineDevice, vertices);
+
+		auto triangle = AvengAppObject::createAppObject();
+		triangle.model = avengModel;
+		triangle.color = {.1f, .8f, .1f};
+		triangle.transform2d.translation.x = .2f;
+		triangle.transform2d.scale = { .5f, 2.f };
+		triangle.transform2d.rotation = .25f * glm::two_pi<float>();
+
+		appObjects.push_back(std::move(triangle));
 
 	}
 
@@ -200,10 +213,6 @@ namespace aveng {
 	}
 	void XOne::recordCommandBuffer(int imageIndex)
 	{
-
-		static int frame = 0;
-		frame = (frame + 1) % 1000;
-
 	
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -251,34 +260,38 @@ namespace aveng {
 		vkCmdSetViewport(commandBuffers[imageIndex], 0, 1, &viewport);
 		vkCmdSetScissor(commandBuffers[imageIndex], 0, 1, &scissor);
 
-		gfxPipeline->bind(commandBuffers[imageIndex]);
-		// Records a draw command. 3 vertices in 1 instance. Instances can be used when you want to draw multiple copies of the same vertex data
-		// e.g. particle systems
-		// vkCmdDraw(commandBuffers[imageIndex], 3, 1, 0, 0); // Updated with line below -- There are no data offsets here, we hardcoded vertices here.
-		avengModel->bind(commandBuffers[imageIndex]);
-
-		for (int j = 0; j < 4; j++)
-		{
-			SimplePushConstantData push{};
-			push.offset = { -0.5f + frame * 0.002f, -0.4f + j * 0.25f };
-			push.color = { 0.0f, 0.0f, 0.2f + 0.2f * j };
-
-			vkCmdPushConstants(
-				commandBuffers[imageIndex], 
-				pipelineLayout, 
-				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 
-				0, 
-				sizeof(SimplePushConstantData), 
-				&push
-			);
-
-			avengModel->draw(commandBuffers[imageIndex]);
-		}
+		renderAppObjects(commandBuffers[imageIndex]);
 
 		vkCmdEndRenderPass(commandBuffers[imageIndex]);
 		if (vkEndCommandBuffer(commandBuffers[imageIndex]) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to record command buffer.");
+		}
+	}
+
+	void XOne::renderAppObjects(VkCommandBuffer commandBuffer)
+	{
+		gfxPipeline->bind(commandBuffer);
+
+		for (auto& obj : appObjects) {
+			// Rotation
+			obj.transform2d.rotation = glm::mod(obj.transform2d.rotation + 0.01f, glm::two_pi<float>());
+
+			SimplePushConstantData push{};
+			push.offset = obj.transform2d.translation;
+			push.color = obj.color;
+			push.transform = obj.transform2d.mat2();
+
+			vkCmdPushConstants(
+				commandBuffer,
+				pipelineLayout,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				0,
+				sizeof(SimplePushConstantData),
+				&push
+			);
+			obj.model->bind(commandBuffer);
+			obj.model->draw(commandBuffer);
 		}
 	}
 
@@ -309,11 +322,8 @@ namespace aveng {
 		// Submit to graphics queue while handlind cpu and gpu sync, executing the command buffers
 		result = aveng_swapchain->submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
 
-		LOG("- 1 -");
-
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || aveng_window.wasWindowResized())
 		{
-			LOG("- 2 -");
 			aveng_window.resetWindowResizedFlag();
 			recreateSwapChain();
 			return;
