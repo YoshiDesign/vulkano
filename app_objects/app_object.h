@@ -14,7 +14,7 @@ namespace aveng {
 		glm::mat2 mat2() {
 			const float s = glm::sin(rotation);
 			const float c = glm::cos(rotation);
-			glm::mat2 rotMatrix{ {c, s}, {-s, c} };
+			glm::mat2 rotMatrix{ {c, s}, {s, c} };
 
 			glm::mat2 scaleMat{ {scale.x, .0f}, {.0f, scale.y} }; // These args are i-hat and j-hat
 			return rotMatrix * scaleMat;

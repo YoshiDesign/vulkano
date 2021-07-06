@@ -104,19 +104,37 @@ namespace aveng {
 			{ {0.5f,  0.5f }, {0.0f, 1.0f, 0.0f} },
 			{ {-0.5f, 0.5f }, {0.0f, 0.0f, 1.0f} }
 		};
-
-		// By using a shared ptr here we are making sure that 1 model instance can be used by multiple AppObjects
-		// It will stay in memory so long as 1 object is still using it
 		auto avengModel = std::make_shared<AvengModel>(engineDevice, vertices);
 
-		auto triangle = AvengAppObject::createAppObject();
-		triangle.model = avengModel;
-		triangle.color = {.1f, .8f, .1f};
-		triangle.transform2d.translation.x = .2f;
-		triangle.transform2d.scale = { .5f, 2.f };
-		triangle.transform2d.rotation = .25f * glm::two_pi<float>();
+		std::vector<glm::vec3> colors{
+			{1.f, .9f, .9f},
+			{1.f, .2f, .53f},
+			{.8f, 1.f, .43f},
+			{.2f, 1.f, .8f},
+			{.3f, .88f, 1.f}
+		};
 
-		appObjects.push_back(std::move(triangle));
+		for (auto& color : colors) {
+			color = glm::pow(color, glm::vec3{ 2.2f });
+		}
+
+		for (uint8_t i = 1; i < 100; i++) {
+
+			// By using a shared ptr here we are making sure that 1 model instance can be used by multiple AppObjects
+			// It will stay in memory so long as 1 object is still using it
+			
+
+			auto triangle = AvengAppObject::createAppObject();
+			triangle.model = avengModel;
+			triangle.color = {i % 255, i % 255, i % 255};
+			//triangle.transform2d.translation.x = .2f;
+			//triangle.transform2d.scale = { .5f, 2.f };
+			triangle.transform2d.rotation = i * glm::two_pi<float>() * .025f;
+			triangle.color = colors[i % colors.size()];
+			appObjects.push_back(std::move(triangle));
+
+		}
+
 
 	}
 
