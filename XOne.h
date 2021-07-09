@@ -4,10 +4,8 @@
 #include <vector>
 #include "app_objects/app_object.h"
 #include "aveng_window.h"
-#include "GFXPipeline.h"
 #include "EngineDevice.h"
-#include "swapchain.h"
-#include "cool.h"
+#include "Renderer/Renderer.h"
 
 namespace aveng {
 
@@ -27,40 +25,15 @@ namespace aveng {
 		
 		void run();
 
-		void sierpinski(
-			std::vector<AvengModel::Vertex>& vertices,
-			int depth,
-			glm::vec2 left,
-			glm::vec2 right,
-			glm::vec2 top
-		);
-
 	private:
 		void loadAppObjects();
-		void createPipelineLayout();
-		void createPipeline();
-		void createCommandBuffers();
-		void freeCommandBuffers();
-		void drawFrame();
-		void recreateSwapChain();
-		void recordCommandBuffer(int imageIndex);
-		void renderAppObjects(VkCommandBuffer commandBuffer);
 
 		// The window API - Stack allocated
 		AvengWindow aveng_window{ WIDTH, HEIGHT, "Vulkan 0" };
 
 		EngineDevice engineDevice{ aveng_window };
-
-		// SwapChain aveng_swapchain{ engineDevice, aveng_window.getExtent() };	// previous stack allocated. Ptr makes it easier to rebuild when the window resizes
-		std::unique_ptr<SwapChain> aveng_swapchain;
-
-		// The Graphics API - Pointer Allocated
-		std::unique_ptr<GFXPipeline> gfxPipeline;
-
-		VkPipelineLayout pipelineLayout;
-		std::vector<VkCommandBuffer> commandBuffers;
+		Renderer renderer{ aveng_window, engineDevice };
 		std::vector<AvengAppObject> appObjects;
-
 
 	};
 

@@ -73,13 +73,13 @@ namespace aveng {
 
 		// Struct to ddescribe how we interperet our vertex buffer data as initial input into our pipeline
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+		vertexInputInfo.sType							= VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());	// Updated
 		vertexInputInfo.vertexBindingDescriptionCount	= static_cast<uint32_t>(bindingDescriptions.size());		// Updated
 		vertexInputInfo.pVertexAttributeDescriptions	= attributeDescriptions.data();
 		vertexInputInfo.pVertexBindingDescriptions		= bindingDescriptions.data();
-		vertexInputInfo.flags = 0;			// I added this
-		vertexInputInfo.pNext = nullptr;	// I added this
+		vertexInputInfo.flags							= 0;		// I added this
+		vertexInputInfo.pNext							= nullptr;	// I added this
 
 		// Combine our viewport and our scissor. On some GFX Cards you can have multiple viewports/scissors
 		//VkPipelineViewportStateCreateInfo viewportInfo{};
@@ -93,21 +93,21 @@ namespace aveng {
 
 		// Collect all of the necessary configurations and 
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
-		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipelineInfo.stageCount = 2;
-		pipelineInfo.pStages = shaderStages;
-		pipelineInfo.pVertexInputState = &vertexInputInfo;
-		pipelineInfo.flags = 0;			// I added this
-		pipelineInfo.pNext = nullptr;	// I added this
+		pipelineInfo.sType				= VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		pipelineInfo.stageCount			= 2;
+		pipelineInfo.pStages			= shaderStages;
+		pipelineInfo.pVertexInputState	= &vertexInputInfo;
+		pipelineInfo.flags				= 0;			// I added this
+		pipelineInfo.pNext				= nullptr;	// I added this
 		
 		// Apply the pipeline creation information to the config information we already setup
-		pipelineInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;
-		pipelineInfo.pViewportState = &configInfo.viewportInfo;
-		pipelineInfo.pMultisampleState = &configInfo.multisampleInfo;
-		pipelineInfo.pRasterizationState = &configInfo.rasterizationInfo;
-		pipelineInfo.pColorBlendState = &configInfo.colorBlendInfo;
-		pipelineInfo.pDepthStencilState = &configInfo.depthStencilInfo;
-		pipelineInfo.pDynamicState = &configInfo.dynamicStateInfo;
+		pipelineInfo.pInputAssemblyState	= &configInfo.inputAssemblyInfo;
+		pipelineInfo.pViewportState			= &configInfo.viewportInfo;
+		pipelineInfo.pMultisampleState		= &configInfo.multisampleInfo;
+		pipelineInfo.pRasterizationState	= &configInfo.rasterizationInfo;
+		pipelineInfo.pColorBlendState		= &configInfo.colorBlendInfo;
+		pipelineInfo.pDepthStencilState		= &configInfo.depthStencilInfo;
+		pipelineInfo.pDynamicState			= &configInfo.dynamicStateInfo;
 
 		pipelineInfo.layout = configInfo.pipelineLayout;
 		pipelineInfo.renderPass = configInfo.renderPass;
@@ -193,32 +193,32 @@ namespace aveng {
 		configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;					// True would mean we're using a strip topology (optimized for connecting triangles by shared vertices)
 
 		configInfo.viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-		configInfo.viewportInfo.viewportCount = 1;
-		configInfo.viewportInfo.pViewports = nullptr;
-		configInfo.viewportInfo.scissorCount = 1;
-		configInfo.viewportInfo.pScissors = nullptr;
+		configInfo.viewportInfo.viewportCount	= 1;
+		configInfo.viewportInfo.pViewports		= nullptr;
+		configInfo.viewportInfo.scissorCount	= 1;
+		configInfo.viewportInfo.pScissors		= nullptr;
 
 		// Rasterization phase
 		configInfo.rasterizationInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-		configInfo.rasterizationInfo.depthClampEnable = VK_FALSE;
-		configInfo.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;	// Cuts off the rest of the pipeline
-		configInfo.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;	// Draw corners only? edges only? fill it in?
-		configInfo.rasterizationInfo.lineWidth = 1.0f;
-		configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;			// Culling options
-		configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
-		configInfo.rasterizationInfo.depthBiasEnable = VK_FALSE;
-		configInfo.rasterizationInfo.depthBiasConstantFactor = 0.0f;  // Optional
-		configInfo.rasterizationInfo.depthBiasClamp = 0.0f;           // Optional
-		configInfo.rasterizationInfo.depthBiasSlopeFactor = 0.0f;     // Optional
+		configInfo.rasterizationInfo.depthClampEnable			= VK_FALSE;
+		configInfo.rasterizationInfo.rasterizerDiscardEnable	= VK_FALSE;	// Cuts off the rest of the pipeline
+		configInfo.rasterizationInfo.polygonMode				= VK_POLYGON_MODE_FILL;	// Draw corners only? edges only? fill it in?
+		configInfo.rasterizationInfo.lineWidth					= 1.0f;
+		configInfo.rasterizationInfo.cullMode					= VK_CULL_MODE_NONE;			// Culling options
+		configInfo.rasterizationInfo.frontFace					= VK_FRONT_FACE_CLOCKWISE;
+		configInfo.rasterizationInfo.depthBiasEnable			= VK_FALSE;
+		configInfo.rasterizationInfo.depthBiasConstantFactor	= 0.0f;  // Optional
+		configInfo.rasterizationInfo.depthBiasClamp				= 0.0f;           // Optional
+		configInfo.rasterizationInfo.depthBiasSlopeFactor		= 0.0f;     // Optional
 
 		// Management of MSAA (Multisample Anti-Aliasing)
-		configInfo.multisampleInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-		configInfo.multisampleInfo.sampleShadingEnable = VK_FALSE;
-		configInfo.multisampleInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-		configInfo.multisampleInfo.minSampleShading = 1.0f;           // Optional
-		configInfo.multisampleInfo.pSampleMask = nullptr;             // Optional
-		configInfo.multisampleInfo.alphaToCoverageEnable = VK_FALSE;  // Optional
-		configInfo.multisampleInfo.alphaToOneEnable = VK_FALSE;       // Optional
+		configInfo.multisampleInfo.sType					= VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+		configInfo.multisampleInfo.sampleShadingEnable		= VK_FALSE;
+		configInfo.multisampleInfo.rasterizationSamples		= VK_SAMPLE_COUNT_1_BIT;
+		configInfo.multisampleInfo.minSampleShading			= 1.0f;           // Optional
+		configInfo.multisampleInfo.pSampleMask				= nullptr;             // Optional
+		configInfo.multisampleInfo.alphaToCoverageEnable	= VK_FALSE;  // Optional
+		configInfo.multisampleInfo.alphaToOneEnable			= VK_FALSE;       // Optional
 
 		// Color blending
 		configInfo.colorBlendAttachment.colorWriteMask =

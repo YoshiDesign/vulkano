@@ -14,7 +14,7 @@ namespace aveng {
 		glm::mat2 mat2() {
 			const float s = glm::sin(rotation);
 			const float c = glm::cos(rotation);
-			glm::mat2 rotMatrix{ {c, s}, {s, c} };
+			glm::mat2 rotMatrix{ {c, s}, {-s, c} };
 
 			glm::mat2 scaleMat{ {scale.x, .0f}, {.0f, scale.y} }; // These args are i-hat and j-hat
 			return rotMatrix * scaleMat;
@@ -22,6 +22,13 @@ namespace aveng {
 	};
 
 	class AvengAppObject {
+
+
+		// For Gravity App
+		struct RigidBody2dComponent {
+			glm::vec2 velocity;
+			float mass{1.0f};
+		};
 
 	public:
 		using id_t = unsigned int;
@@ -41,7 +48,7 @@ namespace aveng {
 		std::shared_ptr<AvengModel> model{};
 		glm::vec3 color{};
 		Transform2dComponent transform2d;
-
+		RigidBody2dComponent rigidBody2d;
 
 	private:
 

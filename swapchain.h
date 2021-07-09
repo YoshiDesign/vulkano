@@ -41,6 +41,14 @@ namespace aveng {
         VkResult acquireNextImage(uint32_t* imageIndex);
         VkResult submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex);
 
+
+        bool compareSwapFormats(const SwapChain& swapChain) const 
+        {
+            // If these 2 formats are the same throughout, the swapchain must be compatible with the renderpass
+            return swapChain.swapChainDepthFormat == swapChainDepthFormat && 
+                   swapChain.swapChainImageFormat == swapChainImageFormat;
+        }
+
     private:
         void init();
         void createSwapChain();
@@ -58,6 +66,7 @@ namespace aveng {
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
         VkFormat swapChainImageFormat;
+        VkFormat swapChainDepthFormat;
         VkExtent2D swapChainExtent;
 
         std::vector<VkFramebuffer> swapChainFramebuffers;
