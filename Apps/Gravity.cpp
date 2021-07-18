@@ -12,12 +12,6 @@
  
 namespace aveng {
 
-    // Note: also would need to add RigidBody2dComponent to game object
-    // struct RigidBody2dComponent {
-    //   glm::vec2 velocity;
-    //   float mass{1.0f};
-    // };
-
     class GravityPhysicsSystem {
     public:
         GravityPhysicsSystem(float strength) : strengthGravity{ strength } {}
@@ -138,14 +132,14 @@ namespace aveng {
         // create physics objects
         std::vector<AvengAppObject> physicsObjects{};
         auto red = AvengAppObject::createAppObject();
-        red.transform2d.scale = glm::vec2{ .05f };
+        red.transform2d.scale = glm::vec2{ .02f };
         red.transform2d.translation = { .5f, .5f };
         red.color = { 1.f, 0.f, 0.f };
         red.rigidBody2d.velocity = { -.5f, .0f };
         red.model = circleModel;
         physicsObjects.push_back(std::move(red));
         auto blue = AvengAppObject::createAppObject();
-        blue.transform2d.scale = glm::vec2{ .05f };
+        blue.transform2d.scale = glm::vec2{ .02f };
         blue.transform2d.translation = { -.45f, -.25f };
         blue.color = { 0.f, 0.f, 1.f };
         blue.rigidBody2d.velocity = { .5f, .0f };
@@ -178,7 +172,7 @@ namespace aveng {
 
             if (auto commandBuffer = renderer.beginFrame()) {
                 // update systems
-                gravitySystem.update(physicsObjects, 1.f / 60, 5);
+                gravitySystem.update(physicsObjects, 1.f / 60, 15);
                 vecFieldSystem.update(gravitySystem, physicsObjects, vectorField);
 
                 // render system

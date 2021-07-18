@@ -135,7 +135,7 @@ namespace aveng {
 	std::vector<char> GFXPipeline::readFile(const std::string& filepath)
 	{ 
 		// Seek to end of `filepath` by moving cursor via bit-flag std::ios::ate (similar to calling fseek), and read in binary
-		// We're seeking the end immediately to get the size.
+		// We're seeking the end immediately to conveniently get the size.
 		// Reading as binary avoids any unwanted text transformation.
 		std::ifstream file{ filepath, std::ios::ate | std::ios::binary };
 

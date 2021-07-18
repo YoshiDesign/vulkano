@@ -16,7 +16,6 @@ namespace aveng {
 		static constexpr int HEIGHT = 600;
 
 		Gravity();
-
 		~Gravity();
 
 		Gravity(const Gravity&) = delete;

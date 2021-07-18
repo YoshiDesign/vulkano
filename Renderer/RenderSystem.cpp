@@ -34,6 +34,7 @@ namespace aveng {
 	void RenderSystem::createPipelineLayout()
 	{
 		VkPushConstantRange pushConstantRange{};
+		// Signal that we want access to push constant data from vertex and fragment shaders
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantRange.offset = 0;
 		pushConstantRange.size = sizeof(SimplePushConstantData);

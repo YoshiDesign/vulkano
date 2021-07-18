@@ -67,10 +67,6 @@ namespace aveng {
 
 		for (int i = 1; i < 1000; i++) {
 
-			// By using a shared ptr here we are making sure that 1 model instance can be used by multiple AppObjects
-			// It will stay in memory so long as 1 object is still using it
-			
-
 			auto triangle = AvengAppObject::createAppObject();
 			triangle.model = avengModel;
 			triangle.transform2d.translation.x = i * .01f - 1;

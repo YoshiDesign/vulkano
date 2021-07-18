@@ -27,7 +27,7 @@ namespace aveng {
 		// For Gravity App
 		struct RigidBody2dComponent {
 			glm::vec2 velocity;
-			float mass{1.0f};
+			float mass{3.0f};
 		};
 
 	public:

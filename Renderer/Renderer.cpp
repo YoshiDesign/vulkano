@@ -94,7 +94,7 @@ namespace aveng {
 	//
 	VkCommandBuffer Renderer::beginFrame() 
 	{
-		assert(@isFrameStarted && "Can't call beginFrame while already in progress.");
+		assert(isFrameStarted && "Can't call beginFrame while already in progress.");
 
 		auto result = aveng_swapchain->acquireNextImage(&currentImageIndex);
 
