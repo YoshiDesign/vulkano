@@ -149,8 +149,10 @@
   <ItemGroup>
     <ClCompile Include="aveng_model.cpp" />
     <ClCompile Include="aveng_window.cpp" />
+    <ClCompile Include="Camera\aveng_camera.cpp" />
     <ClCompile Include="EngineDevice.cpp" />
     <ClCompile Include="GFXPipeline.cpp" />
+    <ClCompile Include="KeyControl\KeyboardController.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\RenderSystem.cpp" />
@@ -160,10 +162,12 @@
   <ItemGroup>
     <ClInclude Include="app_objects\app_object.h" />
     <ClInclude Include="aveng_model.h" />
+    <ClInclude Include="Camera\aveng_camera.h" />
     <ClInclude Include="cool.h" />
     <ClInclude Include="EngineDevice.h" />
     <ClInclude Include="GFXPipeline.h" />
     <ClInclude Include="aveng_window.h" />
+    <ClInclude Include="KeyControl\KeyboardController.h" />
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\RenderSystem.h" />
     <ClInclude Include="swapchain.h" />

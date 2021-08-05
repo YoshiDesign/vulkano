@@ -24,7 +24,7 @@ namespace aveng {
 
 		// Our app needs to be able to access the swap chain render pass in order to configure any pipelines it creates
 		VkRenderPass getSwapChainRenderPass() const { return aveng_swapchain->getRenderPass(); }
-
+		float getAspectRatio() const { return aveng_swapchain->extentAspectRatio(); }
 		bool isFrameInProgress() const { return isFrameStarted; }
 
 		VkCommandBuffer getCurrentCommandBuffer() const {

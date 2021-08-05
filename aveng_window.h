@@ -33,6 +33,8 @@ namespace aveng {
 
 		void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
 
+		GLFWwindow* getGLFWwindow() const { return window; }
+
 	private:
 		static void framebufferResizedCallback(GLFWwindow* window, int width, int height);
 		void initWindow();

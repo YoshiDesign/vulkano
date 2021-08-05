@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "../Camera/aveng_camera.h"
 #include "../app_objects/app_object.h"
 #include "../GFXPipeline.h"
 #include "../EngineDevice.h"
@@ -24,7 +25,7 @@ namespace aveng {
 
 		RenderSystem(const RenderSystem&) = delete;
 		RenderSystem& operator=(const RenderSystem&) = delete;
-		void renderAppObjects(VkCommandBuffer commandBuffer, std::vector<AvengAppObject> &appObjects);
+		void renderAppObjects(VkCommandBuffer commandBuffer, std::vector<AvengAppObject> &appObjects, const AvengCamera& camera);
 
 
 

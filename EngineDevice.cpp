@@ -441,7 +441,7 @@ namespace aveng {
         uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
-        // Extract available queue families from our GPU driver(right?) as a vector of struct VkQueueFamilyProperties
+        // Extract available queue families from our GPU driver as a vector of struct VkQueueFamilyProperties
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 

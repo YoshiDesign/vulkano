@@ -72,17 +72,18 @@ namespace aveng {
 	}
 
 
-	void RenderSystem::renderAppObjects(VkCommandBuffer commandBuffer, std::vector<AvengAppObject>& appObjects)
+	void RenderSystem::renderAppObjects(VkCommandBuffer commandBuffer, std::vector<AvengAppObject>& appObjects, const AvengCamera& camera)
 	{
 		gfxPipeline->bind(commandBuffer);
 
+		// Every rendered object will use the same projection and view matrix
+		auto projectionView = camera.getProjection() * camera.getView();
+
 		for (auto& obj : appObjects) {
-			// Rotation
-			obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.01f, glm::two_pi<float>());
 
 			SimplePushConstantData push{};
 			push.color = obj.color;
-			push.transform = obj.transform.mat4();
+			push.transform = projectionView * obj.transform.mat4();
 
 			vkCmdPushConstants(
 				commandBuffer,
@@ -91,7 +92,7 @@ namespace aveng {
 				0,
 				sizeof(SimplePushConstantData),
 				&push
-			);
+			); 
 			obj.model->bind(commandBuffer);
 			obj.model->draw(commandBuffer);
 		}
