@@ -42,45 +42,81 @@ namespace aveng {
 		vkDeviceWaitIdle(engineDevice.device());
 	}
 
+	// temporary helper function, creates a 1x1x1 cube centered at offset
+	std::unique_ptr<AvengModel> createCubeModel(EngineDevice& device, glm::vec3 offset) {
+		std::vector<AvengModel::Vertex> vertices{
+
+			// left face (white)
+			{{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
+			{{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
+			{{-.5f, -.5f, .5f}, {.9f, .9f, .9f}},
+			{{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
+			{{-.5f, .5f, -.5f}, {.9f, .9f, .9f}},
+			{{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
+
+			// right face (yellow)
+			{{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
+			{{.5f, .5f, .5f}, {.8f, .8f, .1f}},
+			{{.5f, -.5f, .5f}, {.8f, .8f, .1f}},
+			{{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
+			{{.5f, .5f, -.5f}, {.8f, .8f, .1f}},
+			{{.5f, .5f, .5f}, {.8f, .8f, .1f}},
+
+			// top face (orange, remember y axis points down)
+			{{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+			{{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+			{{-.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+			{{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+			{{.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+			{{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+
+			// bottom face (red)
+			{{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+			{{.5f, .5f, .5f}, {.8f, .1f, .1f}},
+			{{-.5f, .5f, .5f}, {.8f, .1f, .1f}},
+			{{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+			{{.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+			{{.5f, .5f, .5f}, {.8f, .1f, .1f}},
+
+			// nose face (blue)
+			{{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+			{{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+			{{-.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+			{{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+			{{.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+			{{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+
+			// tail face (green)
+			{{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+			{{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+			{{-.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+			{{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+			{{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+			{{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+
+		};
+		for (auto& v : vertices) {
+			v.position += offset;
+		}
+		return std::make_unique<AvengModel>(device, vertices);
+	}
+
 	/*
 	*/
 	void XOne::loadAppObjects() 
 	{
-		std::vector<AvengModel::Vertex> vertices { // vector
-			{ {0.0f, -0.5f }, {1.0f, 0.0f, 0.0f} }, // Model Vertex
-			{ {0.5f,  0.5f }, {0.0f, 1.0f, 0.0f} },
-			{ {-0.5f, 0.5f }, {0.0f, 0.0f, 1.0f} }
-		};
-		auto avengModel = std::make_shared<AvengModel>(engineDevice, vertices);
+		
+		std::shared_ptr<AvengModel> avengModel = createCubeModel(engineDevice, { .0f, .0f, .0f });
 
-		std::vector<glm::vec3> colors{
-			{1.f, .9f, .9f},
-			{1.f, .2f, .53f},
-			{.8f, 1.f, .43f},
-			{.2f, 1.f, .8f},
-			{.3f, .88f, 1.f}
-		};
+		auto cube = AvengAppObject::createAppObject();
 
-		for (auto& color : colors) {
-			color = glm::pow(color, glm::vec3{ 2.2f });
-		}
+		// This cube gets shrunk to half its size and centered in the view
+		cube.model = avengModel;
+		cube.transform.translation = { .0f, .0f, .5f };
+		cube.transform.scale = { .5f, .5f, .5f };
 
-		for (int i = 1; i < 1000; i++) {
-
-			// By using a shared ptr here we are making sure that 1 model instance can be used by multiple AppObjects
-			// It will stay in memory so long as 1 object is still using it
-			
-
-			auto triangle = AvengAppObject::createAppObject();
-			triangle.model = avengModel;
-			triangle.transform2d.translation.x = i * .01f - 1;
-			triangle.transform2d.scale = { i * .01f, i * .01f };
-			triangle.transform2d.rotation = i * glm::two_pi<float>() * .025f;
-			triangle.color = colors[i % colors.size()];
-			appObjects.push_back(std::move(triangle));
-
-		}
+		appObjects.push_back(std::move(cube));
 
 	}
 
-} //
+} // ns aveng

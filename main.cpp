@@ -2,15 +2,15 @@
 #include <iostream>
 #include <stdexcept>
 
-// #include "XOne.h"
-#include "Apps/Gravity.h"
+#include "XOne.h"
+// #include "Apps/Gravity.h"
 
 #define LOG(a) std::cout << a << std::endl
 
 int main(void)
 {
 
-	aveng::Gravity app{};
+	aveng::XOne app{};
 
 	try {
 		app.run();

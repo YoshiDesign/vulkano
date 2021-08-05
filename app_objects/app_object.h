@@ -1,23 +1,34 @@
 #pragma once
 
 #include "../aveng_model.h"
+#include <glm/gtc/matrix_transform.hpp>
 #include <memory>
 
 namespace aveng {
 
 	// Move things up down left & right
-	struct Transform2dComponent {
-		glm::vec2 translation{};	// Position offset
-		glm::vec2 scale{ 1.f, 1.f };
-		float rotation;
+	struct TransformComponent {
+		glm::vec3 translation{};	// Position offset
+		glm::vec3 scale{ 1.f, 1.f, 1.f };
+		glm::vec3 rotation{};
 
-		glm::mat2 mat2() {
-			const float s = glm::sin(rotation);
-			const float c = glm::cos(rotation);
-			glm::mat2 rotMatrix{ {c, s}, {-s, c} };
+		glm::mat4 mat4() {
+		
+			// Creates a 4x4 translation matrix using the current translation values
+			auto transform = glm::translate(glm::mat4{ 1.f }, translation);
 
-			glm::mat2 scaleMat{ {scale.x, .0f}, {.0f, scale.y} }; // These args are i-hat and j-hat
-			return rotMatrix * scaleMat;
+			/*
+				Matrix corresponds to translate * Ry * Rx * Rz * scale transformation
+				Rotation conventions uses tai-bryan angles with axis order Y(1), X(2), Z(3)
+			*/
+			transform = glm::rotate(transform, rotation.y, { 0.f, 1.f, 0.f });
+			transform = glm::rotate(transform, rotation.x, { 1.f, 0.f, 0.f });
+			transform = glm::rotate(transform, rotation.z, { 0.f, 0.f, 1.f });
+
+			// transform x scale (matrix mult)
+			transform = glm::scale(transform, scale);
+			return transform;
+
 		}
 	};
 
@@ -47,7 +58,7 @@ namespace aveng {
 
 		std::shared_ptr<AvengModel> model{};
 		glm::vec3 color{};
-		Transform2dComponent transform2d;
+		TransformComponent transform{};
 		RigidBody2dComponent rigidBody2d;
 
 	private:

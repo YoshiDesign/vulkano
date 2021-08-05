@@ -87,7 +87,7 @@ namespace aveng {
 
 		attributeDescriptions[0].binding = 0;
 		attributeDescriptions[0].location = 0; // The location from the vertex shader of this attribute (position)
-		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT; // Datatype Format: 2 components each 32bit signed floats
+		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT; // Datatype Format: 2 components each 32bit signed floats
 		attributeDescriptions[0].offset = offsetof(Vertex, position); // Offset:  type, membername. Calculates the byte offset of the position member from the Vertex struct
 
 		attributeDescriptions[1].binding = 0;

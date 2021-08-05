@@ -147,7 +147,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Apps\Gravity.cpp" />
     <ClCompile Include="aveng_model.cpp" />
     <ClCompile Include="aveng_window.cpp" />
     <ClCompile Include="EngineDevice.cpp" />
@@ -159,7 +158,6 @@
     <ClCompile Include="XOne.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Apps\Gravity.h" />
     <ClInclude Include="app_objects\app_object.h" />
     <ClInclude Include="aveng_model.h" />
     <ClInclude Include="cool.h" />
@@ -174,9 +172,7 @@
   <ItemGroup>
     <None Include="compile.bat" />
     <None Include="shaders\simple_shader.frag" />
-    <None Include="shaders\simple_shader.frag.spv" />
     <None Include="shaders\simple_shader.vert" />
-    <None Include="shaders\simple_shader.vert.spv" />
   </ItemGroup>
   <ItemGroup>
     <Text Include=".gitignore" />
