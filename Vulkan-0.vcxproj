@@ -167,6 +167,7 @@
     <ClInclude Include="EngineDevice.h" />
     <ClInclude Include="GFXPipeline.h" />
     <ClInclude Include="aveng_window.h" />
+    <ClInclude Include="aveng_utils.h" />
     <ClInclude Include="KeyControl\KeyboardController.h" />
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\RenderSystem.h" />

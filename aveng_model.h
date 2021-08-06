@@ -34,6 +34,11 @@ namespace aveng {
 
 			static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
 			static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+
+			bool operator==(const Vertex& other) const {
+				return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
+			}
+
 		};
 
 		// Vertex and index information to be sent to the model's vertex and index buffer memory

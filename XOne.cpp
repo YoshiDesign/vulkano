@@ -96,16 +96,16 @@ namespace aveng {
 	void XOne::loadAppObjects() 
 	{
 		
-		std::shared_ptr<AvengModel> avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/colored_cube.obj");
+		std::shared_ptr<AvengModel> avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/holy_ship.obj");
 
-		auto cube = AvengAppObject::createAppObject();
+		auto gameObj = AvengAppObject::createAppObject();
 
 		// This cube gets shrunk to half its size and centered in the view
-		cube.model = avengModel;
-		cube.transform.translation = { .0f, .0f, 3.5f };
-		cube.transform.scale = { .5f, .5f, .5f };
+		gameObj.model = avengModel;
+		gameObj.transform.translation = { .0f, .0f, 3.5f };
+		gameObj.transform.scale = { .25f, .25f, .25f };
 
-		appObjects.push_back(std::move(cube));
+		appObjects.push_back(std::move(gameObj));
 
 	}
 

@@ -1,10 +1,30 @@
 #include "aveng_model.h"
 #include <cassert>
 #include <cstring>
-#include <iostream>
 
+#include "aveng_utils.h"
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_object_loader.h>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+#include <unordered_map>
+
+
+namespace std {
+
+	// This function allows us to take a vertex struct instance and hash it, for use by an unordered map key
+	template<>
+	struct hash<aveng::AvengModel::Vertex> {
+		size_t operator()(aveng::AvengModel::Vertex const& vertex) const {
+	
+			// for final hash value
+			size_t seed = 0;
+			aveng::hashCombine(seed, vertex.position, vertex.color, vertex.color, vertex.uv);
+			return seed;
+	
+		}
+	};
+}
 
 namespace aveng {
 
@@ -31,7 +51,6 @@ namespace aveng {
 	{
 		Builder builder{};
 		builder.loadModel(filepath);
-		std::cout << "Vertex Count: " << builder.vertices.size() << "\n";
 		return std::make_unique<AvengModel>(device, builder);
 	}
 
@@ -227,6 +246,9 @@ namespace aveng {
 		vertices.clear();
 		indices.clear();
 
+		// WIll track which vertices have been added to the Builder.vertices vector and store the position at which the vertex wwas originally added
+		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+
 		for (const auto& shape : shapes)
 		{
 		
@@ -269,7 +291,16 @@ namespace aveng {
 					};
 				}
 
-				vertices.push_back(vertex);
+				// If the vertex is new, we add it to the unique vertices map
+				if (uniqueVertices.count(vertex) == 0) {
+					// The vertexes position in the Builder.vertices vector is given by the vertices vector's current size
+					uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+					// Add it to the unique vertices map
+					vertices.push_back(vertex);
+				}
+
+				// Add the position of the vertex to the Builder's indices vector
+				indices.push_back(uniqueVertices[vertex]);
 			}
 		}
 	}
