@@ -60,6 +60,7 @@ namespace aveng {
 			glfwPollEvents();
 
 			auto newTime = std::chrono::high_resolution_clock::now();
+
 			// The amount of time which has passed since the last loop iteration
 			float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
 			currentTime = newTime;
@@ -96,11 +97,11 @@ namespace aveng {
 	void XOne::loadAppObjects() 
 	{
 		
-		std::shared_ptr<AvengModel> avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/colored_cube.obj");
+		std::shared_ptr<AvengModel> avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/holy_ship.obj");
 
 		auto cube = AvengAppObject::createAppObject();
 
-		// This cube gets shrunk to half its size and centered in the view
+		// This cube gets shrunk to half its size and centered in the view at a slight distance
 		cube.model = avengModel;
 		cube.transform.translation = { .0f, .0f, 3.5f };
 		cube.transform.scale = { .5f, .5f, .5f };

@@ -34,7 +34,6 @@ namespace aveng{
 		// 360 degree max rotation then repeat
 		appObject.transform.rotation.y = glm::mod(appObject.transform.rotation.y, glm::two_pi<float>());
 
-
 		float yaw = appObject.transform.rotation.y;
 		const glm::vec3 forwardDir{ sin(yaw), 0.f, cos(yaw) };
 		const glm::vec3 rightDir{ forwardDir.z, 0.f, -forwardDir.x };
