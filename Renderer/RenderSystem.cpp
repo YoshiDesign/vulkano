@@ -14,7 +14,7 @@ namespace aveng {
 
 	struct SimplePushConstantData {
 		glm::mat4 transform{ 1.f };
-		alignas(16) glm::vec3 color;
+		glm::mat4 modelMatrix{ 1.f };
 	};
 
 
@@ -82,8 +82,9 @@ namespace aveng {
 		for (auto& obj : appObjects) {
 
 			SimplePushConstantData push{};
-			push.color = obj.color;
+			auto modelMatrix = obj.transform.mat4();
 			push.transform = projectionView * obj.transform.mat4();
+			push.modelMatrix = modelMatrix;
 
 			vkCmdPushConstants(
 				commandBuffer,
