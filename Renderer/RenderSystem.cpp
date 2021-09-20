@@ -28,8 +28,11 @@ namespace aveng {
 	{
 		vkDestroyPipelineLayout(engineDevice.device(), pipelineLayout, nullptr);
 	}
-
-
+	 
+	/*
+	* Describe the pipeline layout in terms of how
+	* we are programming it.
+	*/
 	void RenderSystem::createPipelineLayout()
 	{
 		VkPushConstantRange pushConstantRange{};

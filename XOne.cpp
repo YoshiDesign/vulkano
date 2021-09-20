@@ -26,6 +26,7 @@ namespace aveng {
 
 	void XOne::run()
 	{
+		// Note that the renderSystem is initialized with a pointer to the Render Pass
 		RenderSystem renderSystem{ engineDevice, renderer.getSwapChainRenderPass() };
 		AvengCamera camera{};
 
@@ -35,7 +36,6 @@ namespace aveng {
 		auto viewerObject = AvengAppObject::createAppObject();
 
 		KeyboardController cameraController{};
-
 
 		/*
 			Things to keep in mind:
@@ -68,6 +68,8 @@ namespace aveng {
 
 			// Updates the viewer object transform component based on key input, proportional to the time elapsed since the last frame
 			cameraController.moveInPlaneXZ(aveng_window.getGLFWwindow(), frameTime, viewerObject);
+
+			// TODO
 			camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
 			// Keeps our projection in tune with our window aspect ratio during rendering
@@ -81,6 +83,11 @@ namespace aveng {
 				renderer.beginSwapChainRenderPass(commandBuffer);
 				renderSystem.renderAppObjects(commandBuffer, appObjects, camera);
 				renderer.endSwapChainRenderPass(commandBuffer);
+
+				/*
+				* Submit command buffers from the Swapchain
+				* and blit to the screen
+				*/
 				renderer.endFrame();
 
 			}
@@ -98,14 +105,23 @@ namespace aveng {
 		
 		std::shared_ptr<AvengModel> avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/holy_ship.obj");
 
-		auto gameObj = AvengAppObject::createAppObject();
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 10; j++) {
 
-		// This cube gets shrunk to half its size and centered in the view
-		gameObj.model = avengModel;
-		gameObj.transform.translation = { .0f, .0f, 3.5f };
-		gameObj.transform.scale = { .25f, .25f, .25f };
+				auto gameObj = AvengAppObject::createAppObject();
 
-		appObjects.push_back(std::move(gameObj));
+				// This cube gets shrunk to half its size and centered in the view
+				gameObj.model = avengModel;
+				gameObj.transform.translation = { static_cast<float>(i) * 3.0f, 0.0f, static_cast<float>(j) * 3.0f};
+				gameObj.transform.scale = { .25f, .25f, .25f };
+
+				appObjects.push_back(std::move(gameObj));
+
+			}
+		
+		}
+
+
 
 	}
 

@@ -240,6 +240,8 @@ namespace aveng {
     }
 
     void EngineDevice::createCommandPool() {
+
+        // Locate a Queue Family based on our definition of which queue we'd like (Graphics and Present, here)
         QueueFamilyIndices queueFamilyIndices = findPhysicalQueueFamilies();
 
         VkCommandPoolCreateInfo poolInfo = {};
@@ -526,14 +528,17 @@ namespace aveng {
     }
 
     uint32_t EngineDevice::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
-      VkPhysicalDeviceMemoryProperties memProperties;
-      vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-      for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-        if ((typeFilter & (1 << i)) &&
-            (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-          return i;
+        VkPhysicalDeviceMemoryProperties memProperties;
+        vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+
+        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+            if (
+                (typeFilter & (1 << i)) &&
+                (memProperties.memoryTypes[i].propertyFlags & properties) == properties
+            ) {
+                return i;
+            }
         }
-      }
 
       throw std::runtime_error("failed to find suitable memory type!");
     }
@@ -574,6 +579,10 @@ namespace aveng {
         vkBindBufferMemory(device_, buffer, bufferMemory, 0);
     }
 
+    /*
+    * @function beginSingleTimeCommands(void)
+    * Allocate a command buffer in memory and return a pointer to it
+    */
     VkCommandBuffer EngineDevice::beginSingleTimeCommands() {
       VkCommandBufferAllocateInfo allocInfo{};
       allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -593,82 +602,83 @@ namespace aveng {
     }
 
     void EngineDevice::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
-      vkEndCommandBuffer(commandBuffer);
+        vkEndCommandBuffer(commandBuffer);
 
-      VkSubmitInfo submitInfo{};
-      submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-      submitInfo.commandBufferCount = 1;
-      submitInfo.pCommandBuffers = &commandBuffer;
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &commandBuffer;
 
-      vkQueueSubmit(graphicsQueue_, 1, &submitInfo, VK_NULL_HANDLE);
-      vkQueueWaitIdle(graphicsQueue_);
+        vkQueueSubmit(graphicsQueue_, 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(graphicsQueue_);
 
-      vkFreeCommandBuffers(device_, commandPool, 1, &commandBuffer);
+        vkFreeCommandBuffers(device_, commandPool, 1, &commandBuffer);
     }
 
     void EngineDevice::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-      VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
-      VkBufferCopy copyRegion{};
-      copyRegion.srcOffset = 0;  // Optional
-      copyRegion.dstOffset = 0;  // Optional
-      copyRegion.size = size;
-      vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+        VkBufferCopy copyRegion{};
+        copyRegion.srcOffset = 0;  // Optional
+        copyRegion.dstOffset = 0;  // Optional
+        copyRegion.size = size;
+        vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-      endSingleTimeCommands(commandBuffer);
+        endSingleTimeCommands(commandBuffer);
     }
 
-    void EngineDevice::copyBufferToImage(
-        VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) {
-      VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+    void EngineDevice::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) {
+        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
-      VkBufferImageCopy region{};
-      region.bufferOffset = 0;
-      region.bufferRowLength = 0;
-      region.bufferImageHeight = 0;
+        VkBufferImageCopy region{};
+        region.bufferOffset = 0;
+        region.bufferRowLength = 0;
+        region.bufferImageHeight = 0;
 
-      region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-      region.imageSubresource.mipLevel = 0;
-      region.imageSubresource.baseArrayLayer = 0;
-      region.imageSubresource.layerCount = layerCount;
+        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.imageSubresource.mipLevel = 0;
+        region.imageSubresource.baseArrayLayer = 0;
+        region.imageSubresource.layerCount = layerCount;
 
-      region.imageOffset = {0, 0, 0};
-      region.imageExtent = {width, height, 1};
+        region.imageOffset = {0, 0, 0};
+        region.imageExtent = {width, height, 1};
 
-      vkCmdCopyBufferToImage(
-          commandBuffer,
-          buffer,
-          image,
-          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-          1,
-          &region);
-      endSingleTimeCommands(commandBuffer);
+        vkCmdCopyBufferToImage(
+            commandBuffer,
+            buffer,
+            image,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            1,
+            &region);
+
+        endSingleTimeCommands(commandBuffer);
     }
 
     void EngineDevice::createImageWithInfo(
         const VkImageCreateInfo &imageInfo,
         VkMemoryPropertyFlags properties,
         VkImage &image,
-        VkDeviceMemory &imageMemory) {
-      if (vkCreateImage(device_, &imageInfo, nullptr, &image) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create image!");
-      }
+        VkDeviceMemory &imageMemory
+    ) {
+        if (vkCreateImage(device_, &imageInfo, nullptr, &image) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create image!");
+        }
 
-      VkMemoryRequirements memRequirements;
-      vkGetImageMemoryRequirements(device_, image, &memRequirements);
+        VkMemoryRequirements memRequirements;
+        vkGetImageMemoryRequirements(device_, image, &memRequirements);
 
-      VkMemoryAllocateInfo allocInfo{};
-      allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-      allocInfo.allocationSize = memRequirements.size;
-      allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+        VkMemoryAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        allocInfo.allocationSize = memRequirements.size;
+        allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-      if (vkAllocateMemory(device_, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
-        throw std::runtime_error("failed to allocate image memory!");
-      }
+        if (vkAllocateMemory(device_, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+            throw std::runtime_error("failed to allocate image memory!");
+        }
 
-      if (vkBindImageMemory(device_, image, imageMemory, 0) != VK_SUCCESS) {
-        throw std::runtime_error("failed to bind image memory!");
-      }
+        if (vkBindImageMemory(device_, image, imageMemory, 0) != VK_SUCCESS) {
+            throw std::runtime_error("failed to bind image memory!");
+        }
     }
 
 }  // namespace aveng

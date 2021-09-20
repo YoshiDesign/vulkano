@@ -25,7 +25,7 @@ namespace aveng{
 
 		// This if statement effectively makes sure that rotate (matrix) is non-zero
 		if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon()) {
-			// Update according to Delta Time. Normalize keeps multiple rotaions in sync so one direction doesn't rotate faster than another
+			// Update according to Delta Time. Normalize keeps multiple rotations in sync so one direction doesn't rotate faster than another
 			appObject.transform.rotation += lookSpeed * dt * glm::normalize(rotate);
 		}
 

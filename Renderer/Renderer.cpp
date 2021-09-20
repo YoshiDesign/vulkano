@@ -135,7 +135,7 @@ namespace aveng {
 		{
 			throw std::runtime_error("Failed to record command buffer.");
 		}
-		// Submit to graphics queue while handlind cpu and gpu sync, executing the command buffers
+		// Submit to graphics queue while handling cpu and gpu sync, executing the command buffers
 		auto result = aveng_swapchain->submitCommandBuffers(&commandBuffer, &currentImageIndex);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || aveng_window.wasWindowResized())
@@ -198,7 +198,6 @@ namespace aveng {
 		VkRect2D scissor{ {0, 0}, aveng_swapchain->getSwapChainExtent() };
 		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
 
 	}
 

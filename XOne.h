@@ -38,13 +38,3 @@ namespace aveng {
 	};
 
 }
-
-
-/* Note */
-// The Graphics API - Previously stack allocated
-//GFXPipeline gfxPipeline{
-//	engineDevice, 
-//	"shaders/simple_shader.vert.spv", 
-//	"shaders/simple_shader.frag.spv", 
-//	GFXPipeline::defaultPipelineConfig(WIDTH, HEIGHT) 
-//};
