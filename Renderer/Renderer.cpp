@@ -13,6 +13,7 @@ namespace aveng {
 	{
 		recreateSwapChain();
 		createCommandBuffers();
+
 	}
 
 	Renderer::~Renderer()
@@ -54,7 +55,8 @@ namespace aveng {
 
 		}
 
-		// BRB
+		// Reinitialize ImGui
+		//ImGui_ImplVulkan_SetMinImageCount(swapchain_image_count());
 
 	}
 
@@ -62,7 +64,7 @@ namespace aveng {
 	{
 		vkFreeCommandBuffers(
 			engineDevice.device(),
-			engineDevice.getCommandPool(),
+			engineDevice.commandPool(),
 			static_cast<uint32_t>(commandBuffers.size()),
 			commandBuffers.data()
 		);
@@ -81,7 +83,7 @@ namespace aveng {
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		// Command buffer memory is allocated from a command pool
-		allocInfo.commandPool = engineDevice.getCommandPool();
+		allocInfo.commandPool = engineDevice.commandPool();
 		allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
 
 		if (vkAllocateCommandBuffers(engineDevice.device(), &allocInfo, commandBuffers.data()) != VK_SUCCESS)
@@ -91,7 +93,7 @@ namespace aveng {
 
 	}
 
-	//
+	// Return a command buffer for the current frame index
 	VkCommandBuffer Renderer::beginFrame() 
 	{
 		assert(@isFrameStarted && "Can't call beginFrame while already in progress.");

@@ -7,7 +7,8 @@
 namespace aveng {
 
 	// Move things up down left & right
-	struct TransformComponent {
+	struct TransformComponent 
+	{
 		glm::vec3 translation{};	// Position offset
 		glm::vec3 scale{ 1.f, 1.f, 1.f };
 		glm::vec3 rotation{};
@@ -15,7 +16,8 @@ namespace aveng {
 		// Matrix corrsponds to Translate * Ry * Rx * Rz * Scale
 		// Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
 		// https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-		glm::mat4 mat4() {
+		glm::mat4 mat4() 
+		{
 			const float c3 = glm::cos(rotation.z);
 			const float s3 = glm::sin(rotation.z);
 			const float c2 = glm::cos(rotation.x);
@@ -46,11 +48,12 @@ namespace aveng {
 		}
 	};
 
-	class AvengAppObject {
-
+	class AvengAppObject 
+	{
 
 		// For Gravity App
-		struct RigidBody2dComponent {
+		struct RigidBody2dComponent 
+		{
 			glm::vec2 velocity;
 			float mass{1.0f};
 		};
@@ -58,7 +61,8 @@ namespace aveng {
 	public:
 		using id_t = unsigned int;
 
-		static AvengAppObject createAppObject() {
+		static AvengAppObject createAppObject() 
+		{
 			static id_t currentId = 0;
 			return AvengAppObject{ currentId++ };
 		}

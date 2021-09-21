@@ -59,19 +59,19 @@ namespace aveng {
 		GFXPipeline& operator=(const GFXPipeline&) = delete;
 		void bind(VkCommandBuffer commandBuffer);
 		static void defaultPipelineConfig(PipelineConfig& configInfo);
+		void switchPipeline();
+
+		// These are both public now...
+		static std::vector<char> readFile(const std::string& filepath);
+		void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
 
 	private:
-
-		static std::vector<char> readFile(const std::string& filepath);
 
 		void createGFXPipeline(
 			const std::string& vertFilepath, 
 			const std::string& fragFilepath,
 			const PipelineConfig& config
 		);
-
-		// Used to create module and init variable for shaders
-		void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
 
 	};
 

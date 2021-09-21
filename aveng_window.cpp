@@ -1,5 +1,6 @@
 #include "aveng_window.h"
 #include <stdexcept>
+
 namespace aveng {
 
 	AvengWindow::AvengWindow(int w, int h, std::string name) : width{ w }, height{ h }, windowName{ name }

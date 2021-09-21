@@ -12,7 +12,8 @@
 
 namespace aveng {
 
-	struct SimplePushConstantData {
+	struct SimplePushConstantData 
+	{
 		glm::mat4 transform{ 1.f };
 		glm::mat4 modelMatrix{ 1.f };
 	};
@@ -66,23 +67,39 @@ namespace aveng {
 		GFXPipeline::defaultPipelineConfig(pipelineConfig);
 		pipelineConfig.renderPass = renderPass;		
 		pipelineConfig.pipelineLayout = pipelineLayout;
+
 		gfxPipeline = std::make_unique<GFXPipeline>(
 			engineDevice,
 			"shaders/simple_shader.vert.spv",
 			"shaders/simple_shader.frag.spv",
 			pipelineConfig
-			);
+		);
+
+		gfxPipeline2 = std::make_unique<GFXPipeline>(
+			engineDevice,
+			"shaders/simple_shader2.vert.spv",
+			"shaders/simple_shader2.frag.spv",
+			pipelineConfig
+		);
 	}
 
 
-	void RenderSystem::renderAppObjects(VkCommandBuffer commandBuffer, std::vector<AvengAppObject>& appObjects, const AvengCamera& camera)
+	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, uint8_t pipe_no)
 	{
-		gfxPipeline->bind(commandBuffer);
+		// Bind our current pipeline configuration
+		if (pipe_no == 0) 
+		{ 
+			gfxPipeline->bind(frame_content.commandBuffer); 
+		} else if (pipe_no == 1) 
+		{ 
+			gfxPipeline2->bind(frame_content.commandBuffer); 
+		}
 
 		// Every rendered object will use the same projection and view matrix
-		auto projectionView = camera.getProjection() * camera.getView();
+		auto projectionView = frame_content.camera.getProjection() * frame_content.camera.getView();
 
-		for (auto& obj : appObjects) {
+		for (auto& obj : appObjects) 
+		{
 
 			SimplePushConstantData push{};
 			auto modelMatrix = obj.transform.mat4();
@@ -90,15 +107,15 @@ namespace aveng {
 			push.modelMatrix = modelMatrix;
 
 			vkCmdPushConstants(
-				commandBuffer,
+				frame_content.commandBuffer,
 				pipelineLayout,
 				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0,
 				sizeof(SimplePushConstantData),
 				&push
 			); 
-			obj.model->bind(commandBuffer);
-			obj.model->draw(commandBuffer);
+			obj.model->bind(frame_content.commandBuffer);
+			obj.model->draw(frame_content.commandBuffer);
 		}
 	}
 

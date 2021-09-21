@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EngineDevice.h"
+#include "aveng_buffer.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -15,14 +16,19 @@ namespace aveng {
 	{
 
 		EngineDevice& engineDevice;
-		VkBuffer vertexBuffer;
-		VkDeviceMemory vertexBufferMemory;
 		uint32_t vertexCount;
-
 		bool hasIndexBuffer = false;
-		VkBuffer indexBuffer;
-		VkDeviceMemory indexBufferMemory;
 		uint32_t indexCount;
+
+		/*VkBuffer vertexBuffer;		OLD
+		VkDeviceMemory vertexBufferMemory;*/
+		// NEW
+		std::unique_ptr<AvengBuffer> vertexBuffer;
+
+		/*VkBuffer indexBuffer;			OLD
+		VkDeviceMemory indexBufferMemory;*/
+		// NEW
+		std::unique_ptr<AvengBuffer> indexBuffer;
 
 	public:
 
@@ -32,10 +38,16 @@ namespace aveng {
 			glm::vec3 normal{}; // surface norms I guess
 			glm::vec2 uv{};		// 2d texture coordinates
 
+			/*
+			* Descriptions of our vertext input so that our shaders
+			* may receive communications from our GFXPipeline and understand
+			* how to parse the incoming data
+			*/
 			static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
 			static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
-			bool operator==(const Vertex& other) const {
+			bool operator==(const Vertex& other) const 
+			{
 				return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
 			}
 

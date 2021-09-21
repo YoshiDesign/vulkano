@@ -31,10 +31,12 @@ namespace aveng {
 		// The window API - Stack allocated
 		AvengWindow aveng_window{ WIDTH, HEIGHT, "Vulkan 0" };
 
+		glm::vec3 clear_color = { 0.5f, 0.3f, 0.6f };
+
 		EngineDevice engineDevice{ aveng_window };
 		Renderer renderer{ aveng_window, engineDevice };
 		std::vector<AvengAppObject> appObjects;
-
+		
 	};
 
 }

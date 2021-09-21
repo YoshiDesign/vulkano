@@ -2,7 +2,8 @@
 #include "Renderer/RenderSystem.h"
 #include "Camera/aveng_camera.h"
 #include "KeyControl/KeyboardController.h"
-
+#include "aveng_imgui.h"
+#include "aveng_buffer.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -17,6 +18,23 @@
 
 namespace aveng {
 
+	// For use similar to a push_constant struct. Passing in read-only data to the pipeline shader modules
+	struct GlobalUbo {
+		glm::mat4 projectionView{ 1.f };
+		glm::vec3 lightDirection = glm::normalize(glm::vec3{ 1.f, -3.f, -1.f });
+
+	};
+
+	int current_pipeline = 0;
+	void testKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	{
+		if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+			current_pipeline = (current_pipeline + 1) % 2;
+		}
+
+		std::cout << "Current Pipeline: " << current_pipeline << std::endl;
+	}
+
 	XOne::XOne() 
 	{
 		loadAppObjects();
@@ -26,6 +44,20 @@ namespace aveng {
 
 	void XOne::run()
 	{
+
+		// Creating a uniform buffer
+		AvengBuffer globalUboBuffer{
+			engineDevice,
+			sizeof(GlobalUbo),
+			SwapChain::MAX_FRAMES_IN_FLIGHT,
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+			engineDevice.properties.limits.minUniformBufferOffsetAlignment // Important
+		};
+
+		// enable writing to it's memory
+		globalUboBuffer.map();
+
 		// Note that the renderSystem is initialized with a pointer to the Render Pass
 		RenderSystem renderSystem{ engineDevice, renderer.getSwapChainRenderPass() };
 		AvengCamera camera{};
@@ -36,6 +68,13 @@ namespace aveng {
 		auto viewerObject = AvengAppObject::createAppObject();
 
 		KeyboardController cameraController{};
+
+		LveImgui aveng_imgui{
+			aveng_window,
+			engineDevice,
+			renderer.getSwapChainRenderPass(),
+			renderer.getImageCount() 
+		};
 
 		/*
 			Things to keep in mind:
@@ -53,6 +92,8 @@ namespace aveng {
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
 
+		glfwSetKeyCallback(aveng_window.getGLFWwindow(), testKeyCallback);
+
 		// Keep the window open until shouldClose is truthy
 		while (!aveng_window.shouldClose()) {
 
@@ -68,8 +109,6 @@ namespace aveng {
 
 			// Updates the viewer object transform component based on key input, proportional to the time elapsed since the last frame
 			cameraController.moveInPlaneXZ(aveng_window.getGLFWwindow(), frameTime, viewerObject);
-
-			// TODO
 			camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
 			// Keeps our projection in tune with our window aspect ratio during rendering
@@ -79,18 +118,35 @@ namespace aveng {
 
 			// The beginFrame function will return a nullptr if the swapchain needs to be recreated
 			if (auto commandBuffer = renderer.beginFrame()) {
-			
-				renderer.beginSwapChainRenderPass(commandBuffer);
-				renderSystem.renderAppObjects(commandBuffer, appObjects, camera);
-				renderer.endSwapChainRenderPass(commandBuffer);
+				int frameIndex = renderer.getFrameIndex();
 
-				/*
-				* Submit command buffers from the Swapchain
-				* and blit to the screen
-				*/
+				// frame relevant data
+				FrameContent frame_content{
+					frameIndex,
+					frameTime,
+					commandBuffer,
+					camera
+				};
+
+				// Update
+				GlobalUbo ubo{};
+				ubo.projectionView = camera.getProjection() * camera.getView();
+				globalUboBuffer.writeToIndex(&ubo, frameIndex);
+				globalUboBuffer.flushIndex(frameIndex);
+
+				// Render
+				aveng_imgui.newFrame();
+				aveng_imgui.render(commandBuffer);
+				renderer.beginSwapChainRenderPass(commandBuffer);
+				renderSystem.renderAppObjects(frame_content, appObjects, current_pipeline);
+				aveng_imgui.runExample();
+				aveng_imgui.render(commandBuffer);
+				renderer.endSwapChainRenderPass(commandBuffer);
 				renderer.endFrame();
 
 			}
+
+
 		}
 
 		// Block until all GPU operations quit.
@@ -110,9 +166,8 @@ namespace aveng {
 
 				auto gameObj = AvengAppObject::createAppObject();
 
-				// This cube gets shrunk to half its size and centered in the view
 				gameObj.model = avengModel;
-				gameObj.transform.translation = { static_cast<float>(i) * 3.0f, 0.0f, static_cast<float>(j) * 3.0f};
+				gameObj.transform.translation = { static_cast<float>(i) * 7.0f, 0.0f, static_cast<float>(j) * 5.0f};
 				gameObj.transform.scale = { .25f, .25f, .25f };
 
 				appObjects.push_back(std::move(gameObj));
@@ -120,8 +175,6 @@ namespace aveng {
 			}
 		
 		}
-
-
 
 	}
 

@@ -116,14 +116,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.176.1\Include;C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glfw-3.3.4.bin.WIN64\include;C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glm;C:\dev\libs\tiny_object_loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.176.1\Include;C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glfw-3.3.4.bin.WIN64\include;C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glm;C:\dev\libs\tiny_object_loader;C:\dev\libs\SDL2-2.0.16\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glfw-3.3.4.bin.WIN64\lib-vc2019;C:\VulkanSDK\1.2.176.1\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glfw-3.3.4.bin.WIN64\lib-vc2019;C:\VulkanSDK\1.2.176.1\Lib;C:\dev\libs\SDL2-2.0.16\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;SDL2.lib;SDL2main.lib;SDL2test.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,7 +135,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.176.1\Include;C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glfw-3.3.4.bin.WIN64\include;C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glm;C:\dev\libs\tiny_object_loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.176.1\Include;C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glfw-3.3.4.bin.WIN64\include;C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glm;C:\dev\libs\tiny_object_loader;C:\dev\libs\SDL2-2.0.16\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -142,17 +143,29 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glfw-3.3.4.bin.WIN64\lib-vc2019;C:\VulkanSDK\1.2.176.1\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glfw-3.3.4.bin.WIN64\lib-vc2019;C:\VulkanSDK\1.2.176.1\Lib;C:\dev\libs\SDL2-2.0.16\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;SDL2.lib;SDL2main.lib;SDL2test.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="aveng_buffer.cpp" />
+    <ClCompile Include="aveng_imgui.cpp" />
     <ClCompile Include="aveng_model.cpp" />
     <ClCompile Include="aveng_window.cpp" />
     <ClCompile Include="Camera\aveng_camera.cpp" />
     <ClCompile Include="EngineDevice.cpp" />
     <ClCompile Include="GFXPipeline.cpp" />
+    <ClCompile Include="GUI\imgui.cpp" />
+    <ClCompile Include="GUI\imgui_demo.cpp" />
+    <ClCompile Include="GUI\imgui_draw.cpp" />
+    <ClCompile Include="GUI\imgui_impl_glfw.cpp" />
+    <ClCompile Include="GUI\imgui_impl_sdl.cpp" />
+    <ClCompile Include="GUI\imgui_impl_vulkan.cpp" />
+    <ClCompile Include="GUI\imgui_tables.cpp" />
+    <ClCompile Include="GUI\imgui_widgets.cpp" />
     <ClCompile Include="KeyControl\KeyboardController.cpp" />
+    <ClCompile Include="KeyControl\TestController.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\RenderSystem.cpp" />
@@ -161,6 +174,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app_objects\app_object.h" />
+    <ClInclude Include="aveng_buffer.h" />
+    <ClInclude Include="aveng_frame_content.h" />
+    <ClInclude Include="aveng_imgui.h" />
     <ClInclude Include="aveng_model.h" />
     <ClInclude Include="Camera\aveng_camera.h" />
     <ClInclude Include="cool.h" />
@@ -168,7 +184,17 @@
     <ClInclude Include="GFXPipeline.h" />
     <ClInclude Include="aveng_window.h" />
     <ClInclude Include="aveng_utils.h" />
+    <ClInclude Include="GUI\imconfig.h" />
+    <ClInclude Include="GUI\imgui.h" />
+    <ClInclude Include="GUI\imgui_impl_glfw.h" />
+    <ClInclude Include="GUI\imgui_impl_sdl.h" />
+    <ClInclude Include="GUI\imgui_impl_vulkan.h" />
+    <ClInclude Include="GUI\imgui_internal.h" />
+    <ClInclude Include="GUI\imstb_rectpack.h" />
+    <ClInclude Include="GUI\imstb_textedit.h" />
+    <ClInclude Include="GUI\imstb_truetype.h" />
     <ClInclude Include="KeyControl\KeyboardController.h" />
+    <ClInclude Include="KeyControl\TestController.h" />
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\RenderSystem.h" />
     <ClInclude Include="swapchain.h" />
@@ -176,11 +202,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="compile.bat" />
+    <None Include="SDL2.dll" />
     <None Include="shaders\simple_shader.frag" />
     <None Include="shaders\simple_shader.vert" />
   </ItemGroup>
   <ItemGroup>
     <Text Include=".gitignore" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="assets\OpenSans.ttf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

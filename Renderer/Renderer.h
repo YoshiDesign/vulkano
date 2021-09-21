@@ -1,5 +1,6 @@
 #pragma once
-
+#define SDL_MAIN_HANDLED
+#include <SDL.h>
 #include <memory>
 #include <vector>
 #include <cassert>
@@ -7,6 +8,10 @@
 #include "../EngineDevice.h"
 #include "../swapchain.h"
 #include "../cool.h"
+#include "../GUI/imgui.h"
+#include "../GUI/imgui_impl_glfw.h"
+#include "../GUI/imgui_impl_vulkan.h"
+#include "../GUI/imgui_impl_sdl.h"
 
 namespace aveng {
 
@@ -39,13 +44,14 @@ namespace aveng {
 		}
 
 		VkCommandBuffer beginFrame();
+		uint32_t getImageCount() const { return aveng_swapchain->imageCount(); }
 		void endFrame();
 		void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
 		void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
 
-
-
 	private:
+
+		VkResult err;
 
 		void createCommandBuffers();
 		void freeCommandBuffers();
@@ -54,10 +60,14 @@ namespace aveng {
 		AvengWindow& aveng_window;
 		EngineDevice& engineDevice;
 
+		VkCommandBuffer imGuiCommandBuffer;
+		std::vector<VkCommandBuffer> commandBuffers;
+		VkCommandPool imGuiCommandPool;
+
 		// SwapChain aveng_swapchain{ engineDevice, aveng_window.getExtent() };	// previous stack allocated. Ptr makes it easier to rebuild when the window resizes
 		std::unique_ptr<SwapChain> aveng_swapchain;
-		std::vector<VkCommandBuffer> commandBuffers;
-
+		
+		
 		uint32_t currentImageIndex{0};
 		int currentFrameIndex; // Not tied to the image index
 		bool isFrameStarted{ false };

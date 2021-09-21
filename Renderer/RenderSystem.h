@@ -3,10 +3,11 @@
 #include <memory>
 #include <vector>
 
-#include "../Camera/aveng_camera.h"
 #include "../app_objects/app_object.h"
-#include "../GFXPipeline.h"
+#include "../Camera/aveng_camera.h"
 #include "../EngineDevice.h"
+#include "../aveng_frame_content.h"
+#include "../GFXPipeline.h"
 
 
 namespace aveng {
@@ -25,7 +26,7 @@ namespace aveng {
 
 		RenderSystem(const RenderSystem&) = delete;
 		RenderSystem& operator=(const RenderSystem&) = delete;
-		void renderAppObjects(VkCommandBuffer commandBuffer, std::vector<AvengAppObject> &appObjects, const AvengCamera& camera);
+		void renderAppObjects(FrameContent& commandBuffer, std::vector<AvengAppObject> &appObjects, uint8_t pipe_no);
 
 
 
@@ -38,6 +39,7 @@ namespace aveng {
 
 		// The Graphics API - Pointer Allocated
 		std::unique_ptr<GFXPipeline> gfxPipeline;
+		std::unique_ptr<GFXPipeline> gfxPipeline2;
 
 		EngineDevice &engineDevice;
 		VkPipelineLayout pipelineLayout;

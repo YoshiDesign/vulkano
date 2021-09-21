@@ -34,18 +34,7 @@ namespace aveng {
 		createVertexBuffers(builder.vertices);
 		createIndexBuffers(builder.indices);
 	}
-	AvengModel::~AvengModel()
-	{
-		// Deallocation
-		vkDestroyBuffer(engineDevice.device(), vertexBuffer, nullptr);
-		vkFreeMemory(engineDevice.device(), vertexBufferMemory, nullptr);
-
-		if (hasIndexBuffer) 
-		{
-			vkDestroyBuffer(engineDevice.device(), indexBuffer, nullptr);
-			vkFreeMemory(engineDevice.device(), indexBufferMemory, nullptr);
-		}
-	}
+	AvengModel::~AvengModel() {}
 
 	std::unique_ptr<AvengModel> AvengModel::createModelFromFile(EngineDevice& device, const std::string& filepath)
 	{
@@ -66,44 +55,36 @@ namespace aveng {
 		assert(vertexCount >= 3 && "Vertex count must be at least 3");
 		// Size of a vertex * number of vertices
 		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
+		uint32_t vertexSize = sizeof(vertices[0]);
 
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-
-		engineDevice.createBuffer(
-			bufferSize,
+		// Used to map data from the CPU to the GPU via staging buffer which will then copy the data to the device's optimal memory location
+		AvengBuffer stagingBuffer{
+			engineDevice,
+			vertexSize,
+			vertexCount,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			// Host Coherent bit ensures the *data buffer is flushed to the device's buffer automatically, so we dont have to call the VkFlushMappedMemoryRanges
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			stagingBuffer,
-			stagingBufferMemory
-		);
+		};
 
-		void* data;
+		// This takes care of vkMapMemory -> memcpy(vertices.data() ...) -> vkUnmapMemory
+		stagingBuffer.map();
+		stagingBuffer.writeToBuffer((void*)vertices.data());
 
-		// Creates a region of host memory, mapping it to the device memory, and sets data to point to its first byte in vertex buffer memory
-		vkMapMemory(engineDevice.device(), stagingBufferMemory, 0, bufferSize, 0, &data);
-
-		// Take the vertices data and copy it into the Host-mapped memory region
-		memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
-
-		// Since we've mapped memory to the device using memcpy, we can unmap the host memory so that it can be freed
-		vkUnmapMemory(engineDevice.device(), stagingBufferMemory);
-
-		engineDevice.createBuffer(
-			bufferSize,
+		vertexBuffer = std::make_unique<AvengBuffer>(
+			engineDevice,
+			vertexSize,
+			vertexCount,
 			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 			// Host Coherent bit ensures the *data buffer is flushed automatically so we dont have to call the VkFlushMappedMemoryRanges
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-			vertexBuffer,
-			vertexBufferMemory
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT // Memory properties
 		);
 
-		engineDevice.copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+		// Copy memory from the staging buffer to the vertex buffer
+		engineDevice.copyBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize); // (src buffer, dst buffer, bufferSize)
 
-		// Deallocation
-		vkDestroyBuffer(engineDevice.device(), stagingBuffer, nullptr);
-		vkFreeMemory(engineDevice.device(), stagingBufferMemory, nullptr);
+		// Note:
+		// The staging buffer is stack allocated, and does not need to be freed
 
 	}
 
@@ -121,50 +102,39 @@ namespace aveng {
 
 		// Size of a vertex * number of vertices
 		VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
+		uint32_t indexSize = sizeof(indices[0]);
 
-		engineDevice.createBuffer(
-			bufferSize,
+		AvengBuffer stagingBuffer{
+			engineDevice,
+			indexSize,
+			indexCount,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			// Host Coherent bit ensures the *data buffer is flushed to the device's buffer automatically, so we dont have to call the VkFlushMappedMemoryRanges
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			stagingBuffer,
-			stagingBufferMemory
-		);
+		};
 
-		void* data;
+		stagingBuffer.map();
+		stagingBuffer.writeToBuffer((void*)indices.data());
 
-		// Creates a region of host memory, mapping it to the device memory, and sets data to point to its first byte in vertex buffer memory
-		vkMapMemory(engineDevice.device(), stagingBufferMemory, 0, bufferSize, 0, &data);
-
-		// Take the vertices data and copy it into the Host-mapped memory region
-		memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
-
-		// Since we've mapped memory to the device using memcpy, we can unmap the host memory so that it can be freed
-		vkUnmapMemory(engineDevice.device(), stagingBufferMemory);
-
-		engineDevice.createBuffer(
-			bufferSize,
+		indexBuffer = std::make_unique<AvengBuffer>(
+			engineDevice,
+			indexSize,
+			indexCount,
 			VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 			// Host Coherent bit ensures the *data buffer is flushed automatically so we dont have to call the VkFlushMappedMemoryRanges
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-			indexBuffer,
-			indexBufferMemory
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 		);
 
-		engineDevice.copyBuffer(stagingBuffer, indexBuffer, bufferSize);
 
-		// Deallocation
-		vkDestroyBuffer(engineDevice.device(), stagingBuffer, nullptr);
-		vkFreeMemory(engineDevice.device(), stagingBufferMemory, nullptr);
+		engineDevice.copyBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
 
 	}
 
 
 	void AvengModel::draw(VkCommandBuffer commandBuffer) 
 	{
-		if (hasIndexBuffer) {
+		if (hasIndexBuffer) 
+		{
 			vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
 		}
 		else {
@@ -174,12 +144,13 @@ namespace aveng {
 
 	void AvengModel::bind(VkCommandBuffer commandBuffer)
 	{
-		VkBuffer buffers[] = { vertexBuffer };
+		VkBuffer buffers[] = { vertexBuffer->getBuffer() };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
 
-		if (hasIndexBuffer) {
-			vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32); // This index type can store up to 2^32 vertices
+		if (hasIndexBuffer) 
+		{
+			vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32); // This index type can store up to 2^32 vertices
 		}
 
 	}
@@ -220,13 +191,13 @@ namespace aveng {
 		*/
 
 		// For reference to the definitions above
-		//attributeDescriptions[0].binding = 0;
 		//attributeDescriptions[0].location = 0; // The location from the vertex shader of this attribute (position)
+		//attributeDescriptions[0].binding = 0;
 		//attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT; // Datatype Format: 2 components each 32bit signed floats
 		//attributeDescriptions[0].offset = offsetof(Vertex, position); // Offset:  type, membername. Calculates the byte offset of the position member from the Vertex struct
 
-		//attributeDescriptions[1].binding = 0;
 		//attributeDescriptions[1].location = 1; // The location from the vertex shader of this attribute (color)
+		//attributeDescriptions[1].binding = 0;
 		//attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT; // Datatype Format: 2 components each 32bit signed floats
 		//attributeDescriptions[1].offset = offsetof(Vertex, color); // Offset:  type, membername. Calculates the byte offset of the color member from the Vertex struct
 
@@ -251,13 +222,16 @@ namespace aveng {
 		vertices.clear();
 		indices.clear();
 
-		// WIll track which vertices have been added to the Builder.vertices vector and store the position at which the vertex wwas originally added
+		// Will track which vertices have been added to the Builder.vertices vector and store the position at which the vertex wwas originally added
 		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
-		for (const auto& shape : shapes) {
-			for (const auto& index : shape.mesh.indices) {
+		for (const auto& shape : shapes) 
+		{
+			for (const auto& index : shape.mesh.indices) 
+			{
 				Vertex vertex{};
-				if (index.vertex_index >= 0) {
+				if (index.vertex_index >= 0) 
+				{
 					vertex.position = {
 						attrib.vertices[3 * index.vertex_index + 0],
 						attrib.vertices[3 * index.vertex_index + 1],
@@ -272,7 +246,8 @@ namespace aveng {
 
 				}
 
-				if (index.normal_index >= 0) {
+				if (index.normal_index >= 0) 
+				{
 					vertex.normal = {
 						attrib.normals[3 * index.normal_index + 0],
 						attrib.normals[3 * index.normal_index + 1],
@@ -280,7 +255,8 @@ namespace aveng {
 					};
 				}
 
-				if (index.texcoord_index >= 0) {
+				if (index.texcoord_index >= 0) 
+				{
 					vertex.uv = {
 						attrib.texcoords[3 * index.texcoord_index + 0],
 						attrib.texcoords[3 * index.texcoord_index + 1],
@@ -288,7 +264,8 @@ namespace aveng {
 				}
 
 				// If the vertex is new, we add it to the unique vertices map
-				if (uniqueVertices.count(vertex) == 0) {
+				if (uniqueVertices.count(vertex) == 0) 
+				{
 					// The vertexes position in the Builder.vertices vector is given by the vertices vector's current size
 					uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
 					// Add it to the unique vertices map

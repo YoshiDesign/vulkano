@@ -25,18 +25,17 @@ namespace aveng {
 
     class EngineDevice {
 
-        VkInstance instance;
+        VkInstance _instance;
 
         // This tells Vulkan about the callback funtion for our validation layer debug
         VkDebugUtilsMessengerEXT debugMessenger;
-        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-        AvengWindow& window;
-        VkCommandPool commandPool;
-
-        VkDevice device_;
-        VkSurfaceKHR surface_;
-        VkQueue graphicsQueue_;
-        VkQueue presentQueue_;
+        VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
+        AvengWindow&    window;
+        VkCommandPool   _commandPool;
+        VkDevice        _device;
+        VkSurfaceKHR    _surface;
+        VkQueue         _graphicsQueue;
+        VkQueue         _presentQueue;
 
     public:
 
@@ -55,15 +54,20 @@ namespace aveng {
         EngineDevice(EngineDevice &&) = delete;
         EngineDevice &operator=(EngineDevice &&) = delete;
 
-        VkCommandPool getCommandPool() { return commandPool; }
-        VkDevice device() { return device_; }
-        VkSurfaceKHR surface() { return surface_; }
-        VkQueue graphicsQueue() { return graphicsQueue_; }
-        VkQueue presentQueue() { return presentQueue_; }
+        // Getters
+        VkInstance instance()                   { return _instance; }
+        VkPhysicalDevice physicalDevice()       { return _physicalDevice; }
+        VkCommandPool commandPool()             { return _commandPool; }
+        VkDevice device()                       { return _device; }
+        VkSurfaceKHR surface()                  { return _surface; }
+        VkQueue graphicsQueue()                 { return _graphicsQueue; }
+        VkQueue presentQueue()                  { return _presentQueue; }
 
-        SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(physicalDevice); }
+        SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(_physicalDevice); }
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-        QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice); }
+        QueueFamilyIndices findPhysicalQueueFamilies(){ return findQueueFamilies(_physicalDevice); };
+        uint32_t getGraphicsQueueFamily() { return findPhysicalQueueFamilies().graphicsFamily; }
+        
         VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 
         // Buffer Helper Functions
@@ -113,7 +117,6 @@ namespace aveng {
         void hasGflwRequiredInstanceExtensions();
         bool checkDeviceExtensionSupport(VkPhysicalDevice device);
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
-
 
         /*
             Extensions

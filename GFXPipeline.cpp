@@ -71,7 +71,7 @@ namespace aveng {
 		auto bindingDescriptions = AvengModel::Vertex::getBindingDescriptions();
 		auto attributeDescriptions = AvengModel::Vertex::getAttributeDescriptions();
 
-		// Struct to ddescribe how we interperet our vertex buffer data as initial input into our pipeline
+		// Struct to describe how we interperet our vertex buffer data as initial input into our pipeline
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType							= VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());	// Updated
@@ -109,9 +109,9 @@ namespace aveng {
 		pipelineInfo.pDepthStencilState		= &configInfo.depthStencilInfo;
 		pipelineInfo.pDynamicState			= &configInfo.dynamicStateInfo;
 
-		pipelineInfo.layout = configInfo.pipelineLayout;
+		pipelineInfo.layout		= configInfo.pipelineLayout;
 		pipelineInfo.renderPass = configInfo.renderPass;
-		pipelineInfo.subpass = configInfo.subpass;
+		pipelineInfo.subpass	= configInfo.subpass;
 
 		pipelineInfo.basePipelineIndex = -1;
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
@@ -125,8 +125,13 @@ namespace aveng {
 
 	void GFXPipeline::bind(VkCommandBuffer commandBuffer)
 	{
+
 		// Establish the type of pipeline we're using e.g. Computer only, graphics, ray-tracing
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+	}
+
+	void GFXPipeline::switchPipeline() {
+	
 	}
 
 	/**
@@ -159,9 +164,6 @@ namespace aveng {
 
 		return buffer;
 	}
-
-
-
 
 	void GFXPipeline::createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule)
 	{
