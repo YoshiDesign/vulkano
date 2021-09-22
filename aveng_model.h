@@ -14,7 +14,6 @@ namespace aveng {
 
 	class AvengModel 
 	{
-
 		EngineDevice& engineDevice;
 		uint32_t vertexCount;
 		bool hasIndexBuffer = false;

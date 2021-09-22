@@ -78,6 +78,9 @@
     <ClCompile Include="aveng_buffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="aveng_textures.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aveng_window.h">
@@ -155,6 +158,9 @@
     <ClInclude Include="aveng_frame_content.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="aveng_textures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\simple_shader.vert" />
@@ -162,7 +168,6 @@
     <None Include="compile.bat">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="SDL2.dll" />
   </ItemGroup>
   <ItemGroup>
     <Text Include=".gitignore" />

@@ -17,7 +17,8 @@ namespace aveng {
             uint32_t instanceCount,
             VkBufferUsageFlags usageFlags,
             VkMemoryPropertyFlags memoryPropertyFlags,
-            VkDeviceSize minOffsetAlignment = 1);
+            VkDeviceSize minOffsetAlignment = 1
+        );
         ~AvengBuffer();
 
         AvengBuffer(const AvengBuffer&) = delete;

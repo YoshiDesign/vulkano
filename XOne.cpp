@@ -4,6 +4,7 @@
 #include "KeyControl/KeyboardController.h"
 #include "aveng_imgui.h"
 #include "aveng_buffer.h"
+#include "aveng_textures.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -54,6 +55,8 @@ namespace aveng {
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
 			engineDevice.properties.limits.minUniformBufferOffsetAlignment // Important
 		};
+
+		AvengTexture texture(engineDevice);
 
 		// enable writing to it's memory
 		globalUboBuffer.map();
@@ -136,10 +139,11 @@ namespace aveng {
 
 				// Render
 				aveng_imgui.newFrame();
-				aveng_imgui.render(commandBuffer);
 				renderer.beginSwapChainRenderPass(commandBuffer);
 				renderSystem.renderAppObjects(frame_content, appObjects, current_pipeline);
-				aveng_imgui.runExample();
+				aveng_imgui.runGUI(
+					appObjects.size()
+				);
 				aveng_imgui.render(commandBuffer);
 				renderer.endSwapChainRenderPass(commandBuffer);
 				renderer.endFrame();
@@ -161,11 +165,11 @@ namespace aveng {
 		
 		std::shared_ptr<AvengModel> avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/holy_ship.obj");
 
-		for (int i = 0; i < 10; i++) {
-			for (int j = 0; j < 10; j++) {
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 4; j++) {
 
 				auto gameObj = AvengAppObject::createAppObject();
-
+				
 				gameObj.model = avengModel;
 				gameObj.transform.translation = { static_cast<float>(i) * 7.0f, 0.0f, static_cast<float>(j) * 5.0f};
 				gameObj.transform.scale = { .25f, .25f, .25f };

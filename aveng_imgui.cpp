@@ -75,7 +75,7 @@ namespace aveng {
         ImGui_ImplVulkan_Init(&init_info, renderPass);
 
         // upload fonts, this is done by recording and submitting a one time use command buffer
-        // which can be done easily bye using some existing helper functions on the lve device object
+        // which can be done easily by using some existing helper functions on the EngineDevice object
         auto commandBuffer = device.beginSingleTimeCommands();
         ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
         device.endSingleTimeCommands(commandBuffer);
@@ -104,7 +104,7 @@ namespace aveng {
         ImGui_ImplVulkan_RenderDrawData(drawdata, commandBuffer);
     }
 
-    void AvengImgui::runExample() {
+    void AvengImgui::runGUI(size_t num_objs) {
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can
         // browse its code to learn more about Dear ImGui!).
         if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
@@ -115,12 +115,12 @@ namespace aveng {
             static float f = 0.0f;
             static int counter = 0;
 
-            ImGui::Begin("Hello, world!");  // Create a window called "Hello, world!" and append into it.
+            ImGui::Begin("Debug you fool!");  // Create a window called "Hello, world!" and append into it.
 
             ImGui::Text(
-                "This is some useful text.");  // Display some text (you can use a format strings too)
+                "Objects: %d", num_objs);  // Display some text (you can use a format strings too)
             ImGui::Checkbox(
-                "Demo Window",
+                "2nd Window!",
                 &show_demo_window);  // Edit bools storing our window open/close state
             ImGui::Checkbox("Another Window", &show_another_window);
 
@@ -129,15 +129,14 @@ namespace aveng {
                 (float*)&clear_color);  // Edit 3 floats representing a color
 
             if (ImGui::Button("Button"))  // Buttons return true when clicked (most widgets return true
-                                          // when edited/activated)
-            counter++;
+                ++counter;                // when edited/activated)
+            
             ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
-
             ImGui::Text(
-                "Application average %.3f ms/frame (%.1f FPS)",
+                "t = %.3f ms/frame (%.1f FPS)",
                 1000.0f / ImGui::GetIO().Framerate,
                 ImGui::GetIO().Framerate);
+            ImGui::Text("c = %d", counter);
             ImGui::End();
         }
 

@@ -152,6 +152,7 @@
     <ClCompile Include="aveng_buffer.cpp" />
     <ClCompile Include="aveng_imgui.cpp" />
     <ClCompile Include="aveng_model.cpp" />
+    <ClCompile Include="aveng_textures.cpp" />
     <ClCompile Include="aveng_window.cpp" />
     <ClCompile Include="Camera\aveng_camera.cpp" />
     <ClCompile Include="EngineDevice.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="aveng_frame_content.h" />
     <ClInclude Include="aveng_imgui.h" />
     <ClInclude Include="aveng_model.h" />
+    <ClInclude Include="aveng_textures.h" />
     <ClInclude Include="Camera\aveng_camera.h" />
     <ClInclude Include="cool.h" />
     <ClInclude Include="EngineDevice.h" />
@@ -200,7 +202,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="compile.bat" />
-    <None Include="SDL2.dll" />
     <None Include="shaders\simple_shader.frag" />
     <None Include="shaders\simple_shader.vert" />
   </ItemGroup>
