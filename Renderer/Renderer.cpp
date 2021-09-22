@@ -77,6 +77,7 @@ namespace aveng {
 	*/
 	void Renderer::createCommandBuffers() {
 
+		// Resize our vector of command buffers to match the max number of images the swapchain will allow in flight
 		commandBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
 
 		VkCommandBufferAllocateInfo allocInfo{};

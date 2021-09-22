@@ -1,10 +1,7 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-#define SDL_MAIN_HANDLED
-#include <SDL.h>
 #include <string>
-// #include "GUI/imgui_impl_sdl.h"
 
 namespace aveng {
 

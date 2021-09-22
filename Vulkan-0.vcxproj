@@ -116,14 +116,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.176.1\Include;C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glfw-3.3.4.bin.WIN64\include;C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glm;C:\dev\libs\tiny_object_loader;C:\dev\libs\SDL2-2.0.16\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.176.1\Include;C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glfw-3.3.4.bin.WIN64\include;C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glm;C:\dev\libs\tiny_object_loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glfw-3.3.4.bin.WIN64\lib-vc2019;C:\VulkanSDK\1.2.176.1\Lib;C:\dev\libs\SDL2-2.0.16\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;SDL2.lib;SDL2main.lib;SDL2test.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glfw-3.3.4.bin.WIN64\lib-vc2019;C:\VulkanSDK\1.2.176.1\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
@@ -135,7 +135,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.176.1\Include;C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glfw-3.3.4.bin.WIN64\include;C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glm;C:\dev\libs\tiny_object_loader;C:\dev\libs\SDL2-2.0.16\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.176.1\Include;C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glfw-3.3.4.bin.WIN64\include;C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glm;C:\dev\libs\tiny_object_loader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -143,8 +143,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glfw-3.3.4.bin.WIN64\lib-vc2019;C:\VulkanSDK\1.2.176.1\Lib;C:\dev\libs\SDL2-2.0.16\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;SDL2.lib;SDL2main.lib;SDL2test.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Microsoft Visual Studio\2019\Community\Libraries\glfw-3.3.4.bin.WIN64\lib-vc2019;C:\VulkanSDK\1.2.176.1\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
@@ -160,7 +160,6 @@
     <ClCompile Include="GUI\imgui_demo.cpp" />
     <ClCompile Include="GUI\imgui_draw.cpp" />
     <ClCompile Include="GUI\imgui_impl_glfw.cpp" />
-    <ClCompile Include="GUI\imgui_impl_sdl.cpp" />
     <ClCompile Include="GUI\imgui_impl_vulkan.cpp" />
     <ClCompile Include="GUI\imgui_tables.cpp" />
     <ClCompile Include="GUI\imgui_widgets.cpp" />
@@ -187,7 +186,6 @@
     <ClInclude Include="GUI\imconfig.h" />
     <ClInclude Include="GUI\imgui.h" />
     <ClInclude Include="GUI\imgui_impl_glfw.h" />
-    <ClInclude Include="GUI\imgui_impl_sdl.h" />
     <ClInclude Include="GUI\imgui_impl_vulkan.h" />
     <ClInclude Include="GUI\imgui_internal.h" />
     <ClInclude Include="GUI\imstb_rectpack.h" />

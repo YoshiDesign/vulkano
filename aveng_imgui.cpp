@@ -16,7 +16,7 @@ namespace aveng {
     // ok this just initializes imgui using the provided integration files. So in our case we need to
     // initialize the vulkan and glfw imgui implementations, since that's what our engine is built
     // using.
-    LveImgui::LveImgui(
+    AvengImgui::AvengImgui(
         AvengWindow& window, EngineDevice& device, VkRenderPass renderPass, uint32_t imageCount)
         : engineDevice{ device } {
         // set up a descriptor pool stored on this instance, see header for more comments on this.
@@ -82,14 +82,14 @@ namespace aveng {
         ImGui_ImplVulkan_DestroyFontUploadObjects();
     }
 
-    LveImgui::~LveImgui() {
+    AvengImgui::~AvengImgui() {
         vkDestroyDescriptorPool(engineDevice.device(), descriptorPool, nullptr);
         ImGui_ImplVulkan_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
     }
 
-    void LveImgui::newFrame() {
+    void AvengImgui::newFrame() {
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -98,13 +98,13 @@ namespace aveng {
     // this tells imgui that we're done setting up the current frame,
     // then gets the draw data from imgui and uses it to record to the provided
     // command buffer the necessary draw commands
-    void LveImgui::render(VkCommandBuffer commandBuffer) {
+    void AvengImgui::render(VkCommandBuffer commandBuffer) {
         ImGui::Render();
         ImDrawData* drawdata = ImGui::GetDrawData();
         ImGui_ImplVulkan_RenderDrawData(drawdata, commandBuffer);
     }
 
-    void LveImgui::runExample() {
+    void AvengImgui::runExample() {
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can
         // browse its code to learn more about Dear ImGui!).
         if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
@@ -130,7 +130,7 @@ namespace aveng {
 
             if (ImGui::Button("Button"))  // Buttons return true when clicked (most widgets return true
                                           // when edited/activated)
-                counter++;
+            counter++;
             ImGui::SameLine();
             ImGui::Text("counter = %d", counter);
 

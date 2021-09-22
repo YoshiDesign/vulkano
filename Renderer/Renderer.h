@@ -1,6 +1,6 @@
 #pragma once
 #define SDL_MAIN_HANDLED
-#include <SDL.h>
+
 #include <memory>
 #include <vector>
 #include <cassert>
@@ -11,7 +11,7 @@
 #include "../GUI/imgui.h"
 #include "../GUI/imgui_impl_glfw.h"
 #include "../GUI/imgui_impl_vulkan.h"
-#include "../GUI/imgui_impl_sdl.h"
+
 
 namespace aveng {
 

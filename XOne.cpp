@@ -69,7 +69,7 @@ namespace aveng {
 
 		KeyboardController cameraController{};
 
-		LveImgui aveng_imgui{
+		AvengImgui aveng_imgui{
 			aveng_window,
 			engineDevice,
 			renderer.getSwapChainRenderPass(),

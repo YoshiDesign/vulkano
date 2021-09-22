@@ -6,7 +6,7 @@
 // libs
 #include "GUI/imgui.h"
 #include "GUI/imgui_impl_glfw.h"
-#include "GUI/imgui_impl_vulkan.h""
+#include "GUI/imgui_impl_vulkan.h"
 
 // std
 #include <stdexcept>
@@ -22,10 +22,10 @@ namespace aveng {
 		if (err < 0) abort();
 	}
 
-	class LveImgui {
+	class AvengImgui {
 	public:
-		LveImgui(AvengWindow& window, EngineDevice& device, VkRenderPass renderPass, uint32_t imageCount);
-		~LveImgui();
+		AvengImgui(AvengWindow& window, EngineDevice& device, VkRenderPass renderPass, uint32_t imageCount);
+		~AvengImgui();
 
 		void newFrame();
 
