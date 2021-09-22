@@ -12,10 +12,7 @@
 #include "../GUI/imgui_impl_glfw.h"
 #include "../GUI/imgui_impl_vulkan.h"
 
-
 namespace aveng {
-
-
 
 	class Renderer {
 
@@ -43,8 +40,17 @@ namespace aveng {
 			return currentFrameIndex;
 		}
 
-		VkCommandBuffer beginFrame();
+		// SwapChain getters
 		uint32_t getImageCount() const { return aveng_swapchain->imageCount(); }
+		VkImage& getImage(int index) { return aveng_swapchain->getImage(index); }
+		VkFormat getSwapChainImageFormat() { return aveng_swapchain->getSwapChainImageFormat(); }
+
+		VkImageView getImageView(VkImage image, VkFormat format) 
+		{
+			return aveng_swapchain->createImageView(image, format);
+		}
+
+		VkCommandBuffer beginFrame();
 		void endFrame();
 		void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
 		void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
@@ -66,7 +72,6 @@ namespace aveng {
 
 		// SwapChain aveng_swapchain{ engineDevice, aveng_window.getExtent() };	// previous stack allocated. Ptr makes it easier to rebuild when the window resizes
 		std::unique_ptr<SwapChain> aveng_swapchain;
-		
 		
 		uint32_t currentImageIndex{0};
 		int currentFrameIndex; // Not tied to the image index

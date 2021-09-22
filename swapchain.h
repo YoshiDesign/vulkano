@@ -24,23 +24,27 @@ namespace aveng {
         SwapChain(const SwapChain&) = delete;
         SwapChain& operator=(const SwapChain&) = delete;
 
-        VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
-        VkRenderPass getRenderPass() { return renderPass; }
-        VkImageView getImageView(int index) { return swapChainImageViews[index]; }
-        size_t imageCount() { return swapChainImages.size(); }
-        VkFormat getSwapChainImageFormat() { return swapChainImageFormat; }
-        VkExtent2D getSwapChainExtent() { return swapChainExtent; }
-        uint32_t width() { return swapChainExtent.width; }
-        uint32_t height() { return swapChainExtent.height; }
+        uint32_t            width() { return swapChainExtent.width; }
+        uint32_t            height() { return swapChainExtent.height; }
+        size_t              imageCount() { return swapChainImages.size(); }
+        VkRenderPass        getRenderPass() { return renderPass; }
+        VkExtent2D          getSwapChainExtent() { return swapChainExtent; }
+        VkFormat            getSwapChainImageFormat() { return swapChainImageFormat; }
+        VkFramebuffer       getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
+
+        VkImageView          createImageView(VkImage image, VkFormat format);
+        VkImageView          getImageView(int index) { return swapChainImageViews[index]; }
+        VkImage&             getImage(int index) { return swapChainImages[index]; }
+        size_t               swapChainImagesSize() { return swapChainImages.size(); }
+        std::vector<VkImageView>& getSwapChainImageViews() { return swapChainImageViews; }
+
+        VkResult            submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex);
+        VkResult            acquireNextImage(uint32_t* imageIndex);
+        VkFormat            findDepthFormat();
 
         float extentAspectRatio() {
             return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);
         }
-        VkFormat findDepthFormat();
-
-        VkResult acquireNextImage(uint32_t* imageIndex);
-        VkResult submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex);
-
 
         bool compareSwapFormats(const SwapChain& swapChain) const 
         {

@@ -4,7 +4,6 @@
 #include "KeyControl/KeyboardController.h"
 #include "aveng_imgui.h"
 #include "aveng_buffer.h"
-#include "aveng_textures.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -56,7 +55,7 @@ namespace aveng {
 			engineDevice.properties.limits.minUniformBufferOffsetAlignment // Important
 		};
 
-		AvengTexture texture(engineDevice);
+		//AvengTexture texture(engineDevice, renderer);
 
 		// enable writing to it's memory
 		globalUboBuffer.map();

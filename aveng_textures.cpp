@@ -6,8 +6,8 @@
 
 namespace aveng {
 
-	AvengTexture::AvengTexture(EngineDevice& device)
-		: engineDevice{device}
+	AvengTexture::AvengTexture(EngineDevice& device, Renderer& renderer)
+		: engineDevice{ device }, renderer{ renderer }
 	{
 	
 	}
@@ -106,6 +106,10 @@ namespace aveng {
 
 	}
 
+	void AvengTexture::createTextureImageView(const VkImageView imageView)
+	{
+		textureImageView = renderer.getImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+	}
 
 	void AvengTexture::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) 
 	{
