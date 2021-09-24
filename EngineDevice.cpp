@@ -588,6 +588,11 @@ namespace aveng {
       throw std::runtime_error("failed to find suitable memory type!");
     }
 
+    /*
+    * @function void EngineDevice::createBuffer
+    * Bind a buffer to specific GPU memory by
+    * allocating a mapped region
+    */
     void EngineDevice::createBuffer(
         VkDeviceSize size,
         VkBufferUsageFlags usage,
@@ -631,21 +636,29 @@ namespace aveng {
     * Allocate a command buffer in memory and return a pointer to it
     */
     VkCommandBuffer EngineDevice::beginSingleTimeCommands() {
-      VkCommandBufferAllocateInfo allocInfo{};
-      allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-      allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-      allocInfo.commandPool = _commandPool;
-      allocInfo.commandBufferCount = 1;
 
-      VkCommandBuffer commandBuffer;
-      vkAllocateCommandBuffers(_device, &allocInfo, &commandBuffer);
+        VkCommandBufferAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.commandPool = _commandPool;
+        allocInfo.commandBufferCount = 1;
 
-      VkCommandBufferBeginInfo beginInfo{};
-      beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-      beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+        VkCommandBuffer commandBuffer;
+        vkAllocateCommandBuffers(_device, &allocInfo, &commandBuffer);
+        /*
+        * (Above) vkAllocateCommandBuffers
+        * _device - the LOGICAL device that owns the command pool
+        * allocInfo - describing parameters of the allocation
+        * commandBuffer -  Pointer to array of cmd buffers. Must be at least the length specified by the 
+        * commandBufferCount member of pAllocateInfo. Each allocated command buffer begins in the initial state.
+        */
 
-      vkBeginCommandBuffer(commandBuffer, &beginInfo);
-      return commandBuffer;
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+        vkBeginCommandBuffer(commandBuffer, &beginInfo);
+        return commandBuffer;
     }
 
     void EngineDevice::endSingleTimeCommands(VkCommandBuffer commandBuffer) 

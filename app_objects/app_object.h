@@ -6,7 +6,7 @@
 
 namespace aveng {
 
-	// Move things up down left & right
+	// All kinds of matrix
 	struct TransformComponent 
 	{
 		glm::vec3 translation{};	// Position offset

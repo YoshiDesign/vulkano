@@ -169,6 +169,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\RenderSystem.cpp" />
+    <ClCompile Include="aveng_descriptors.cpp" />
+    <ClCompile Include="stb\stb_vorbis.c" />
     <ClCompile Include="swapchain.cpp" />
     <ClCompile Include="XOne.cpp" />
   </ItemGroup>
@@ -197,6 +199,26 @@
     <ClInclude Include="KeyControl\TestController.h" />
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\RenderSystem.h" />
+    <ClInclude Include="aveng_descriptors.h" />
+    <ClInclude Include="stb\stb_connected_components.h" />
+    <ClInclude Include="stb\stb_c_lexer.h" />
+    <ClInclude Include="stb\stb_divide.h" />
+    <ClInclude Include="stb\stb_ds.h" />
+    <ClInclude Include="stb\stb_dxt.h" />
+    <ClInclude Include="stb\stb_easy_font.h" />
+    <ClInclude Include="stb\stb_herringbone_wang_tile.h" />
+    <ClInclude Include="stb\stb_hexwave.h" />
+    <ClInclude Include="stb\stb_image.h" />
+    <ClInclude Include="stb\stb_image_resize.h" />
+    <ClInclude Include="stb\stb_image_write.h" />
+    <ClInclude Include="stb\stb_include.h" />
+    <ClInclude Include="stb\stb_leakcheck.h" />
+    <ClInclude Include="stb\stb_rect_pack.h" />
+    <ClInclude Include="stb\stb_sprintf.h" />
+    <ClInclude Include="stb\stb_textedit.h" />
+    <ClInclude Include="stb\stb_tilemap_editor.h" />
+    <ClInclude Include="stb\stb_truetype.h" />
+    <ClInclude Include="stb\stb_voxel_render.h" />
     <ClInclude Include="swapchain.h" />
     <ClInclude Include="XOne.h" />
   </ItemGroup>
@@ -204,6 +226,8 @@
     <None Include="compile.bat" />
     <None Include="shaders\simple_shader.frag" />
     <None Include="shaders\simple_shader.vert" />
+    <None Include="shaders\ubo_frag_shader.frag" />
+    <None Include="shaders\ubo_vert_shader.vert" />
   </ItemGroup>
   <ItemGroup>
     <Text Include=".gitignore" />

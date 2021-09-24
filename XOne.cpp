@@ -4,6 +4,7 @@
 #include "KeyControl/KeyboardController.h"
 #include "aveng_imgui.h"
 #include "aveng_buffer.h"
+#include "aveng_textures.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -24,6 +25,10 @@ namespace aveng {
 		glm::vec3 lightDirection = glm::normalize(glm::vec3{ 1.f, -3.f, -1.f });
 
 	};
+
+	//struct GlobalTextureUbo {
+
+	//};
 
 	int current_pipeline = 0;
 	void testKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -52,10 +57,8 @@ namespace aveng {
 			SwapChain::MAX_FRAMES_IN_FLIGHT,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-			engineDevice.properties.limits.minUniformBufferOffsetAlignment // Important
+			engineDevice.properties.limits.minUniformBufferOffsetAlignment
 		};
-
-		//AvengTexture texture(engineDevice, renderer);
 
 		// enable writing to it's memory
 		globalUboBuffer.map();
@@ -149,13 +152,11 @@ namespace aveng {
 
 			}
 
-
 		}
 
 		// Block until all GPU operations quit.
 		vkDeviceWaitIdle(engineDevice.device());
 	}
-
 
 	/*
 	*/

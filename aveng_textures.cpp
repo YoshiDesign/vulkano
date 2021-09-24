@@ -1,66 +1,26 @@
 #include "aveng_textures.h"
 #include <stdexcept>
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
 
 
 namespace aveng {
 
-	AvengTexture::AvengTexture(EngineDevice& device, Renderer& renderer)
-		: engineDevice{ device }, renderer{ renderer }
+	AvengTexture::AvengTexture(EngineDevice& device)
+		: engineDevice{ device }
 	{
 	
 	}
 
 	AvengTexture::~AvengTexture()
 	{
-		vkDestroyImage(engineDevice.device(), textureImage, nullptr);
-		vkFreeMemory(engineDevice.device(), textureImageMemory, nullptr);
+		
+		vkFreeMemory(engineDevice.device(), _textureImageMemory, nullptr);
 	}
 
-	void AvengTexture::createTextureImage()
-	{
-		VkResult err;
-        int texWidth, texHeight, texChannels;
-        stbi_uc* pixels = stbi_load("textures/tx1p.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-        VkDeviceSize imageSize = texWidth * texHeight * 4;
-
-        if (!pixels) {
-            throw std::runtime_error("failed to load texture image!");
-        }
-
-		AvengBuffer stagingBuffer {
-			engineDevice,
-			imageSize,
-			sizeof(pixels[0]),
-			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-			// Host Coherent bit ensures the *data buffer is flushed to the device's buffer automatically, so we dont have to call the VkFlushMappedMemoryRanges
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-		};
-
-		err = stagingBuffer.map();
-		if (err != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to allocate texture staging buffer");
-		}
-
-		stbi_image_free(pixels);
-		createImage(
-			texWidth, 
-			texHeight, 
-			VK_FORMAT_R8G8B8A8_SRGB, 
-			VK_IMAGE_TILING_OPTIMAL,
-			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory
-		);
-
-		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		engineDevice.copyBufferToImage(stagingBuffer.getBuffer(), textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), 1);
-
-		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-	}
-
+	/*
+	* @function void AvengTexture::createImage
+	* Bind an image to specific GPU memory by
+	* allocating a mapped region
+	*/
 	void AvengTexture::createImage(
 		uint32_t width, 
 		uint32_t height, 
@@ -68,8 +28,7 @@ namespace aveng {
 		VkImageTiling tiling, 
 		VkImageUsageFlags usage, 
 		VkMemoryPropertyFlags properties, 
-		VkImage& image,
-		 VkDeviceMemory& imageMemory
+		VkImage& image
 	) {
 		VkImageCreateInfo imageInfo{};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -90,29 +49,29 @@ namespace aveng {
 			throw std::runtime_error("failed to create image!");
 		}
 
+		// Query the texture's memory requirements so we can allocate according to proper size & properties
 		VkMemoryRequirements memRequirements;
 		vkGetImageMemoryRequirements(engineDevice.device(), image, &memRequirements);
 
+		//
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
 		allocInfo.memoryTypeIndex = engineDevice.findMemoryType(memRequirements.memoryTypeBits, properties);
 
-		if (vkAllocateMemory(engineDevice.device(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+		if (vkAllocateMemory(engineDevice.device(), &allocInfo, nullptr, &_textureImageMemory) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate image memory!");
 		}
 
-		vkBindImageMemory(engineDevice.device(), image, imageMemory, 0);
+		// 
+		vkBindImageMemory(engineDevice.device(), image, _textureImageMemory, 0);
 
 	}
 
-	void AvengTexture::createTextureImageView(const VkImageView imageView)
-	{
-		textureImageView = renderer.getImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
-	}
 
 	void AvengTexture::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) 
 	{
+		// Start writing a command buffer
 		VkCommandBuffer commandBuffer = engineDevice.beginSingleTimeCommands();
 
 		VkImageMemoryBarrier barrier{};

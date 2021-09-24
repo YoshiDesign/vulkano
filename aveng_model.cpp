@@ -28,13 +28,18 @@ namespace std {
 
 namespace aveng {
 
-	AvengModel::AvengModel(EngineDevice& device, const AvengModel::Builder &builder) 
-		: engineDevice{ device } 
+	AvengModel::AvengModel(EngineDevice& device, const AvengModel::Builder& builder) 
+		: engineDevice{ device }
 	{
 		createVertexBuffers(builder.vertices);
 		createIndexBuffers(builder.indices);
 	}
-	AvengModel::~AvengModel() {}
+
+	AvengModel::~AvengModel() 
+	{
+
+
+	}
 
 	std::unique_ptr<AvengModel> AvengModel::createModelFromFile(EngineDevice& device, const std::string& filepath)
 	{
@@ -43,6 +48,12 @@ namespace aveng {
 		return std::make_unique<AvengModel>(device, builder);
 	}
 
+	std::unique_ptr<AvengModel> AvengModel::createTextureFromFile(EngineDevice& device, const std::string& filepath)
+	{
+
+	}
+
+	
 	/*
 	* @function createVertexBuffers
 		Create a vertex buffer in our device memory
@@ -64,7 +75,7 @@ namespace aveng {
 			vertexCount,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			// Host Coherent bit ensures the *data buffer is flushed to the device's buffer automatically, so we dont have to call the VkFlushMappedMemoryRanges
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
 		};
 
 		// This takes care of vkMapMemory -> memcpy(vertices.data() ...) -> vkUnmapMemory
@@ -121,10 +132,9 @@ namespace aveng {
 			indexSize,
 			indexCount,
 			VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-			// Host Coherent bit ensures the *data buffer is flushed automatically so we dont have to call the VkFlushMappedMemoryRanges
+			// Transfer bit ensures that this buffer's location in device memory will receive data from our transfer source bit
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 		);
-
 
 		engineDevice.copyBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
 
@@ -225,6 +235,7 @@ namespace aveng {
 		// Will track which vertices have been added to the Builder.vertices vector and store the position at which the vertex wwas originally added
 		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
+		// For every 
 		for (const auto& shape : shapes) 
 		{
 			for (const auto& index : shape.mesh.indices) 

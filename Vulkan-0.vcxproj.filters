@@ -81,6 +81,12 @@
     <ClCompile Include="aveng_textures.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stb\stb_vorbis.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="aveng_descriptors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aveng_window.h">
@@ -161,6 +167,66 @@
     <ClInclude Include="aveng_textures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="stb\stb_c_lexer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_connected_components.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_divide.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_ds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_dxt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_easy_font.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_herringbone_wang_tile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_hexwave.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_image_resize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_image_write.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_include.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_leakcheck.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_rect_pack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_sprintf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_textedit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_tilemap_editor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_truetype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb\stb_voxel_render.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="aveng_descriptors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\simple_shader.vert" />
@@ -168,6 +234,8 @@
     <None Include="compile.bat">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="shaders\ubo_vert_shader.vert" />
+    <None Include="shaders\ubo_frag_shader.frag" />
   </ItemGroup>
   <ItemGroup>
     <Text Include=".gitignore" />

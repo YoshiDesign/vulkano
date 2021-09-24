@@ -79,6 +79,8 @@ namespace aveng {
         auto commandBuffer = device.beginSingleTimeCommands();
         ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
         device.endSingleTimeCommands(commandBuffer);
+
+        // Cleanup the font object
         ImGui_ImplVulkan_DestroyFontUploadObjects();
     }
 

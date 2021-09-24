@@ -3,22 +3,34 @@
 #include <stdexcept>
 #include <cassert>
 #include <array>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
 
 #define LOG(a) std::cout<<a<<std::endl;
 
 
 namespace aveng {
 
+	struct UniformBufferObject {
+		alignas(16) glm::mat4 model;
+		alignas(16) glm::mat4 view;
+		alignas(16) glm::mat4 proj;
+	};
+
 	Renderer::Renderer(AvengWindow& window, EngineDevice& device) : aveng_window{ window }, engineDevice{ device }
 	{
 		recreateSwapChain();
 		createCommandBuffers();
-
 	}
 
 	Renderer::~Renderer()
 	{
 		freeCommandBuffers();
+		for (size_t i = 0; i < getImageCount(); i++) {
+			vkDestroyBuffer(engineDevice.device(), uniformBuffers[i], nullptr);
+			vkFreeMemory(engineDevice.device(), uniformBuffersMemory[i], nullptr);
+		}
+
 	}
 
 	void Renderer::recreateSwapChain()
@@ -55,6 +67,8 @@ namespace aveng {
 
 		}
 
+		createUniformBuffers();
+
 		// Reinitialize ImGui
 		//ImGui_ImplVulkan_SetMinImageCount(swapchain_image_count());
 
@@ -70,6 +84,18 @@ namespace aveng {
 		);
 
 		commandBuffers.clear();
+	}
+
+
+	void Renderer::createUniformBuffers() {
+		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+		uniformBuffers.resize(getImageCount());
+		uniformBuffersMemory.resize(getImageCount());
+
+		for (size_t i = 0; i < getImageCount(); i++) {
+			engineDevice.createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+		}
 	}
 
 
@@ -94,6 +120,7 @@ namespace aveng {
 
 	}
 
+	
 	// Return a command buffer for the current frame index
 	VkCommandBuffer Renderer::beginFrame() 
 	{
@@ -155,6 +182,9 @@ namespace aveng {
 		currentFrameIndex = (currentFrameIndex + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
 
 	}
+
+
+
 	void  Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer)
 	{
 	

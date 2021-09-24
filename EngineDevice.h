@@ -68,7 +68,6 @@ namespace aveng {
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
         QueueFamilyIndices findPhysicalQueueFamilies(){ return findQueueFamilies(_physicalDevice); };
         uint32_t getGraphicsQueueFamily() { return findPhysicalQueueFamilies().graphicsFamily; }
-        
         VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 
         // Buffer Helper Functions

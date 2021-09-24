@@ -15,12 +15,10 @@ namespace aveng {
 
 	public:
 
-		
-
 		AvengWindow(int w, int h, std::string name);
 		~AvengWindow();
 
-		// Removal of copy construction. RAII 'til I die.
+		// Removal of copy construction
 		AvengWindow(const AvengWindow&) = delete;
 		AvengWindow& operator=(const AvengWindow&) = delete;
 

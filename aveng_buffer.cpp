@@ -29,6 +29,9 @@ namespace aveng {
         return instanceSize;
     }
 
+    /*
+    * Constructor - Calls to engineDevice.createBuffer
+    */
     AvengBuffer::AvengBuffer(
         EngineDevice& device,
         VkDeviceSize instanceSize,
@@ -45,6 +48,8 @@ namespace aveng {
     {
         alignmentSize = getAlignment(instanceSize, minOffsetAlignment);
         bufferSize = alignmentSize * instanceCount;
+
+        // Call to engineDevice
         device.createBuffer(bufferSize, usageFlags, memoryPropertyFlags, buffer, memory);
     }
 

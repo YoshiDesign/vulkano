@@ -2,11 +2,13 @@
 
 #include "EngineDevice.h"
 #include "aveng_buffer.h"
+#include "aveng_textures.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -18,6 +20,7 @@ namespace aveng {
 		uint32_t vertexCount;
 		bool hasIndexBuffer = false;
 		uint32_t indexCount;
+		VkImage textureImage;
 
 		/*VkBuffer vertexBuffer;		OLD
 		VkDeviceMemory vertexBufferMemory;*/
@@ -34,17 +37,19 @@ namespace aveng {
 		struct Vertex {
 			glm::vec3 position;
 			glm::vec3 color;
-			glm::vec3 normal{}; // surface norms I guess
+			glm::vec3 normal{}; // surface norms
 			glm::vec2 uv{};		// 2d texture coordinates
 
 			/*
-			* Descriptions of our vertext input so that our shaders
+			* Descriptions of our vertex input so that our shaders
 			* may receive communications from our GFXPipeline and understand
-			* how to parse the incoming data
+			* how to parse the incoming data.
+			* Utilized during GFXPipeline setup
 			*/
 			static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
 			static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
+			// This is used with our hashing function to generate keys in our ordered map of vertices
 			bool operator==(const Vertex& other) const 
 			{
 				return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
@@ -67,6 +72,7 @@ namespace aveng {
 		AvengModel& operator=(const AvengModel&) = delete;
 
 		static std::unique_ptr<AvengModel> createModelFromFile(EngineDevice& device, const std::string& filepath);
+		static std::unique_ptr<AvengModel> createTextureFromFile(EngineDevice& device, const std::string& filepath);
 
 		void bind(VkCommandBuffer commandBuffer);
 		void draw(VkCommandBuffer commandBuffer);
@@ -75,7 +81,6 @@ namespace aveng {
 
 		void createVertexBuffers(const std::vector<Vertex>& vertices);
 		void createIndexBuffers(const std::vector<uint32_t>& indices);
-
 
 	};
 

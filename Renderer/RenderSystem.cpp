@@ -18,7 +18,6 @@ namespace aveng {
 		glm::mat4 modelMatrix{ 1.f };
 	};
 
-
 	RenderSystem::RenderSystem(EngineDevice& device, VkRenderPass renderPass) : engineDevice{device}
 	{
 		createPipelineLayout();
@@ -82,7 +81,6 @@ namespace aveng {
 			pipelineConfig
 		);
 	}
-
 
 	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, uint8_t pipe_no)
 	{

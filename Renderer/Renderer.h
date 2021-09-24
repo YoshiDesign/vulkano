@@ -1,5 +1,4 @@
 #pragma once
-#define SDL_MAIN_HANDLED
 
 #include <memory>
 #include <vector>
@@ -44,16 +43,13 @@ namespace aveng {
 		uint32_t getImageCount() const { return aveng_swapchain->imageCount(); }
 		VkImage& getImage(int index) { return aveng_swapchain->getImage(index); }
 		VkFormat getSwapChainImageFormat() { return aveng_swapchain->getSwapChainImageFormat(); }
-
-		VkImageView getImageView(VkImage image, VkFormat format) 
-		{
-			return aveng_swapchain->createImageView(image, format);
-		}
+	/*	VkDescriptorSetLayout getSwapChainDescriptorSetLayout() { return aveng_swapchain->descriptorSetLayout(); }*/
 
 		VkCommandBuffer beginFrame();
 		void endFrame();
 		void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
 		void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
+
 
 	private:
 
@@ -62,6 +58,7 @@ namespace aveng {
 		void createCommandBuffers();
 		void freeCommandBuffers();
 		void recreateSwapChain();
+		void createUniformBuffers();
 
 		AvengWindow& aveng_window;
 		EngineDevice& engineDevice;
@@ -76,6 +73,10 @@ namespace aveng {
 		uint32_t currentImageIndex{0};
 		int currentFrameIndex; // Not tied to the image index
 		bool isFrameStarted{ false };
+		
+		std::vector<VkBuffer> uniformBuffers;
+		std::vector<VkDeviceMemory> uniformBuffersMemory;
+
 	};
 
 }

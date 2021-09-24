@@ -2,6 +2,7 @@
 #pragma once
 
 #include "EngineDevice.h"
+#include "aveng_textures.h"
 
 // vulkan headers
 #include <vulkan/vulkan.h>
@@ -41,6 +42,14 @@ namespace aveng {
         VkResult            submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex);
         VkResult            acquireNextImage(uint32_t* imageIndex);
         VkFormat            findDepthFormat();
+        //VkDescriptorSetLayout descriptorSetLayout() { return _descriptorSetLayout; }
+
+
+        //VkImageView getTextureImageView() { return textureImageView; }
+
+        //void createTextureImageView(const VkImageView imageView);
+        //void createTextureSampler();
+        //void createTextureImage();
 
         float extentAspectRatio() {
             return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);
@@ -93,6 +102,10 @@ namespace aveng {
         std::vector<VkFence> inFlightFences;
         std::vector<VkFence> imagesInFlight;
         size_t currentFrame = 0;
+
+        VkImageView textureImageView;
+        VkImage textureImage;
+        VkSampler textureSampler;
     };
 
 }  // namespace lve
