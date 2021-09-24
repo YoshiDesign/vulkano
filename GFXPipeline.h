@@ -59,7 +59,6 @@ namespace aveng {
 		GFXPipeline& operator=(const GFXPipeline&) = delete;
 		void bind(VkCommandBuffer commandBuffer);
 		static void defaultPipelineConfig(PipelineConfig& configInfo);
-		void switchPipeline();
 
 		// These are both public now...
 		static std::vector<char> readFile(const std::string& filepath);

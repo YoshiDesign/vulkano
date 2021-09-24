@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <vector>
-
+#include "Renderer.h"
 #include "../app_objects/app_object.h"
 #include "../Camera/aveng_camera.h"
 #include "../EngineDevice.h"
@@ -21,14 +21,13 @@ namespace aveng {
 
 	public:
 
-		RenderSystem(EngineDevice &device, VkRenderPass renderPass);
+		RenderSystem(EngineDevice &device, Renderer &renderer, VkRenderPass renderPass);
 		~RenderSystem();
 
 		RenderSystem(const RenderSystem&) = delete;
 		RenderSystem& operator=(const RenderSystem&) = delete;
 		void renderAppObjects(FrameContent& commandBuffer, std::vector<AvengAppObject> &appObjects, uint8_t pipe_no);
-
-
+		VkPipelineLayout getPipelineLayout() { return pipelineLayout; }
 
 	private:
 
@@ -42,6 +41,7 @@ namespace aveng {
 		std::unique_ptr<GFXPipeline> gfxPipeline2;
 
 		EngineDevice &engineDevice;
+		Renderer& renderer;
 		VkPipelineLayout pipelineLayout;
 
 	};

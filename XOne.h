@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <vector>
+#include "Renderer/RenderSystem.h"
+#include "aveng_descriptors.h"
 #include "app_objects/app_object.h"
 #include "aveng_window.h"
 #include "EngineDevice.h"

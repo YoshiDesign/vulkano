@@ -38,9 +38,11 @@ namespace aveng {
     }
 
     SwapChain::~SwapChain() {
+
         for (auto imageView : swapChainImageViews) {
             vkDestroyImageView(device.device(), imageView, nullptr);
         }
+
         swapChainImageViews.clear();
         vkDestroySampler(device.device(), textureSampler, nullptr);
         vkDestroyImageView(device.device(), textureImageView, nullptr);
@@ -207,7 +209,9 @@ namespace aveng {
         submitInfo.pSignalSemaphores = signalSemaphores;
 
         vkResetFences(device.device(), 1, &inFlightFences[currentFrame]);
-        if (vkQueueSubmit(device.graphicsQueue(), 1, &submitInfo, inFlightFences[currentFrame]) !=
+        VkResult _result = vkQueueSubmit(device.graphicsQueue(), 1, &submitInfo, inFlightFences[currentFrame]);
+        std::cout << _result << std::endl;
+        if ( _result !=
             VK_SUCCESS) {
             throw std::runtime_error("failed to submit draw command buffer!");
         }

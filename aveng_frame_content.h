@@ -11,6 +11,7 @@ namespace aveng {
 		float frameTime;
 		VkCommandBuffer commandBuffer;
 		AvengCamera& camera;
+		VkDescriptorSet descriptorSet;
 
 	};
 }

@@ -1,5 +1,4 @@
 #include <iostream>
-#include "Renderer/RenderSystem.h"
 #include "Camera/aveng_camera.h"
 #include "KeyControl/KeyboardController.h"
 #include "aveng_imgui.h"
@@ -9,6 +8,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/constants.hpp>
 #include <stdexcept>
 #include <array>
@@ -26,11 +26,7 @@ namespace aveng {
 
 	};
 
-	//struct GlobalTextureUbo {
-
-	//};
-
-	int current_pipeline = 0;
+	int current_pipeline = 1;
 	void testKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
@@ -42,10 +38,14 @@ namespace aveng {
 
 	XOne::XOne() 
 	{
+
 		loadAppObjects();
 	}
 
-	XOne::~XOne(){}
+	XOne::~XOne()
+	{
+		
+	}
 
 	void XOne::run()
 	{
@@ -64,7 +64,7 @@ namespace aveng {
 		globalUboBuffer.map();
 
 		// Note that the renderSystem is initialized with a pointer to the Render Pass
-		RenderSystem renderSystem{ engineDevice, renderer.getSwapChainRenderPass() };
+		RenderSystem renderSystem{ engineDevice, renderer, renderer.getSwapChainRenderPass()};
 		AvengCamera camera{};
 
 		camera.setViewTarget(glm::vec3(-1.f, -2.f, -20.f), glm::vec3(0.f, 0.f, 3.5f));
@@ -122,34 +122,39 @@ namespace aveng {
 			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
 
 			// The beginFrame function will return a nullptr if the swapchain needs to be recreated
-			if (auto commandBuffer = renderer.beginFrame()) {
-				int frameIndex = renderer.getFrameIndex();
+			auto commandBuffer = renderer.beginFrame();
 
+			if (commandBuffer != nullptr) {
+
+				int frameIndex = renderer.getFrameIndex();
+				// VkDescriptorSet descriptorSet = descriptorSets[frameIndex];
 				// frame relevant data
 				FrameContent frame_content{
 					frameIndex,
 					frameTime,
 					commandBuffer,
-					camera
+					camera,
+					renderer.getCurrentDescriptorSet()
 				};
 
 				// Update
-				GlobalUbo ubo{};
+				/*GlobalUbo ubo{};
 				ubo.projectionView = camera.getProjection() * camera.getView();
 				globalUboBuffer.writeToIndex(&ubo, frameIndex);
-				globalUboBuffer.flushIndex(frameIndex);
+				globalUboBuffer.flushIndex(frameIndex);*/
+				renderer.updateUniformBuffer(frameIndex, frameTime, camera.getProjection() * camera.getView());
 
 				// Render
 				aveng_imgui.newFrame();
 				renderer.beginSwapChainRenderPass(commandBuffer);
-				renderSystem.renderAppObjects(frame_content, appObjects, current_pipeline);
+				renderSystem.renderAppObjects(frame_content, appObjects, current_pipeline );
 				aveng_imgui.runGUI(
 					appObjects.size()
 				);
 				aveng_imgui.render(commandBuffer);
 				renderer.endSwapChainRenderPass(commandBuffer);
 				renderer.endFrame();
-
+				
 			}
 
 		}
@@ -159,6 +164,7 @@ namespace aveng {
 	}
 
 	/*
+	* 
 	*/
 	void XOne::loadAppObjects() 
 	{

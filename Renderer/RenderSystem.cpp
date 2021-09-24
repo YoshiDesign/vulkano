@@ -18,7 +18,7 @@ namespace aveng {
 		glm::mat4 modelMatrix{ 1.f };
 	};
 
-	RenderSystem::RenderSystem(EngineDevice& device, VkRenderPass renderPass) : engineDevice{device}
+	RenderSystem::RenderSystem(EngineDevice& device, Renderer& _renderer, VkRenderPass renderPass) : engineDevice{ device }, renderer{_renderer}
 	{
 		createPipelineLayout();
 		createPipeline(renderPass);
@@ -35,24 +35,34 @@ namespace aveng {
 	*/
 	void RenderSystem::createPipelineLayout()
 	{
-		VkPushConstantRange pushConstantRange{};
-		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-		pushConstantRange.offset = 0;
-		pushConstantRange.size = sizeof(SimplePushConstantData);
+		//VkPushConstantRange pushConstantRange{};
+		//pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+		//pushConstantRange.offset = 0;
+		//pushConstantRange.size = sizeof(SimplePushConstantData);
+
+		//VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+		////  Structure specifying the parameters of a newly created pipeline layout object
+		//pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		//pipelineLayoutInfo.setLayoutCount = 0;
+		//// used to send additional data, other than vertex information, to our shaders 
+		//// such as textures and uniform buffer objects
+		//pipelineLayoutInfo.pSetLayouts = nullptr;
+		//pipelineLayoutInfo.pushConstantRangeCount = 1;
+		//pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
+		//if (vkCreatePipelineLayout(engineDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
+		//{
+		//	throw std::runtime_error("Failed to create pipeline layout.");
+		//}
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-		//  Structure specifying the parameters of a newly created pipeline layout object
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 0;
-		// used to send additional data, other than vertex information, to our shaders 
-		// such as textures and uniform buffer objects
-		pipelineLayoutInfo.pSetLayouts = nullptr;
-		pipelineLayoutInfo.pushConstantRangeCount = 1;
-		pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
-		if (vkCreatePipelineLayout(engineDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
-		{
-			throw std::runtime_error("Failed to create pipeline layout.");
+		pipelineLayoutInfo.setLayoutCount = 1;
+		pipelineLayoutInfo.pSetLayouts = renderer.getDescriptorSetLayout(); // pointer
+
+		if (vkCreatePipelineLayout(engineDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create pipeline layout!");
 		}
+
 	}
 
 	/*
@@ -82,6 +92,7 @@ namespace aveng {
 		);
 	}
 
+
 	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, uint8_t pipe_no)
 	{
 		// Bind our current pipeline configuration
@@ -99,20 +110,20 @@ namespace aveng {
 		for (auto& obj : appObjects) 
 		{
 
-			SimplePushConstantData push{};
-			auto modelMatrix = obj.transform.mat4();
-			push.transform = projectionView * obj.transform.mat4();
-			push.modelMatrix = modelMatrix;
+			//SimplePushConstantData push{};
+			//auto modelMatrix = obj.transform.mat4();
+			//push.transform = projectionView * obj.transform.mat4();
+			//push.modelMatrix = modelMatrix;
 
-			vkCmdPushConstants(
-				frame_content.commandBuffer,
-				pipelineLayout,
-				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-				0,
-				sizeof(SimplePushConstantData),
-				&push
-			); 
-			obj.model->bind(frame_content.commandBuffer);
+			//vkCmdPushConstants(
+			//	frame_content.commandBuffer,
+			//	pipelineLayout,
+			//	VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+			//	0,
+			//	sizeof(SimplePushConstantData),
+			//	&push
+			//); 
+			obj.model->bind(frame_content.commandBuffer, pipelineLayout, frame_content.descriptorSet);
 			obj.model->draw(frame_content.commandBuffer);
 		}
 	}

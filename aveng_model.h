@@ -74,7 +74,7 @@ namespace aveng {
 		static std::unique_ptr<AvengModel> createModelFromFile(EngineDevice& device, const std::string& filepath);
 		static std::unique_ptr<AvengModel> createTextureFromFile(EngineDevice& device, const std::string& filepath);
 
-		void bind(VkCommandBuffer commandBuffer);
+		void bind(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, VkDescriptorSet descriptorSet);
 		void draw(VkCommandBuffer commandBuffer);
 	
 	private:

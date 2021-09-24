@@ -22,7 +22,7 @@ namespace aveng {
 			const float s3 = glm::sin(rotation.z);
 			const float c2 = glm::cos(rotation.x);
 			const float s2 = glm::sin(rotation.x);
-			const float c1 = glm::cos(rotation.y);
+			const float c1 = glm::cos(rotation.y); 
 			const float s1 = glm::sin(rotation.y);
 			return glm::mat4{
 				{

@@ -152,7 +152,7 @@ namespace aveng {
 		}
 	}
 
-	void AvengModel::bind(VkCommandBuffer commandBuffer)
+	void AvengModel::bind(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, VkDescriptorSet descriptorSet)
 	{
 		VkBuffer buffers[] = { vertexBuffer->getBuffer() };
 		VkDeviceSize offsets[] = { 0 };
@@ -162,6 +162,8 @@ namespace aveng {
 		{
 			vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32); // This index type can store up to 2^32 vertices
 		}
+
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 
 	}
 

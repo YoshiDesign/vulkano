@@ -130,10 +130,6 @@ namespace aveng {
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 	}
 
-	void GFXPipeline::switchPipeline() {
-	
-	}
-
 	/**
 	 *	Read our shader binary into a vector
 	 */

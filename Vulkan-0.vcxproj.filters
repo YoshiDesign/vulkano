@@ -236,6 +236,8 @@
     </None>
     <None Include="shaders\ubo_vert_shader.vert" />
     <None Include="shaders\ubo_frag_shader.frag" />
+    <None Include="shaders\simple_shader2.vert" />
+    <None Include="shaders\simple_shader2.frag" />
   </ItemGroup>
   <ItemGroup>
     <Text Include=".gitignore" />
