@@ -120,8 +120,8 @@ namespace aveng {
 		{
 
 			SimplePushConstantData push{};
-			push.modelMatrix = obj.transform.mat4();
-			push.transform = projectionView * obj.transform.mat4();
+			push.modelMatrix = obj.transform._mat4();
+			push.transform = projectionView * obj.transform._mat4();
 
 			vkCmdPushConstants(
 				frame_content.commandBuffer,

@@ -24,6 +24,7 @@ namespace aveng {
 
 		XOne(const XOne&) = delete;
 		XOne &operator=(const XOne&) = delete;
+		int fib(int n, int a = 0, int b = 1);
 		
 		void run();
 
@@ -41,6 +42,7 @@ namespace aveng {
 		// This declaration must occur after the renderer initializes
 		std::unique_ptr<AvengDescriptorPool> globalPool{};
 		std::vector<AvengAppObject> appObjects;
+		std::shared_ptr<AvengModel> avengModel;
 		
 	};
 

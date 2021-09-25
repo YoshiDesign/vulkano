@@ -19,6 +19,7 @@
 
 namespace aveng {
 
+
 	// For use similar to a push_constant struct. Passing in read-only data to the pipeline shader modules
 	struct GlobalUbo {
 		alignas(16) glm::mat4 projectionView{ 1.f };
@@ -182,31 +183,40 @@ namespace aveng {
 	void XOne::loadAppObjects() 
 	{
 		
-		std::shared_ptr<AvengModel> avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/cube.obj");
+		avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/cube.obj");
 
-		for (int i = 0; i < 10; i++) {
-			for (int j = 0; j < 100; j++) {
-				for (int k = 0; k < 100; k++){
+		fib(1000);
 
-					auto gameObj = AvengAppObject::createAppObject();
-
-					gameObj.model = avengModel;
-					gameObj.transform.translation = { static_cast<float>(i) * 1.02f, static_cast<float>(k) * 1.02, static_cast<float>(j) * 1.05f };
-					gameObj.transform.scale = { .05f, .05f, .05f };
-
-					appObjects.push_back(std::move(gameObj));
-
-				}
-
-			}
-		
-		}
 		//auto gameObj = AvengAppObject::createAppObject();
 		//gameObj.model = avengModel;
 		//gameObj.transform.translation = { 3.0f , 0.0f, 3.3f};
 		//gameObj.transform.scale = { 1.0f, 1.0f, 1.0f };
 
 		//appObjects.push_back(std::move(gameObj));
+	}
+
+	int XOne::fib(int n, int a, int b)
+	{
+		auto gameObj = AvengAppObject::createAppObject();
+
+		gameObj.model = avengModel;
+		gameObj.transform.translation = {
+			static_cast<float>((a % 20) * .25f), // * .5f,
+			static_cast<float>(a % 200) * .10f, // * .5f,
+			static_cast<float>(((b) % 50) * .05f) // * .5f)
+		};
+
+		gameObj.transform.scale = { .1f, .1f, .1f };
+
+		if (n == 0)
+			return a;
+		if (n == 1) {
+			return b;
+		}
+
+		appObjects.push_back(std::move(gameObj));
+		return fib(n - 1, b, a + b);
+
 	}
 
 } // ns aveng
