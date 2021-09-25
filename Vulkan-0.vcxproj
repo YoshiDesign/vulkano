@@ -168,6 +168,7 @@
     <ClCompile Include="KeyControl\KeyboardController.cpp" />
     <ClCompile Include="KeyControl\TestController.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Mods\Mods.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\RenderSystem.cpp" />
     <ClCompile Include="aveng_descriptors.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="GUI\imstb_truetype.h" />
     <ClInclude Include="KeyControl\KeyboardController.h" />
     <ClInclude Include="KeyControl\TestController.h" />
+    <ClInclude Include="Mods\Mods.h" />
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\RenderSystem.h" />
     <ClInclude Include="aveng_descriptors.h" />

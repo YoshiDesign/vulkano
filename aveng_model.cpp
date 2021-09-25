@@ -32,7 +32,7 @@ namespace aveng {
 	AvengModel::AvengModel(EngineDevice& device, const AvengModel::Builder& builder) 
 		: engineDevice{ device }
 	{
-		createVertexBuffers(builder.vertices);
+		createVertexBuffers(builder.vertices);		// The vertex shader takes input from a vertex buffer from `layout(location = n) in vec3 vertexAttribute`. The vertexAttribute is defined by the vertex Buffer
 		createIndexBuffers(builder.indices);
 	}
 
@@ -220,9 +220,10 @@ namespace aveng {
 		// Will track which vertices have been added to the Builder.vertices vector and store the position at which the vertex wwas originally added
 		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
-		// For every 
+		// For every face of our mesh
 		for (const auto& shape : shapes) 
 		{
+			// For every vertex of the face
 			for (const auto& index : shape.mesh.indices) 
 			{
 				Vertex vertex{};
@@ -230,7 +231,7 @@ namespace aveng {
 				{
 					vertex.position = {
 						attrib.vertices[3 * index.vertex_index + 0],
-						attrib.vertices[3 * index.vertex_index + 1],
+						attrib.vertices[3 * index.vertex_index + 1],	// The calculations here just mean we're always looking at values in groups of 3
 						attrib.vertices[3 * index.vertex_index + 2],
 					};
 
@@ -251,18 +252,18 @@ namespace aveng {
 					};
 				}
 
-				//if (index.texcoord_index >= 0) 
-				//{
-				//	vertex.uv = {
-				//		attrib.texcoords[3 * index.texcoord_index + 0],
-				//		attrib.texcoords[3 * index.texcoord_index + 1],
-				//	};
-				//}
+				if (index.texcoord_index >= 0) 
+				{
+					vertex.uv = {
+						attrib.texcoords[2 * index.texcoord_index + 0],
+						attrib.texcoords[2 * index.texcoord_index + 1],
+					};
+				}
 
 				// If the vertex is new, we add it to the unique vertices map
 				if (uniqueVertices.count(vertex) == 0) 
 				{
-					// The vertexes position in the Builder.vertices vector is given by the vertices vector's current size
+					// The vertex's position in the Builder.vertices vector is given by the vertices vector's current size
 					uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
 					// Add it to the unique vertices map
 					vertices.push_back(vertex);
@@ -270,8 +271,9 @@ namespace aveng {
 
 				// Add the position of the vertex to the Builder's indices vector
 				indices.push_back(uniqueVertices[vertex]);
+
 			}
 		}
 	}
 
-} // 
+}

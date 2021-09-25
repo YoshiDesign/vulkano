@@ -90,6 +90,9 @@
     <ClCompile Include="app_objects\app_object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Mods\Mods.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aveng_window.h">
@@ -228,6 +231,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="aveng_descriptors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mods\Mods.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

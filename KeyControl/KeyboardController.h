@@ -2,6 +2,7 @@
 
 #include "../app_objects/app_object.h"
 #include "../aveng_window.h"
+#include "../Mods/mods.h"
 
 
 namespace aveng {

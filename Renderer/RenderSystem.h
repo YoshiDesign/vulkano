@@ -25,7 +25,7 @@ namespace aveng {
 
 		RenderSystem(const RenderSystem&) = delete;
 		RenderSystem& operator=(const RenderSystem&) = delete;
-		void renderAppObjects(FrameContent& commandBuffer, std::vector<AvengAppObject> &appObjects, uint8_t pipe_no);
+		void renderAppObjects(FrameContent& commandBuffer, std::vector<AvengAppObject> &appObjects, uint8_t pipe_no, glm::vec3 mods);
 		VkPipelineLayout getPipelineLayout() { return pipelineLayout; }
 
 	private:

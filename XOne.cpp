@@ -1,9 +1,11 @@
+#include <iostream>
 #include "Camera/aveng_camera.h"
 #include "KeyControl/KeyboardController.h"
 #include "aveng_imgui.h"
 #include "aveng_buffer.h"
 #include "aveng_textures.h"
 #include "XOne.h"
+#include "Mods/Mods.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -19,12 +21,10 @@
 
 namespace aveng {
 
-
 	// For use similar to a push_constant struct. Passing in read-only data to the pipeline shader modules
 	struct GlobalUbo {
 		alignas(16) glm::mat4 projectionView{ 1.f };
-		alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3{ 1.f, -1.f, 1.f });
-
+		alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3{ 1.f, -3.f, -1.f });
 	};
 
 	int current_pipeline = 0;
@@ -156,12 +156,13 @@ namespace aveng {
 				// Update our global uniform buffer
 				GlobalUbo ubo{};
 				ubo.projectionView = camera.getProjection() * camera.getView();
+				ubo.lightDirection = ubo.lightDirection * mods;
 				globalUboBuffer.writeToIndex(&ubo, frameIndex);
 				globalUboBuffer.flushIndex(frameIndex);
 
 				// Render
 				renderer.beginSwapChainRenderPass(commandBuffer);
-				renderSystem.renderAppObjects(frame_content, appObjects, current_pipeline );
+				renderSystem.renderAppObjects(frame_content, appObjects, current_pipeline, mods );
 				aveng_imgui.newFrame();
 				aveng_imgui.runGUI(appObjects.size());
 				aveng_imgui.render(commandBuffer);
@@ -183,16 +184,17 @@ namespace aveng {
 	void XOne::loadAppObjects() 
 	{
 		
-		avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/cube.obj");
+		avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/colored_cube.obj");
+		//avengModel2 = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/holy_ship.obj");
 
-		fib(1000);
+		//fib(1000);
 
-		//auto gameObj = AvengAppObject::createAppObject();
-		//gameObj.model = avengModel;
-		//gameObj.transform.translation = { 3.0f , 0.0f, 3.3f};
-		//gameObj.transform.scale = { 1.0f, 1.0f, 1.0f };
+		auto gameObj = AvengAppObject::createAppObject();
+		gameObj.model = avengModel;
+		gameObj.transform.translation = { 0.0f , 0.0f, 3.f};
+		gameObj.transform.scale = { 1.0f, 1.0f, 1.0f };
 
-		//appObjects.push_back(std::move(gameObj));
+		appObjects.push_back(std::move(gameObj));
 	}
 
 	int XOne::fib(int n, int a, int b)
@@ -201,12 +203,12 @@ namespace aveng {
 
 		gameObj.model = avengModel;
 		gameObj.transform.translation = {
-			static_cast<float>((a % 20) * .25f), // * .5f,
-			static_cast<float>(a % 200) * .10f, // * .5f,
-			static_cast<float>(((b) % 50) * .05f) // * .5f)
+			static_cast<float>((a % 100)), // * .5f,
+			static_cast<float>(a % 150), // * .5f,
+			static_cast<float>(((b) % 500)) // * .5f)
 		};
 
-		gameObj.transform.scale = { .1f, .1f, .1f };
+		gameObj.transform.scale = { 5.0f , 5.0f, 5.0f };
 
 		if (n == 0)
 			return a;
@@ -215,6 +217,7 @@ namespace aveng {
 		}
 
 		appObjects.push_back(std::move(gameObj));
+		LOG(appObjects.size());
 		return fib(n - 1, b, a + b);
 
 	}
