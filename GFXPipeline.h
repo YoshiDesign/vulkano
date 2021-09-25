@@ -16,7 +16,7 @@ namespace aveng {
 	// For this reason, we include it here, instead of in GFXPipeline
 	// This way we can share this config between multiple pipelines, too
 	struct PipelineConfig {
-
+		PipelineConfig() = default;
 		PipelineConfig(const PipelineConfig&) = delete;
 		PipelineConfig& operator=(const PipelineConfig&) = delete;
 
@@ -60,17 +60,12 @@ namespace aveng {
 		void bind(VkCommandBuffer commandBuffer);
 		static void defaultPipelineConfig(PipelineConfig& configInfo);
 
+	private:
+
 		// These are both public now...
 		static std::vector<char> readFile(const std::string& filepath);
 		void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
-
-	private:
-
-		void createGFXPipeline(
-			const std::string& vertFilepath, 
-			const std::string& fragFilepath,
-			const PipelineConfig& config
-		);
+		void createGFXPipeline(const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfig& config);
 
 	};
 

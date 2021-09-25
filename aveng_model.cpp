@@ -13,13 +13,14 @@
 namespace std {
 
 	// This function allows us to take a vertex struct instance and hash it, for use by an unordered map key
+	// This allows us to create vertex buffers which only contain unique vertices
 	template<>
 	struct hash<aveng::AvengModel::Vertex> {
 		size_t operator()(aveng::AvengModel::Vertex const& vertex) const {
 	
 			// for final hash value
 			size_t seed = 0;
-			aveng::hashCombine(seed, vertex.position, vertex.color, vertex.color, vertex.uv);
+			aveng::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
 			return seed;
 	
 		}
@@ -37,8 +38,6 @@ namespace aveng {
 
 	AvengModel::~AvengModel() 
 	{
-
-
 	}
 
 	std::unique_ptr<AvengModel> AvengModel::createModelFromFile(EngineDevice& device, const std::string& filepath)
@@ -53,7 +52,6 @@ namespace aveng {
 
 	}
 
-	
 	/*
 	* @function createVertexBuffers
 		Create a vertex buffer in our device memory
@@ -152,7 +150,7 @@ namespace aveng {
 		}
 	}
 
-	void AvengModel::bind(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, VkDescriptorSet descriptorSet)
+	void AvengModel::bind(VkCommandBuffer commandBuffer)
 	{
 		VkBuffer buffers[] = { vertexBuffer->getBuffer() };
 		VkDeviceSize offsets[] = { 0 };
@@ -162,8 +160,6 @@ namespace aveng {
 		{
 			vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32); // This index type can store up to 2^32 vertices
 		}
-
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 
 	}
 
@@ -177,7 +173,11 @@ namespace aveng {
 			uint32_t             stride;
 			VkVertexInputRate    inputRate;
 		*/
-		return { {0, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX } };
+		std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
+		bindingDescriptions[0].binding = 0;
+		bindingDescriptions[0].stride = sizeof(Vertex);
+		bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		return bindingDescriptions;
 	}
 
 
@@ -185,33 +185,18 @@ namespace aveng {
 	{
 
 		 /*
-			uint32_t    location;	-- This specifies the location as assigned in the vertex shader i.e. layout( location = 0 )
-			uint32_t    binding;
-			VkFormat    format;
-			uint32_t    offset;
+			uint32_t    location;	-- This specifies the location as assigned in the vertex shader i.e. layout( location = 0 ) 
+			uint32_t    binding;	
+			VkFormat    format;		-- Datatype: 2 components each 32bit signed floats
+			uint32_t    offset;		-- type, membername. Calculates the byte offset of the position member from the Vertex struct
 		 */
 		// return { {0, 0, VK_FORMAT_R32G32_SFLOAT, 0} };
 		std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
-		attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position) });
-		attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) });
-		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) });
+		attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position) });		// Vertex Positions
+		attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) });			// Vertex colors
+		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) });		// 
 		attributeDescriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) });				// Texture coordinates
-
-		/*
-			Note that we are using an interleaved vertex buffer, of color and position
-		*/
-
-		// For reference to the definitions above
-		//attributeDescriptions[0].location = 0; // The location from the vertex shader of this attribute (position)
-		//attributeDescriptions[0].binding = 0;
-		//attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT; // Datatype Format: 2 components each 32bit signed floats
-		//attributeDescriptions[0].offset = offsetof(Vertex, position); // Offset:  type, membername. Calculates the byte offset of the position member from the Vertex struct
-
-		//attributeDescriptions[1].location = 1; // The location from the vertex shader of this attribute (color)
-		//attributeDescriptions[1].binding = 0;
-		//attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT; // Datatype Format: 2 components each 32bit signed floats
-		//attributeDescriptions[1].offset = offsetof(Vertex, color); // Offset:  type, membername. Calculates the byte offset of the color member from the Vertex struct
 
 		return attributeDescriptions;
 
@@ -226,9 +211,7 @@ namespace aveng {
 
 		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str()))
 		{
-		
 			throw std::runtime_error(warn + err);
-		
 		}
 
 		vertices.clear();
@@ -268,13 +251,13 @@ namespace aveng {
 					};
 				}
 
-				if (index.texcoord_index >= 0) 
-				{
-					vertex.uv = {
-						attrib.texcoords[3 * index.texcoord_index + 0],
-						attrib.texcoords[3 * index.texcoord_index + 1],
-					};
-				}
+				//if (index.texcoord_index >= 0) 
+				//{
+				//	vertex.uv = {
+				//		attrib.texcoords[3 * index.texcoord_index + 0],
+				//		attrib.texcoords[3 * index.texcoord_index + 1],
+				//	};
+				//}
 
 				// If the vertex is new, we add it to the unique vertices map
 				if (uniqueVertices.count(vertex) == 0) 

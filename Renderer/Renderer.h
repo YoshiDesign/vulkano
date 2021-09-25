@@ -38,16 +38,6 @@ namespace aveng {
 			return commandBuffers[currentFrameIndex];
 		}
 
-		VkDescriptorSet getCurrentDescriptorSet() const
-		{ 
-			assert(isFrameStarted && "Cannot get descriptor set. The frame is not in progress.");
-			return descriptorSets[currentFrameIndex]; 
-		}
-
-		VkDescriptorSetLayout* getDescriptorSetLayout() {
-			return &descriptorSetLayout;
-		}
-
 		int getFrameIndex() const
 		{
 			assert(isFrameStarted && "Cannot get the frame index when frame is not in progress.");
@@ -63,9 +53,6 @@ namespace aveng {
 		void endFrame();
 		void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
 		void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
-		void createUniformBuffers();
-		void updateUniformBuffer(uint32_t currentImage, float frameTime, glm::mat4 p);
-		void destroyUniformBuffers();
 
 	private:
 
@@ -73,14 +60,7 @@ namespace aveng {
 
 		void createCommandBuffers();
 		void freeCommandBuffers();
-		void recreateSwapChain(int destroy_uniform_buffers = 0);
-		void createDescriptorSetLayout();
-		void createDescriptorPool();
-		void createDescriptorSets();
-
-		VkDescriptorPool descriptorPool;
-		std::vector<VkDescriptorSet> descriptorSets;
-		VkDescriptorSetLayout descriptorSetLayout;
+		void recreateSwapChain();
 
 		AvengWindow& aveng_window;
 		EngineDevice& engineDevice;
@@ -95,9 +75,6 @@ namespace aveng {
 		uint32_t currentImageIndex{0};
 		int currentFrameIndex; // Not tied to the image index
 		bool isFrameStarted{ false };
-		
-		std::vector<VkBuffer> uniformBuffers;
-		std::vector<VkDeviceMemory> uniformBuffersMemory;
 
 	};
 

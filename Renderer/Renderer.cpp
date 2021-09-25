@@ -11,12 +11,6 @@
 
 namespace aveng {
 
-	struct UniformBufferObject {
-		alignas(16) glm::mat4 model;
-		alignas(16) glm::mat4 view;
-		alignas(16) glm::mat4 proj;
-	};
-
 	Renderer::Renderer(AvengWindow& window, EngineDevice& device) : aveng_window{ window }, engineDevice{ device }
 	{
 		recreateSwapChain();
@@ -28,56 +22,7 @@ namespace aveng {
 		freeCommandBuffers();
 	}
 
-	/*
-	*
-	*/
-	void Renderer::createUniformBuffers()
-	{
-		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-		uniformBuffers.resize(getImageCount());
-		uniformBuffersMemory.resize(getImageCount());
-
-		for (size_t i = 0; i < getImageCount(); i++)
-		{
-			engineDevice.createBuffer(
-				bufferSize,
-				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-				uniformBuffers[i],
-				uniformBuffersMemory[i]
-			);
-		}
-
-	}
-
-	void Renderer::updateUniformBuffer(uint32_t currentImage, float frameTime, glm::mat4 p) {
-		UniformBufferObject ubo{};
-
-		// Model
-		ubo.model = glm::rotate(glm::mat4(1.0f), frameTime * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-		// View
-		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-		ubo.proj = p;
-
-		// ubo.proj[1][1] *= -1; // Invert the Y
-
-		void* data;
-		vkMapMemory(engineDevice.device(), uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
-		memcpy(data, &ubo, sizeof(ubo));
-		vkUnmapMemory(engineDevice.device(), uniformBuffersMemory[currentImage]);
-	}
-
-	void Renderer::destroyUniformBuffers()
-	{
-		for (size_t i = 0; i < getImageCount(); i++) {
-			vkDestroyBuffer(engineDevice.device(), uniformBuffers[i], nullptr);
-			vkFreeMemory(engineDevice.device(), uniformBuffersMemory[i], nullptr);
-		}
-	}
-
-	void Renderer::recreateSwapChain(int destroy_uniform_buffers /* = 0 */)
+	void Renderer::recreateSwapChain()
 	{
 		// Gety current window size
 		auto extent = aveng_window.getExtent();
@@ -92,12 +37,7 @@ namespace aveng {
 		// Wait until the current swap chain isn't being used before we attempt to construct the next one.
 		vkDeviceWaitIdle(engineDevice.device());
 
-		if (destroy_uniform_buffers)
-		{
-			destroyUniformBuffers();
-			vkDestroyDescriptorPool(engineDevice.device(), descriptorPool, nullptr);
-		}
-
+	
 		aveng_swapchain = nullptr;
 
 		if (aveng_swapchain == nullptr) {
@@ -117,30 +57,10 @@ namespace aveng {
 
 		}
 
-		// Initialize. These would belong in this class's constructor.
-		// However, we're not explicitly initializing a swapchain, ever.
-		// The first swapchain is initialized using this function... dammit
-		createUniformBuffers();
-		createDescriptorPool();
-		createCommandBuffers();
-
 		// Reinitialize ImGui
 		//ImGui_ImplVulkan_SetMinImageCount(swapchain_image_count());
 
 	}
-
-	void Renderer::freeCommandBuffers()
-	{
-		vkFreeCommandBuffers(
-			engineDevice.device(),
-			engineDevice.commandPool(),
-			static_cast<uint32_t>(commandBuffers.size()),
-			commandBuffers.data()
-		);
-
-		commandBuffers.clear();
-	}
-
 
 	/*
 	*/
@@ -163,17 +83,29 @@ namespace aveng {
 
 	}
 
+	void Renderer::freeCommandBuffers()
+	{
+		vkFreeCommandBuffers(
+			engineDevice.device(),
+			engineDevice.commandPool(),
+			static_cast<uint32_t>(commandBuffers.size()),
+			commandBuffers.data()
+		);
+
+		commandBuffers.clear();
+	}
+
 	// Return a command buffer for the current frame index
 	VkCommandBuffer Renderer::beginFrame() 
 	{
-		assert(@isFrameStarted && "Can't call beginFrame while already in progress.");
+		assert(!isFrameStarted && "Can't call beginFrame while already in progress.");
 
 		auto result = aveng_swapchain->acquireNextImage(&currentImageIndex);
 
 		// This error will occur after window resize
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
-			recreateSwapChain(DESTROY_UNIFORM_BUFFERS);
+			recreateSwapChain();
 			return nullptr;
 		}
 		// This could potentially occur during window resize events
@@ -213,7 +145,7 @@ namespace aveng {
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || aveng_window.wasWindowResized())
 		{
 			aveng_window.resetWindowResizedFlag();
-			recreateSwapChain(DESTROY_UNIFORM_BUFFERS);
+			recreateSwapChain();
 		}
 		else if (result != VK_SUCCESS)
 		{
@@ -230,7 +162,8 @@ namespace aveng {
 	{
 	
 		assert(isFrameStarted && "Can't call beginSwapChain if frame is not in progress.");
-		assert(commandBuffer == getCurrentCommandBuffer() && 
+		assert(
+			commandBuffer == getCurrentCommandBuffer() && 
 			"Can't begin render pass on command buffer from a different frame");
 
 
@@ -278,7 +211,8 @@ namespace aveng {
 	void  Renderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer)
 	{
 		assert(isFrameStarted && "Can't call endSwapChain if frame is not in progress.");
-		assert(commandBuffer == getCurrentCommandBuffer() &&
+		assert(
+			commandBuffer == getCurrentCommandBuffer() &&
 			"Can't end render pass on command buffer from a different frame");
 		vkCmdEndRenderPass(commandBuffer);
 	}

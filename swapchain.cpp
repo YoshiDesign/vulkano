@@ -210,9 +210,8 @@ namespace aveng {
 
         vkResetFences(device.device(), 1, &inFlightFences[currentFrame]);
         VkResult _result = vkQueueSubmit(device.graphicsQueue(), 1, &submitInfo, inFlightFences[currentFrame]);
-        std::cout << _result << std::endl;
-        if ( _result !=
-            VK_SUCCESS) {
+        if ( _result != VK_SUCCESS) 
+        {
             throw std::runtime_error("failed to submit draw command buffer!");
         }
 

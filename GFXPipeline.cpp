@@ -1,6 +1,7 @@
 #include "GFXPipeline.h"
 #include "aveng_model.h"
 
+#include <cassert>
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -36,6 +37,13 @@ namespace aveng {
 		const PipelineConfig& configInfo
 	)
 	{
+		assert(
+			configInfo.pipelineLayout != VK_NULL_HANDLE &&
+			"Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
+		assert(
+			configInfo.renderPass != VK_NULL_HANDLE &&
+			"Cannot create graphics pipeline: no renderPass provided in configInfo");
+
 		auto vertCode = readFile(vertFilepath);
 		auto fragCode = readFile(fragFilepath);
 
@@ -78,8 +86,8 @@ namespace aveng {
 		vertexInputInfo.vertexBindingDescriptionCount	= static_cast<uint32_t>(bindingDescriptions.size());		// Updated
 		vertexInputInfo.pVertexAttributeDescriptions	= attributeDescriptions.data();
 		vertexInputInfo.pVertexBindingDescriptions		= bindingDescriptions.data();
-		vertexInputInfo.flags							= 0;		// I added this
-		vertexInputInfo.pNext							= nullptr;	// I added this
+		// vertexInputInfo.flags							= 0;	
+		// vertexInputInfo.pNext							= nullptr;
 
 		// Combine our viewport and our scissor. On some GFX Cards you can have multiple viewports/scissors
 		//VkPipelineViewportStateCreateInfo viewportInfo{};
@@ -96,9 +104,9 @@ namespace aveng {
 		pipelineInfo.sType				= VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipelineInfo.stageCount			= 2;
 		pipelineInfo.pStages			= shaderStages;
-		pipelineInfo.pVertexInputState	= &vertexInputInfo;
-		pipelineInfo.flags				= 0;			// I added this
-		pipelineInfo.pNext				= nullptr;	// I added this
+		pipelineInfo.pVertexInputState	= &vertexInputInfo;;
+		// pipelineInfo.flags				= 0;
+		// pipelineInfo.pNext				= nullptr;
 		
 		// Apply the pipeline creation information to the config information we already setup
 		pipelineInfo.pInputAssemblyState	= &configInfo.inputAssemblyInfo;

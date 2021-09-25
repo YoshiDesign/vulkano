@@ -149,6 +149,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="app_objects\app_object.cpp" />
     <ClCompile Include="aveng_buffer.cpp" />
     <ClCompile Include="aveng_imgui.cpp" />
     <ClCompile Include="aveng_model.cpp" />

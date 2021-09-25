@@ -16,7 +16,11 @@ namespace aveng {
 		// Matrix corrsponds to Translate * Ry * Rx * Rz * Scale
 		// Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
 		// https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-		glm::mat4 mat4() 
+		glm::mat4 mat4();
+
+		glm::mat3 normalMatrix();
+
+		/*glm::mat4 mat4() 
 		{
 			const float c3 = glm::cos(rotation.z);
 			const float s3 = glm::sin(rotation.z);
@@ -45,13 +49,13 @@ namespace aveng {
 				},
 				{translation.x, translation.y, translation.z, 1.0f} 
 			};
-		}
+		}*/
 	};
 
 	class AvengAppObject 
 	{
 
-		// For Gravity App
+		// For Physics
 		struct RigidBody2dComponent 
 		{
 			glm::vec2 velocity;

@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <vector>
-#include "Renderer.h"
 #include "../app_objects/app_object.h"
 #include "../Camera/aveng_camera.h"
 #include "../EngineDevice.h"
@@ -21,7 +20,7 @@ namespace aveng {
 
 	public:
 
-		RenderSystem(EngineDevice &device, Renderer &renderer, VkRenderPass renderPass);
+		RenderSystem(EngineDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
 		~RenderSystem();
 
 		RenderSystem(const RenderSystem&) = delete;
@@ -31,29 +30,16 @@ namespace aveng {
 
 	private:
 
-		void createPipelineLayout();
-
+		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
 		// The renderPass will be used to create the pipeline
 		void createPipeline(VkRenderPass renderPass);
-
+		
+		EngineDevice &engineDevice;
 		// The Graphics API - Pointer Allocated
 		std::unique_ptr<GFXPipeline> gfxPipeline;
 		std::unique_ptr<GFXPipeline> gfxPipeline2;
-
-		EngineDevice &engineDevice;
-		Renderer& renderer;
 		VkPipelineLayout pipelineLayout;
 
 	};
 
 }
-
-
-/* Note */
-// The Graphics API - Previously stack allocated
-//GFXPipeline gfxPipeline{
-//	engineDevice, 
-//	"shaders/simple_shader.vert.spv", 
-//	"shaders/simple_shader.frag.spv", 
-//	GFXPipeline::defaultPipelineConfig(WIDTH, HEIGHT) 
-//};
