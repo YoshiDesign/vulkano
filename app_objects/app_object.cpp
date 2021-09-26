@@ -3,7 +3,7 @@
 namespace aveng {
 
     glm::mat4 TransformComponent::_mat4() {
-        const float c3 = glm::cos(rotation.z);
+        const float c3 = glm::cos(rotation.z);  // Cosine 
         const float s3 = glm::sin(rotation.z);
         const float c2 = glm::cos(rotation.x);
         const float s2 = glm::sin(rotation.x);

@@ -25,7 +25,7 @@ namespace aveng {
 
 		RenderSystem(const RenderSystem&) = delete;
 		RenderSystem& operator=(const RenderSystem&) = delete;
-		void renderAppObjects(FrameContent& commandBuffer, std::vector<AvengAppObject> &appObjects, uint8_t pipe_no, glm::vec3 mods);
+		void renderAppObjects(FrameContent& commandBuffer, std::vector<AvengAppObject> &appObjects, uint8_t pipe_no, glm::vec4 mods);
 		VkPipelineLayout getPipelineLayout() { return pipelineLayout; }
 
 	private:
@@ -34,6 +34,8 @@ namespace aveng {
 		// The renderPass will be used to create the pipeline
 		void createPipeline(VkRenderPass renderPass);
 		
+		int r = 0;
+
 		EngineDevice &engineDevice;
 		// The Graphics API - Pointer Allocated
 		std::unique_ptr<GFXPipeline> gfxPipeline;

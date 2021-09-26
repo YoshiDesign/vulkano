@@ -163,6 +163,11 @@ namespace aveng {
 
 	}
 
+	/*
+	* @function AvengModel::Vertex::getBindingDescriptions
+	* 1 of 2 requirements for describing how Vulkan
+	* should pass data into the vertex shader
+	*/
 	std::vector<VkVertexInputBindingDescription> AvengModel::Vertex::getBindingDescriptions()
 	{
 		// This VkVertexInputBindingDescription corresponds to a single vertex buffer
@@ -176,14 +181,17 @@ namespace aveng {
 		std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
 		bindingDescriptions[0].binding = 0;
 		bindingDescriptions[0].stride = sizeof(Vertex);
-		bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;		// Can be per vertex or per instance
 		return bindingDescriptions;
 	}
 
-
+	/*
+	* @function AvengModel::Vertex::getAttributeDescriptions
+	* 2 of 2 required functions for describing how Vulkan
+	* should pass data into the vertex shader
+	*/
 	std::vector<VkVertexInputAttributeDescription> AvengModel::Vertex::getAttributeDescriptions()
 	{
-
 		 /*
 			uint32_t    location;	-- This specifies the location as assigned in the vertex shader i.e. layout( location = 0 ) 
 			uint32_t    binding;	
@@ -195,7 +203,7 @@ namespace aveng {
 
 		attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position) });		// Vertex Positions
 		attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) });			// Vertex colors
-		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) });		// 
+		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) });		// Defines a surface's normal (the non-culled side)
 		attributeDescriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) });				// Texture coordinates
 
 		return attributeDescriptions;

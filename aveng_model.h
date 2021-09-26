@@ -35,16 +35,15 @@ namespace aveng {
 	public:
 
 		struct Vertex {
-			glm::vec3 position;
-			glm::vec3 color;
+			// These 4 items get packed into our vertex buffers
+			glm::vec3 position;	// Position of the vertex
+			glm::vec3 color;	// color at this vertex
 			glm::vec3 normal{}; // surface norms
 			glm::vec2 uv{};		// 2d texture coordinates
 
 			/*
-			* Descriptions of our vertex input so that our shaders
-			* may receive communications from our GFXPipeline and understand
-			* how to parse the incoming data.
-			* Utilized during GFXPipeline setup
+			* Required to communicate with the vertex shader.
+			* Descriptions of our vertex buffers and how they are to be bound.
 			*/
 			static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
 			static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();

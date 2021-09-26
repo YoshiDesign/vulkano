@@ -14,7 +14,7 @@ namespace aveng {
 	// This struct is used by our Application code to be able to 
 	// completely configure our graphics pipeline config.
 	// For this reason, we include it here, instead of in GFXPipeline
-	// This way we can share this config between multiple pipelines, too
+	// This way we can share this config between multiple pipelines
 	struct PipelineConfig {
 		PipelineConfig() = default;
 		PipelineConfig(const PipelineConfig&) = delete;

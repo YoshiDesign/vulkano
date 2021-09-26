@@ -14,8 +14,8 @@ namespace aveng {
 
 	struct SimplePushConstantData 
 	{
-		glm::mat4 normalMatrix{ 1.f };
 		glm::mat4 modelMatrix{ 1.f };
+		glm::mat4 normalMatrix{ 1.f };
 	};
 
 	RenderSystem::RenderSystem(EngineDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : engineDevice{ device }
@@ -92,7 +92,7 @@ namespace aveng {
 	}
 
 
-	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, uint8_t pipe_no, glm::vec3 mods)
+	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, uint8_t pipe_no, glm::vec4 mods)
 	{
 		// Bind our current pipeline configuration
 		//switch (pipe_no)
@@ -103,6 +103,8 @@ namespace aveng {
 		gfxPipeline->bind(frame_content.commandBuffer); // 0
 		// }
 
+		std::cout << mods.x << ", " << mods.y << ", " << mods.z << std::endl;
+
 		vkCmdBindDescriptorSets (
 			frame_content.commandBuffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -112,9 +114,9 @@ namespace aveng {
 			&frame_content.globalDescriptorSet,
 			0,
 			nullptr);
-
+		r = (r + 1) % 360;
 		// Every rendered object will use the same projection and view matrix
-		auto projectionView = frame_content.camera.getProjection() * frame_content.camera.getView();
+		//auto projectionView = frame_content.camera.getProjection() * frame_content.camera.getView();
 
 		/*
 		* Thread object bind/draw calls here
@@ -123,7 +125,19 @@ namespace aveng {
 		{
 			SimplePushConstantData push{};
 
-			//std::cout << mods.x << std::endl;
+			//obj.transform.translation = {
+			//
+			//	static_cast<float>(r * .003),
+			//	static_cast<float>(r * .006),
+			//	static_cast<float>(r * .01),
+			//
+			//};
+
+			obj.transform.rotation = {
+				static_cast<float>(r * .03),
+				static_cast<float>(r * .6),
+				static_cast<float>(r)
+			};
 
 			// The matrix describing this model's current orientation
 			push.modelMatrix = obj.transform._mat4();
