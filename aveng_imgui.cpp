@@ -2,7 +2,6 @@
 
 #include "EngineDevice.h"
 #include "aveng_window.h"
-
 // libs
 #include "GUI/imgui.h"
 #include "GUI/imgui_impl_glfw.h"
@@ -106,7 +105,7 @@ namespace aveng {
         ImGui_ImplVulkan_RenderDrawData(drawdata, commandBuffer);
     }
 
-    void AvengImgui::runGUI(size_t num_objs) {
+    void AvengImgui::runGUI(glm::vec4 mods, size_t num_objs, float dt) {
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can
         // browse its code to learn more about Dear ImGui!).
         if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
@@ -117,28 +116,28 @@ namespace aveng {
             static float f = 0.0f;
             static int counter = 0;
 
-            ImGui::Begin("Debug you fool!");  // Create a window called "Hello, world!" and append into it.
+            ImGui::Begin("Debug you fool!"); 
 
             ImGui::Text(
-                "Objects: %d", num_objs);  // Display some text (you can use a format strings too)
-            ImGui::Checkbox(
-                "2nd Window!",
-                &show_demo_window);  // Edit bools storing our window open/close state
-            ImGui::Checkbox("Another Window", &show_another_window);
+                "Objects: %d", num_objs); 
+            ImGui::Text(
+                "X: %lf\nY: %lf\nZ: %lf\nW: %lf\ndt: %lf", mods.x, mods.y, mods.z, mods.w, dt);
+            
+            //ImGui::Checkbox("Another Window", &show_another_window);
 
             ImGui::SliderFloat("float", &f, 0.0f, 1.0f);  // Edit 1 float using a slider from 0.0f to 1.0f
             ImGui::ColorEdit3("clear color",
                 (float*)&clear_color);  // Edit 3 floats representing a color
 
-            if (ImGui::Button("Button"))  // Buttons return true when clicked (most widgets return true
-                ++counter;                // when edited/activated)
+            //if (ImGui::Button("Button"))  // Buttons return true when clicked (most widgets return true
+            //    ++counter;                // when edited/activated)
             
-            ImGui::SameLine();
+            //ImGui::SameLine();
             ImGui::Text(
                 "t = %.3f ms/frame (%.1f FPS)",
                 1000.0f / ImGui::GetIO().Framerate,
-                ImGui::GetIO().Framerate);
-            ImGui::Text("c = %d", counter);
+            ImGui::GetIO().Framerate);
+            //ImGui::Text("c = %d", counter);
             ImGui::End();
         }
 

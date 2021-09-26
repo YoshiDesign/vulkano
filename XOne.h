@@ -32,7 +32,7 @@ namespace aveng {
 
 		// The window API - Stack allocated
 		AvengWindow aveng_window{ WIDTH, HEIGHT, "Vulkan 0" };
-		glm::vec4 mods{ 1.f, 1.f, 1.f, 1.f };
+		glm::vec4 mods;
 		glm::vec3 clear_color = { 0.5f, 0.3f, 0.6f };
 
 		EngineDevice engineDevice{ aveng_window };

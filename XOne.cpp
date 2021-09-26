@@ -27,6 +27,14 @@ namespace aveng {
 		alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3{ -1.f, -3.f, 1.f });
 	};
 
+	struct GuiStuff {
+
+		glm::vec4 _mods;
+		int no_objects;
+		float dt;
+
+	};
+
 	int current_pipeline = 0;
 	void testKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
@@ -119,7 +127,11 @@ namespace aveng {
 		*/
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
-		float x = .0360;
+		float x = 0.0f;
+		int dt = 0;
+
+		GuiStuff stuff{ mods, appObjects.size() };
+
 		// Keep the window open until shouldClose is truthy
 		while (!aveng_window.shouldClose()) {
 
@@ -138,8 +150,8 @@ namespace aveng {
 			// Updates the viewer object transform component based on key input, proportional to the time elapsed since the last frame
 			cameraController.moveInPlaneXZ(aveng_window.getGLFWwindow(), frameTime, viewerObject);
 			camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
-
 			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
+
 			auto commandBuffer = renderer.beginFrame();
 
 			if (commandBuffer != nullptr) {
@@ -154,10 +166,27 @@ namespace aveng {
 				};
 
 				x += frameTime;
-				if (x > 1.0f)
+				if (x > 1.0f) {
 					x = 0.0f;
+					dt += 1;
+					if (dt > 10000) dt = 0;
+					std::cout << dt << std::endl;
+				}
 
-				mods = { 1.0f, 1.0f, 1.0f, x * 0.01f};
+				//if (x > 10000) {
+				//	stuff._mods.x += 1.f;
+				//	stuff._mods.y += 10.f;
+				//	stuff._mods.z += 100.f;
+				//	stuff._mods.w = 0;
+				//	stuff.dt = frameTime;
+
+				//	if (stuff._mods.y > 360) {
+				//		stuff._mods.z = 0.0f;
+				//		stuff._mods.x = 0.0f;
+				//		stuff._mods.y = 0.0f;
+				//		stuff._mods.w = stuff._mods.w * -1;
+				//	}
+				//}
 
 				// Update our global uniform buffer
 				GlobalUbo ubo{};
@@ -167,9 +196,10 @@ namespace aveng {
 
 				// Render
 				renderer.beginSwapChainRenderPass(commandBuffer);
-				renderSystem.renderAppObjects(frame_content, appObjects, current_pipeline, mods );
+				renderSystem.renderAppObjects(frame_content, appObjects, current_pipeline, stuff._mods, dt, frameTime);
 				aveng_imgui.newFrame();
-				aveng_imgui.runGUI(appObjects.size());
+				
+				aveng_imgui.runGUI(stuff._mods, stuff.no_objects, stuff.dt);
 				aveng_imgui.render(commandBuffer);
 
 				renderer.endSwapChainRenderPass(commandBuffer);
@@ -189,24 +219,23 @@ namespace aveng {
 	void XOne::loadAppObjects() 
 	{
 		
-		// fib(1000);
+		//fib(1000);
 		std::shared_ptr<AvengModel> avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/colored_cube.obj");
-		std::shared_ptr<AvengModel> avengModel2 = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/holy_ship.obj");
+		//std::shared_ptr<AvengModel> avengModel2 = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/holy_ship.obj");
 
+		for (int i = 0; i < 100; i++) 
+			for (int j = 0; j < 10; j++) 
+				for (int k = 0; k < 100; k++) {
+		
+					auto gameObj = AvengAppObject::createAppObject();
+					gameObj.model = avengModel;
+					gameObj.transform.translation = { static_cast<float>(i * 0.5f), static_cast<float>(j * 0.55f), static_cast<float>(k * 0.5f) };
+					gameObj.transform.scale = { .01f, 0.01f, 0.01f };
 
-		auto gameObj = AvengAppObject::createAppObject();
-		gameObj.model = avengModel;
-		gameObj.transform.translation = { 0.0f , 0.0f, 3.f};
-		gameObj.transform.scale = { 1.0f, 1.0f, 1.0f };
-
-		appObjects.push_back(std::move(gameObj));
-
-		auto gameObj2 = AvengAppObject::createAppObject();
-		gameObj2.model = avengModel2;
-		gameObj2.transform.translation = { 0.0f , 0.0f, 3.f };
-		gameObj2.transform.scale = { 1.0f, 1.0f, 1.0f };
-
-		appObjects.push_back(std::move(gameObj2));
+					appObjects.push_back(std::move(gameObj));
+				
+				}
+		
 	}
 
 	int XOne::fib(int n, int a, int b)
@@ -215,12 +244,12 @@ namespace aveng {
 
 		gameObj.model = avengModelF;
 		gameObj.transform.translation = {
-			static_cast<float>((a)), // * .5f,
-			static_cast<float>(a), // * .5f,
-			static_cast<float>(b) // * .5f)
+			static_cast<float>(static_cast<int>(b) % 250) * .001,
+			static_cast<float>(static_cast<int>(b) % 550) * .005,
+			static_cast<float>(static_cast<int>(b) % 50) * .005f
 		};
 
-		gameObj.transform.scale = { 5.0f , 5.0f, 5.0f };
+		gameObj.transform.scale = { .05f , 0.05f, 0.05f };
 
 		if (n == 0) {
 			avengModelF = nullptr;

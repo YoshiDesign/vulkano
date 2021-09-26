@@ -92,7 +92,7 @@ namespace aveng {
 	}
 
 
-	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, uint8_t pipe_no, glm::vec4 mods)
+	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, uint8_t pipe_no, glm::vec4& mods, int sec, float frametime)
 	{
 		// Bind our current pipeline configuration
 		//switch (pipe_no)
@@ -103,7 +103,7 @@ namespace aveng {
 		gfxPipeline->bind(frame_content.commandBuffer); // 0
 		// }
 
-		std::cout << mods.x << ", " << mods.y << ", " << mods.z << std::endl;
+		
 
 		vkCmdBindDescriptorSets (
 			frame_content.commandBuffer,
@@ -114,7 +114,7 @@ namespace aveng {
 			&frame_content.globalDescriptorSet,
 			0,
 			nullptr);
-		r = (r + 1) % 360;
+		
 		// Every rendered object will use the same projection and view matrix
 		//auto projectionView = frame_content.camera.getProjection() * frame_content.camera.getView();
 
@@ -125,19 +125,55 @@ namespace aveng {
 		{
 			SimplePushConstantData push{};
 
+			// You can define more properties on the object class to store more information
+			// for which to calculate shit with instead of doing it all in the app file or this one................
 			//obj.transform.translation = {
 			//
-			//	static_cast<float>(r * .003),
-			//	static_cast<float>(r * .006),
-			//	static_cast<float>(r * .01),
+			//	static_cast<float>((obj.transform.translation.x + .001)), // + frametime) * mods.w),
+			//	static_cast<float>((obj.transform.translation.y)), // + frametime) * mods.w),
+			//	static_cast<float>(obj.transform.translation.z),
 			//
 			//};
 
-			obj.transform.rotation = {
-				static_cast<float>(r * .03),
-				static_cast<float>(r * .6),
-				static_cast<float>(r)
-			};
+			if (last_sec != sec) {
+			
+				last_sec = sec;
+				std::cout << obj.transform.translation.x << ", " << obj.transform.translation.y << ", " << obj.transform.translation.z << "\nMod w:" << mods.w << std::endl;
+			}
+
+			 
+			if (obj.transform.translation.x > 10) {
+				obj.transform.rotation = {
+				static_cast<float>(obj.transform.rotation.x + frametime),
+				static_cast<float>(obj.transform.rotation.y + frametime),
+				static_cast<float>(obj.transform.rotation.z + frametime)
+				};
+			}
+
+			if (obj.transform.translation.x < 10) {
+				obj.transform.rotation = {
+					static_cast<float>(obj.transform.rotation.x - frametime),
+					static_cast<float>(obj.transform.rotation.y - frametime),
+					static_cast<float>(obj.transform.rotation.z - frametime)
+				};
+			}
+
+			if (obj.transform.translation.z < 10) {
+				obj.transform.rotation = {
+					static_cast<float>(obj.transform.rotation.x + frametime * 1.2),
+					static_cast<float>(obj.transform.rotation.y + frametime * 1.2),
+					static_cast<float>(obj.transform.rotation.z + frametime * 1.2)
+				};
+			}
+
+			if (obj.transform.translation.z > 10) {
+				obj.transform.rotation = {
+					static_cast<float>(obj.transform.rotation.x - frametime),
+					static_cast<float>(obj.transform.rotation.y + frametime),
+					static_cast<float>(obj.transform.rotation.z - frametime * 1.1)
+				};
+			}
+
 
 			// The matrix describing this model's current orientation
 			push.modelMatrix = obj.transform._mat4();
