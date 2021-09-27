@@ -681,8 +681,8 @@ namespace aveng {
         VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
         VkBufferCopy copyRegion{};
-        copyRegion.srcOffset = 0;  // Optional
-        copyRegion.dstOffset = 0;  // Optional
+        //copyRegion.srcOffset = 0;  // Optional
+        //copyRegion.dstOffset = 0;  // Optional
         copyRegion.size = size;
         vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
@@ -694,25 +694,31 @@ namespace aveng {
         VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
         VkBufferImageCopy region{};
-        region.bufferOffset = 0;
-        region.bufferRowLength = 0;
-        region.bufferImageHeight = 0;
+        region.bufferOffset = 0;        // Offset at which the pixels start
+        region.bufferRowLength = 0;     // Data -
+        region.bufferImageHeight = 0;   // - dimensionality. 0 means there is no padding. Tightly packed
 
         region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         region.imageSubresource.mipLevel = 0;
         region.imageSubresource.baseArrayLayer = 0;
-        region.imageSubresource.layerCount = layerCount;
+        region.imageSubresource.layerCount = layerCount;    // Typically 1 for now
 
-        region.imageOffset = {0, 0, 0};
-        region.imageExtent = {width, height, 1};
+        region.imageOffset = {0, 0, 0};        // These next 2 properties tell vulkan which part of the image we want to copy
+        region.imageExtent = {width, height, 1};            
 
         vkCmdCopyBufferToImage(
             commandBuffer,
             buffer,
             image,
-            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,   // Which layout the image is currently using
             1,
             &region);
+
+        /*
+            Right now we're only copying one chunk of pixels to the whole image, but it's possible 
+            it's possible to specify an array of VkBufferImageCopy to perform many different 
+            copies from this buffer to the image in one operation.
+        */
 
         endSingleTimeCommands(commandBuffer);
     }

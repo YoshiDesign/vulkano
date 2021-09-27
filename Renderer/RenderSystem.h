@@ -20,7 +20,7 @@ namespace aveng {
 
 	public:
 
-		RenderSystem(EngineDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
+		RenderSystem(EngineDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout);
 		~RenderSystem();
 
 		RenderSystem(const RenderSystem&) = delete;
@@ -30,12 +30,10 @@ namespace aveng {
 
 	private:
 
-		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
+		void createPipelineLayout(VkDescriptorSetLayout globalDescriptorSetLayout);
 		// The renderPass will be used to create the pipeline
 		void createPipeline(VkRenderPass renderPass);
 
-		int fwd{1};
-		int rev{0};
 		int last_sec;
 
 		EngineDevice &engineDevice;

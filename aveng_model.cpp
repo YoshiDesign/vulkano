@@ -1,7 +1,7 @@
-#include "aveng_model.h"
 #include <cassert>
 #include <cstring>
-
+#include <iostream>
+#include "aveng_model.h"
 #include "aveng_utils.h"
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_object_loader.h>
@@ -262,6 +262,7 @@ namespace aveng {
 
 				if (index.texcoord_index >= 0) 
 				{
+					
 					vertex.uv = {
 						attrib.texcoords[2 * index.texcoord_index + 0],
 						attrib.texcoords[2 * index.texcoord_index + 1],

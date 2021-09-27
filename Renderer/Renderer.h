@@ -6,7 +6,6 @@
 #include "../aveng_window.h"
 #include "../EngineDevice.h"
 #include "../swapchain.h"
-#include "../cool.h"
 #include "../GUI/imgui.h"
 #include "../GUI/imgui_impl_glfw.h"
 #include "../GUI/imgui_impl_vulkan.h"

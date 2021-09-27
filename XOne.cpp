@@ -3,7 +3,6 @@
 #include "KeyControl/KeyboardController.h"
 #include "aveng_imgui.h"
 #include "aveng_buffer.h"
-#include "aveng_textures.h"
 #include "XOne.h"
 #include "Mods/Mods.h"
 
@@ -35,7 +34,7 @@ namespace aveng {
 
 	};
 
-	int current_pipeline = 0;
+	int current_pipeline = 1;
 	void testKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
@@ -45,10 +44,14 @@ namespace aveng {
 
 	XOne::XOne() 
 	{
+		/*
+		* Call the pool builder to setup our pool for construction.
+		*/
 		globalPool = AvengDescriptorPool::Builder(engineDevice)
 			.setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
 			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
-			.build();
+			.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+			.build();	// Build is what ultimately initializes the construction of the pool. How rad
 
 
 		loadAppObjects();
@@ -80,22 +83,27 @@ namespace aveng {
 		// enable writing to it's memory
 		globalUboBuffer.map();
 
-		auto globalSetLayout =
+		// Assemble some pipeline layout descriptor sets
+		auto globalDescriptorSetLayout =	// Descriptor set layout binding for a uniform buffer
 			AvengDescriptorSetLayout::Builder(engineDevice)
 			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+			.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 			.build();
+
 
 		std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < globalDescriptorSets.size(); i++)
 		{
 			auto bufferInfo = globalUboBuffer.descriptorInfoForIndex(i);
-			AvengDescriptorWriter(*globalSetLayout, *globalPool)
+			auto imageInfo = imageSystem.descriptorInfo();
+			AvengDescriptorWriter(*globalDescriptorSetLayout, *globalPool)
 				.writeBuffer(0, &bufferInfo)
+				.writeImage(1, &imageInfo)
 				.build(globalDescriptorSets[i]);
 		}
 
 		// Note that the renderSystem is initialized with a pointer to the Render Pass
-		RenderSystem renderSystem{ engineDevice, renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
+		RenderSystem renderSystem{ engineDevice, renderer.getSwapChainRenderPass(), globalDescriptorSetLayout->getDescriptorSetLayout() };
 		AvengCamera camera{};
 
 		//camera.setViewTarget(glm::vec3(-1.f, -2.f, -20.f), glm::vec3(0.f, 0.f, 3.5f));
@@ -220,16 +228,16 @@ namespace aveng {
 	{
 		
 		//fib(1000);
-		std::shared_ptr<AvengModel> avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/colored_cube.obj");
+		std::shared_ptr<AvengModel> avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/ship_demo.obj");
 		//std::shared_ptr<AvengModel> avengModel2 = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/holy_ship.obj");
 
-		for (int i = 0; i < 100; i++) 
+		for (int i = 0; i < 10; i++) 
 			for (int j = 0; j < 10; j++) 
-				for (int k = 0; k < 100; k++) {
+				for (int k = 0; k < 1; k++) {
 		
 					auto gameObj = AvengAppObject::createAppObject();
 					gameObj.model = avengModel;
-					gameObj.transform.translation = { static_cast<float>(i * 0.5f), static_cast<float>(j * 0.55f), static_cast<float>(k * 0.5f) };
+					gameObj.transform.translation = { static_cast<float>(i * 0.2f), static_cast<float>(j * 0.2f), static_cast<float>(k * 0.2f) };
 					gameObj.transform.scale = { .01f, 0.01f, 0.01f };
 
 					appObjects.push_back(std::move(gameObj));

@@ -29,8 +29,7 @@ namespace aveng {
         };
 
 
-        AvengDescriptorSetLayout(
-            EngineDevice& engineDevice, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
+        AvengDescriptorSetLayout(EngineDevice& engineDevice, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
         ~AvengDescriptorSetLayout();
         AvengDescriptorSetLayout(const AvengDescriptorSetLayout&) = delete;
         AvengDescriptorSetLayout& operator=(const AvengDescriptorSetLayout&) = delete;

@@ -153,7 +153,6 @@
     <ClCompile Include="aveng_buffer.cpp" />
     <ClCompile Include="aveng_imgui.cpp" />
     <ClCompile Include="aveng_model.cpp" />
-    <ClCompile Include="aveng_textures.cpp" />
     <ClCompile Include="aveng_window.cpp" />
     <ClCompile Include="Camera\aveng_camera.cpp" />
     <ClCompile Include="EngineDevice.cpp" />
@@ -169,6 +168,7 @@
     <ClCompile Include="KeyControl\TestController.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mods\Mods.cpp" />
+    <ClCompile Include="Renderer\AvengImageSystem.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\RenderSystem.cpp" />
     <ClCompile Include="aveng_descriptors.cpp" />
@@ -182,9 +182,7 @@
     <ClInclude Include="aveng_frame_content.h" />
     <ClInclude Include="aveng_imgui.h" />
     <ClInclude Include="aveng_model.h" />
-    <ClInclude Include="aveng_textures.h" />
     <ClInclude Include="Camera\aveng_camera.h" />
-    <ClInclude Include="cool.h" />
     <ClInclude Include="EngineDevice.h" />
     <ClInclude Include="GFXPipeline.h" />
     <ClInclude Include="aveng_window.h" />
@@ -200,6 +198,7 @@
     <ClInclude Include="KeyControl\KeyboardController.h" />
     <ClInclude Include="KeyControl\TestController.h" />
     <ClInclude Include="Mods\Mods.h" />
+    <ClInclude Include="Renderer\AvengImageSystem.h" />
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\RenderSystem.h" />
     <ClInclude Include="aveng_descriptors.h" />

@@ -18,9 +18,9 @@ namespace aveng {
 		glm::mat4 normalMatrix{ 1.f };
 	};
 
-	RenderSystem::RenderSystem(EngineDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : engineDevice{ device }
+	RenderSystem::RenderSystem(EngineDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout) : engineDevice{ device }
 	{
-		createPipelineLayout(globalSetLayout);
+		createPipelineLayout(globalDescriptorSetLayout);
 		createPipeline(renderPass);
 	}
 
@@ -37,14 +37,14 @@ namespace aveng {
 	* Descriptor sets and their layout
 	* Push Constant data
 	*/
-	void RenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
+	void RenderSystem::createPipelineLayout(VkDescriptorSetLayout descriptorSetLayout)
 	{
 		VkPushConstantRange pushConstantRange{};
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantRange.offset = 0;
 		pushConstantRange.size = sizeof(SimplePushConstantData);
 
-		std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
+		std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ descriptorSetLayout };
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		//  Structure specifying the parameters of a newly created pipeline layout object
@@ -136,7 +136,6 @@ namespace aveng {
 			//};
 
 			if (last_sec != sec) {
-			
 				last_sec = sec;
 				std::cout << obj.transform.translation.x << ", " << obj.transform.translation.y << ", " << obj.transform.translation.z << "\nMod w:" << mods.w << std::endl;
 			}

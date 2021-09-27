@@ -78,9 +78,6 @@
     <ClCompile Include="aveng_buffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="aveng_textures.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="stb\stb_vorbis.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -91,6 +88,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Mods\Mods.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\AvengImageSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -111,9 +111,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="aveng_model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="app_objects\app_object.h">
@@ -168,9 +165,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="aveng_frame_content.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="aveng_textures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stb\stb_c_lexer.h">
@@ -234,6 +228,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mods\Mods.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\AvengImageSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

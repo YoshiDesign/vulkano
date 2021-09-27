@@ -44,9 +44,6 @@ namespace aveng {
         }
 
         swapChainImageViews.clear();
-        vkDestroySampler(device.device(), textureSampler, nullptr);
-        vkDestroyImageView(device.device(), textureImageView, nullptr);
-        vkDestroyImage(device.device(), textureImage, nullptr);
 
         if (swapChain != nullptr) {
             vkDestroySwapchainKHR(device.device(), swapChain, nullptr);
@@ -94,95 +91,6 @@ namespace aveng {
 
         return result;
     }
-
-
-    /*void SwapChain::createTextureImage()
-    {
-
-        AvengTexture texture{ device };
-        VkResult err;
-        int texWidth, texHeight, texChannels;
-        stbi_uc* pixels = stbi_load("textures/tx1p.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-        VkDeviceSize imageSize = texWidth * texHeight * 4;
-
-        if (!pixels) {
-            throw std::runtime_error("failed to load texture image!");
-        }
-
-        AvengBuffer stagingBuffer{
-            device,
-            imageSize,
-            sizeof(pixels[0]),
-            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-             Host Coherent bit ensures the *data buffer is flushed to the device's buffer automatically, so we dont have to call the VkFlushMappedMemoryRanges
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        };
-
-        err = stagingBuffer.map();
-        if (err != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to allocate texture staging buffer");
-        }
-
-        stbi_image_free(pixels);
-        texture.createImage(
-            texWidth,
-            texHeight,
-            VK_FORMAT_R8G8B8A8_SRGB,
-            VK_IMAGE_TILING_OPTIMAL,
-            VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage
-        );
-
-        texture.transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-        device.copyBufferToImage(stagingBuffer.getBuffer(), textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), 1);
-
-        texture.transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-    }*/
-
-    //void SwapChain::createTextureSampler() {
-    //    VkSamplerCreateInfo samplerInfo{};
-    //    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-
-    //    // Oversampling and undersampling
-    //    samplerInfo.magFilter = VK_FILTER_LINEAR;
-    //    samplerInfo.minFilter = VK_FILTER_LINEAR;
-
-    //    // Pattern layout
-    //    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    //    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    //    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-
-    //    // Anisotropy
-    //    samplerInfo.anisotropyEnable = VK_TRUE;
-    //    // Max anisotropy by default. Reduce this for performance boost
-    //    samplerInfo.maxAnisotropy = device.properties.limits.maxSamplerAnisotropy;
-
-    //    samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-
-    //    // [0, texwidth), [0, texheight)
-    //    samplerInfo.unnormalizedCoordinates = VK_FALSE;
-    //    // texels will first be compared to a value and filtered
-    //    samplerInfo.compareEnable = VK_FALSE;
-    //    samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-    //    // Mipmaps
-    //    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-    //    samplerInfo.mipLodBias = 0.0f;
-    //    samplerInfo.minLod = 0.0f;
-    //    samplerInfo.maxLod = 0.0f;
-
-    //    if (vkCreateSampler(device.device(), &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
-    //        throw std::runtime_error("failed to create texture sampler!");
-    //    }
-
-    //}
-
-    //void SwapChain::createTextureImageView(const VkImageView imageView)
-    //{
-    //    textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
-    //}
-
 
     VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex) 
     {

@@ -2,7 +2,6 @@
 
 #include "EngineDevice.h"
 #include "aveng_buffer.h"
-#include "aveng_textures.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -16,21 +15,6 @@ namespace aveng {
 
 	class AvengModel 
 	{
-		EngineDevice& engineDevice;
-		uint32_t vertexCount;
-		bool hasIndexBuffer = false;
-		uint32_t indexCount;
-		VkImage textureImage;
-
-		/*VkBuffer vertexBuffer;		OLD
-		VkDeviceMemory vertexBufferMemory;*/
-		// NEW
-		std::unique_ptr<AvengBuffer> vertexBuffer;
-
-		/*VkBuffer indexBuffer;			OLD
-		VkDeviceMemory indexBufferMemory;*/
-		// NEW
-		std::unique_ptr<AvengBuffer> indexBuffer;
 
 	public:
 
@@ -80,6 +64,22 @@ namespace aveng {
 
 		void createVertexBuffers(const std::vector<Vertex>& vertices);
 		void createIndexBuffers(const std::vector<uint32_t>& indices);
+
+		EngineDevice& engineDevice;
+		uint32_t vertexCount;
+		bool hasIndexBuffer = false;
+		uint32_t indexCount;
+		VkImage textureImage;
+
+		/*VkBuffer vertexBuffer;		OLD
+		VkDeviceMemory vertexBufferMemory;*/
+		// NEW
+		std::unique_ptr<AvengBuffer> vertexBuffer;
+
+		/*VkBuffer indexBuffer;			OLD
+		VkDeviceMemory indexBufferMemory;*/
+		// NEW
+		std::unique_ptr<AvengBuffer> indexBuffer;
 
 	};
 
