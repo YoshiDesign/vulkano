@@ -228,17 +228,17 @@ namespace aveng {
 	{
 		
 		//fib(1000);
-		std::shared_ptr<AvengModel> avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/ship_demo.obj");
+		std::shared_ptr<AvengModel> avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/room.obj");
 		//std::shared_ptr<AvengModel> avengModel2 = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/holy_ship.obj");
 
-		for (int i = 0; i < 10; i++) 
-			for (int j = 0; j < 10; j++) 
+		for (int i = 0; i < 2; i++) 
+			for (int j = 0; j < 2; j++) 
 				for (int k = 0; k < 1; k++) {
 		
 					auto gameObj = AvengAppObject::createAppObject();
 					gameObj.model = avengModel;
-					gameObj.transform.translation = { static_cast<float>(i * 0.2f), static_cast<float>(j * 0.2f), static_cast<float>(k * 0.2f) };
-					gameObj.transform.scale = { .01f, 0.01f, 0.01f };
+					gameObj.transform.translation = { static_cast<float>(i * 7.2f), static_cast<float>(j * 7.2f), static_cast<float>(k * 7.2f) };
+					gameObj.transform.scale = { .5f, 0.5f, 0.5f };
 
 					appObjects.push_back(std::move(gameObj));
 				

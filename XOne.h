@@ -39,7 +39,7 @@ namespace aveng {
 		// Order of initialization matters here, don't derp it up plz
 		EngineDevice engineDevice{ aveng_window };
 		Renderer renderer{ aveng_window, engineDevice };
-		ImageSystem imageSystem{ engineDevice, "textures/idk.jpg"};
+		ImageSystem imageSystem{ engineDevice, "textures/room.png"};
 
 		std::shared_ptr<AvengModel> avengModelF = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/colored_cube.obj");
 

@@ -20,15 +20,20 @@ namespace aveng {
 		~ImageSystem();
 
 		void createTextureImage(const char* filepath);
-		VkImageView createImageView(VkImage image, VkFormat format);
+		VkImageView createImageView(VkImage image, VkFormat format, uint32_t mipLevels);
 		void createTextureImageView();
-		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+		void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
+		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
 		void createTextureSampler();
 
 		VkImage getImageInfo() { return textureImage; };
 		VkDescriptorImageInfo& descriptorInfo();
 
 	private:
+
+		// mipLevels is the only dependency keeping us from merging some of these functions with SwapChain's impelmentations of them
+		uint32_t mipLevels{0};
+
 		EngineDevice& engineDevice;
 		VkImage textureImage;
 		VkDeviceMemory textureImageMemory;

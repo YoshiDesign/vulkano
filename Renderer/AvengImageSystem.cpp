@@ -3,7 +3,6 @@
 #include "../stb/stb_image.h"
 #include <iostream>
 #include <stdexcept>
-#define LOG(a) std::cout<<a<<std::endl;
 
 /*
 	All of the helper functions that submit commands so far have been set up to execute synchronously 
@@ -16,8 +15,8 @@
 
 namespace aveng {
 
-	ImageSystem::ImageSystem(EngineDevice& device, const char* filepath) : engineDevice{ device } {
-		LOG("Constructing Image System");
+	ImageSystem::ImageSystem(EngineDevice& device, const char* filepath) : engineDevice{ device } 
+	{
 		createTextureImage(filepath);
 		createTextureImageView();
 		createTextureSampler();
@@ -32,13 +31,18 @@ namespace aveng {
 
 	void ImageSystem::createTextureImage(const char* filepath)
 	{
-		LOG("Create Texture Image");
 		// Load our image
 		int texWidth, texHeight, texChannels;
 		stbi_uc* pixels = stbi_load(filepath, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
 
-		if (!pixels) {
+		// Take the number of available mip lvls +1 for level 0
+		mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
+
+		std::cout << "Initial Mip Lvls: " << mipLevels << std::endl;
+
+		if (!pixels || !mipLevels) 
+		{
 			throw std::runtime_error("failed to load texture image!");
 		}
 
@@ -51,6 +55,7 @@ namespace aveng {
 			// Host Coherent bit ensures the *data buffer is flushed to the device's buffer automatically, so we dont have to call the VkFlushMappedMemoryRanges
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 		};
+
 		stagingBuffer.map();
 		stagingBuffer.writeToBuffer(pixels, imageSize);
 
@@ -62,14 +67,14 @@ namespace aveng {
 		imageInfo.extent.width = static_cast<uint32_t>(texWidth);
 		imageInfo.extent.height = static_cast<uint32_t>(texHeight);
 		imageInfo.extent.depth = 1;
-		imageInfo.mipLevels = 1;
+		imageInfo.mipLevels = mipLevels;
 		imageInfo.arrayLayers = 1;
 		imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;	// Being sure to utilize the same image format for the texels as the pixels in the buffer, or the copy op will fail
 		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;	// Specifying an implementation defined ordering of the data, instead of something like row major order
 		// Note: If you want to access individual texels of the image data, you need to use VK_IMAGE_TILING_LINEAR instead
 		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; // No need to preserve texel data during the first transition to the image memory from the staging buffer
 		// e.g. You're using an image as a transfer source
-		imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;	// Destination for the buffer copy. VK_IMAGE_USAGE_SAMPLED_BIT means we'd like to be able to access the image from our shaders
+		imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;	// Destination for the buffer copy- Also a source (for mipmapping due to vkCmdBlitImage). VK_IMAGE_USAGE_SAMPLED_BIT means we'd like to be able to access the image from our shaders
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // Exclusive to 1 queue family, graphics
 		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT; // > 1 if images as attachments?
 		imageInfo.flags = 0; // Optional
@@ -77,7 +82,8 @@ namespace aveng {
 		* TODO It is possible that the VK_FORMAT_R8G8B8A8_SRGB format is not supported by the graphics hardware. 
 		* You should have a list of acceptable alternatives and go with the best one that is supported.
 		*/
-		if (vkCreateImage(engineDevice.device(), &imageInfo, nullptr, &textureImage) != VK_SUCCESS) {
+		if (vkCreateImage(engineDevice.device(), &imageInfo, nullptr, &textureImage) != VK_SUCCESS) 
+		{
 			throw std::runtime_error("failed to create image!");
 		}
 
@@ -87,15 +93,109 @@ namespace aveng {
 			textureImage,
 			textureImageMemory
 		);
-		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels);
 		engineDevice.copyBufferToImage(stagingBuffer.getBuffer(), textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), 1);
-		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		//transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL); // This will now occur in generateMipmaps
+
+		generateMipmaps(textureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevels);
 
 	}
 
-	void ImageSystem::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
+	void ImageSystem::generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels)
 	{
-		LOG("Transition image layout");
+		// Check if image format supports linear blitting
+		VkFormatProperties formatProperties;
+		vkGetPhysicalDeviceFormatProperties(engineDevice.physicalDevice(), imageFormat, &formatProperties);
+
+		if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) 
+		{
+			// Continue without MipMapping. This means less optimization.
+			std::cout << "THIS IMAGE DOES NOT SUPPORT LINEAR BLITTING" << std::endl;
+			transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels);
+			/*throw std::runtime_error("texture image format does not support linear blitting!");*/
+			return;
+		}
+
+		VkCommandBuffer commandBuffer = engineDevice.beginSingleTimeCommands();
+
+		VkImageMemoryBarrier barrier{};
+		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		barrier.image = image;
+		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		barrier.subresourceRange.baseArrayLayer = 0;
+		barrier.subresourceRange.layerCount = 1;
+		barrier.subresourceRange.levelCount = 1;
+
+		int32_t mipWidth = texWidth;
+		int32_t mipHeight = texHeight;
+
+		for (uint32_t i = 1; i < mipLevels; i++) {
+			barrier.subresourceRange.baseMipLevel = i - 1;
+			barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+			vkCmdPipelineBarrier(commandBuffer,
+				VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+				0, nullptr,
+				0, nullptr,
+				1, &barrier);
+
+			VkImageBlit blit{};
+			blit.srcOffsets[0] = { 0, 0, 0 };
+			blit.srcOffsets[1] = { mipWidth, mipHeight, 1 };
+			blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			blit.srcSubresource.mipLevel = i - 1;
+			blit.srcSubresource.baseArrayLayer = 0;
+			blit.srcSubresource.layerCount = 1;
+			blit.dstOffsets[0] = { 0, 0, 0 };
+			blit.dstOffsets[1] = { mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1 };
+			blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			blit.dstSubresource.mipLevel = i;
+			blit.dstSubresource.baseArrayLayer = 0;
+			blit.dstSubresource.layerCount = 1;
+
+			vkCmdBlitImage(commandBuffer,
+				image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+				image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+				1, &blit,
+				VK_FILTER_LINEAR);
+
+			barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+			vkCmdPipelineBarrier(commandBuffer,
+				VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+				0, nullptr,
+				0, nullptr,
+				1, &barrier);
+
+			if (mipWidth > 1) mipWidth /= 2;
+			if (mipHeight > 1) mipHeight /= 2;
+		}
+
+		barrier.subresourceRange.baseMipLevel = mipLevels - 1;
+		barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+		barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+		vkCmdPipelineBarrier(commandBuffer,
+			VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+			0, nullptr,
+			0, nullptr,
+			1, &barrier);
+
+		engineDevice.endSingleTimeCommands(commandBuffer);
+	}
+
+	void ImageSystem::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels)
+	{
 		// Start writing a command buffer
 		VkCommandBuffer commandBuffer = engineDevice.beginSingleTimeCommands();
 
@@ -112,14 +212,15 @@ namespace aveng {
 		barrier.image = image;
 		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		barrier.subresourceRange.baseMipLevel = 0;
-		barrier.subresourceRange.levelCount = 1;
+		barrier.subresourceRange.levelCount = mipLevels;
 		barrier.subresourceRange.baseArrayLayer = 0;
 		barrier.subresourceRange.layerCount = 1;
 
 		VkPipelineStageFlags sourceStage;
 		VkPipelineStageFlags destinationStage;
 
-		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) 
+		{
 			// Undefined transfer destination : transfer writes that don't need to wait on anything
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -127,7 +228,8 @@ namespace aveng {
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;	// A very early stage
 			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 		}
-		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) 
+		{
 			// shader reading: shader reads should wait on transfer writes, 
 			// specifically the shader reads in the fragment shader, because 
 			// that's where we're going to use the texture
@@ -171,33 +273,36 @@ namespace aveng {
 
 	void ImageSystem::createTextureImageView()
 	{
-		textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+		textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, mipLevels);
 	}
 
-	VkImageView ImageSystem::createImageView(VkImage image, VkFormat format)
+	VkImageView ImageSystem::createImageView(VkImage image, VkFormat format, uint32_t mipLevels)
 	{
-		LOG("Create Image view for texture");
+
 		VkImageViewCreateInfo viewInfo{};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		viewInfo.image = image;
 		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 		viewInfo.format = format;
+		viewInfo.subresourceRange.levelCount = mipLevels;
 		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = 1;
+		viewInfo.subresourceRange.levelCount = mipLevels;
 		viewInfo.subresourceRange.baseArrayLayer = 0;
 		viewInfo.subresourceRange.layerCount = 1;
 
 		VkImageView imageView;
-		if (vkCreateImageView(engineDevice.device(), &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+		if (vkCreateImageView(engineDevice.device(), &viewInfo, nullptr, &imageView) != VK_SUCCESS) 
+		{
 			throw std::runtime_error("failed to create texture image view!");
 		}
 
 		return imageView;
 	}
 
-	void ImageSystem::createTextureSampler() {
-		LOG("Create Texture Sampler");
+	void ImageSystem::createTextureSampler() 
+	{
+
 		VkPhysicalDeviceProperties properties{};
 		vkGetPhysicalDeviceProperties(engineDevice.physicalDevice(), &properties);
 
@@ -215,15 +320,18 @@ namespace aveng {
 		samplerInfo.compareEnable = VK_FALSE;
 		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		samplerInfo.minLod = 0.0; // Optional
+		samplerInfo.maxLod = static_cast<float>(mipLevels); // OR static_cast<float>(mipLevels);
+		samplerInfo.mipLodBias = 0.0f; // Optional
 
-		if (vkCreateSampler(engineDevice.device(), &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
+		if (vkCreateSampler(engineDevice.device(), &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) 
+		{
 			throw std::runtime_error("failed to create texture sampler!");
 		}
 	}
 
 	VkDescriptorImageInfo& ImageSystem::descriptorInfo()
 	{
-		LOG("Constructing Image Descriptor");
 		VkDescriptorImageInfo imageInfo{};
 		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		imageInfo.imageView = textureImageView;

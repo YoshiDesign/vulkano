@@ -251,4 +251,9 @@
   <ItemGroup>
     <Font Include="assets\OpenSans.ttf" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\3DModels\room.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>
