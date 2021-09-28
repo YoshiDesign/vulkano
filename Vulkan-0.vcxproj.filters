@@ -128,7 +128,7 @@
     <ClInclude Include="KeyControl\KeyboardController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="aveng_utils.h">
+    <ClInclude Include="Utils\aveng_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="KeyControl\TestController.h">
@@ -233,6 +233,12 @@
     <ClInclude Include="Renderer\AvengImageSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Utils\window_callbacks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="theadpool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\simple_shader.vert" />
@@ -250,10 +256,5 @@
   </ItemGroup>
   <ItemGroup>
     <Font Include="assets\OpenSans.ttf" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\..\..\3DModels\room.png">
-      <Filter>Resource Files</Filter>
-    </Image>
   </ItemGroup>
 </Project>

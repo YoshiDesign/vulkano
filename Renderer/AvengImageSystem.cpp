@@ -320,7 +320,7 @@ namespace aveng {
 		samplerInfo.compareEnable = VK_FALSE;
 		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-		samplerInfo.minLod = 0.0; // Optional
+		samplerInfo.minLod = 0.0f; // Optional
 		samplerInfo.maxLod = static_cast<float>(mipLevels); // OR static_cast<float>(mipLevels);
 		samplerInfo.mipLodBias = 0.0f; // Optional
 

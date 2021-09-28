@@ -8,5 +8,11 @@ layout(location = 1) in vec2 fragTexCoord;
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    outColor = texture(texSampler, fragTexCoord);
+
+    // Gamma correction
+    vec4 result = texture(texSampler, fragTexCoord);
+    float gamma = 1.1;
+    result.rgb = pow(result.rgb, vec3(1.0 / gamma));
+
+    outColor = result;
 }

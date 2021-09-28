@@ -1,10 +1,10 @@
 #include <iostream>
 #include "Camera/aveng_camera.h"
-#include "KeyControl/KeyboardController.h"
 #include "aveng_imgui.h"
 #include "aveng_buffer.h"
 #include "XOne.h"
 #include "Mods/Mods.h"
+#include "Utils/window_callbacks.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -16,15 +16,11 @@
 #include <numeric>
 #include <chrono>
 
-#define LOG(a) std::cout<<a<<std::endl;
 
 namespace aveng {
 
-	// For use similar to a push_constant struct. Passing in read-only data to the pipeline shader modules
-	struct GlobalUbo {
-		alignas(16) glm::mat4 projectionView{ 1.f };
-		alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3{ -1.f, -3.f, 1.f });
-	};
+
+	int WindowCallbacks::current_pipeline{ 1 };
 
 	struct GuiStuff {
 
@@ -34,16 +30,10 @@ namespace aveng {
 
 	};
 
-	int current_pipeline = 1;
-	void testKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-	{
-		if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-			current_pipeline = (current_pipeline + 1) % 2;
-		}
-	}
-
 	XOne::XOne() 
 	{
+		// Set callback functions for keys bound to the window
+		glfwSetKeyCallback(aveng_window.getGLFWwindow(), WindowCallbacks::testKeyCallback);
 		/*
 		* Call the pool builder to setup our pool for construction.
 		*/
@@ -64,7 +54,7 @@ namespace aveng {
 
 	void XOne::run()
 	{
-		glfwSetKeyCallback(aveng_window.getGLFWwindow(), testKeyCallback);
+		
 
 		auto minOffsetAlignment = std::lcm(
 			engineDevice.properties.limits.minUniformBufferOffsetAlignment,
@@ -90,7 +80,6 @@ namespace aveng {
 			.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 			.build();
 
-
 		std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < globalDescriptorSets.size(); i++)
 		{
@@ -104,12 +93,11 @@ namespace aveng {
 
 		// Note that the renderSystem is initialized with a pointer to the Render Pass
 		RenderSystem renderSystem{ engineDevice, renderer.getSwapChainRenderPass(), globalDescriptorSetLayout->getDescriptorSetLayout() };
-		AvengCamera camera{};
 
 		//camera.setViewTarget(glm::vec3(-1.f, -2.f, -20.f), glm::vec3(0.f, 0.f, 3.5f));
 
 		// Has no model or rendering. Used to store the camera's current state
-		auto viewerObject = AvengAppObject::createAppObject();
+		AvengAppObject viewerObject = AvengAppObject::createAppObject();
 
 		KeyboardController cameraController{};
 
@@ -148,6 +136,7 @@ namespace aveng {
 
 			// Maintain the aspect ratio
 			float aspect = renderer.getAspectRatio();
+
 			// Calculate time between iterations
 			auto newTime = std::chrono::high_resolution_clock::now();
 			float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
@@ -155,10 +144,7 @@ namespace aveng {
 
 			//frameTime = glm::min(frameTime, MAX_FRAME_TIME);	// Use this to lock to a specific max frame rate
 
-			// Updates the viewer object transform component based on key input, proportional to the time elapsed since the last frame
-			cameraController.moveInPlaneXZ(aveng_window.getGLFWwindow(), frameTime, viewerObject);
-			camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
-			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
+			updateCamera(frameTime, viewerObject, aspect, cameraController, camera);
 
 			auto commandBuffer = renderer.beginFrame();
 
@@ -181,21 +167,6 @@ namespace aveng {
 					std::cout << dt << std::endl;
 				}
 
-				//if (x > 10000) {
-				//	stuff._mods.x += 1.f;
-				//	stuff._mods.y += 10.f;
-				//	stuff._mods.z += 100.f;
-				//	stuff._mods.w = 0;
-				//	stuff.dt = frameTime;
-
-				//	if (stuff._mods.y > 360) {
-				//		stuff._mods.z = 0.0f;
-				//		stuff._mods.x = 0.0f;
-				//		stuff._mods.y = 0.0f;
-				//		stuff._mods.w = stuff._mods.w * -1;
-				//	}
-				//}
-
 				// Update our global uniform buffer
 				GlobalUbo ubo{};
 				ubo.projectionView = camera.getProjection() * camera.getView();
@@ -204,7 +175,7 @@ namespace aveng {
 
 				// Render
 				renderer.beginSwapChainRenderPass(commandBuffer);
-				renderSystem.renderAppObjects(frame_content, appObjects, current_pipeline, stuff._mods, dt, frameTime);
+				renderSystem.renderAppObjects(frame_content, appObjects, WindowCallbacks::getCurPipeline(), stuff._mods, dt, frameTime);
 				aveng_imgui.newFrame();
 				
 				aveng_imgui.runGUI(stuff._mods, stuff.no_objects, stuff.dt);
@@ -228,7 +199,7 @@ namespace aveng {
 	{
 		
 		//fib(1000);
-		std::shared_ptr<AvengModel> avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/room.obj");
+		std::shared_ptr<AvengModel> avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/ship_demo.obj");
 		//std::shared_ptr<AvengModel> avengModel2 = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/holy_ship.obj");
 
 		for (int i = 0; i < 2; i++) 
@@ -270,6 +241,14 @@ namespace aveng {
 		appObjects.push_back(std::move(gameObj));
 		return fib(n - 1, b, a + b);
 
+	}
+
+	void XOne::updateCamera(float frameTime, AvengAppObject& viewerObject, float aspect, KeyboardController& cameraController, AvengCamera& camera)
+	{
+		// Updates the viewer object transform component based on key input, proportional to the time elapsed since the last frame
+		cameraController.moveInPlaneXZ(aveng_window.getGLFWwindow(), frameTime, viewerObject);
+		camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+		camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
 	}
 
 } // ns aveng

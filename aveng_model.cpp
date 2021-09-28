@@ -2,7 +2,7 @@
 #include <cstring>
 #include <iostream>
 #include "aveng_model.h"
-#include "aveng_utils.h"
+#include "Utils/aveng_utils.h"
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_object_loader.h>
 #define GLM_ENABLE_EXPERIMENTAL

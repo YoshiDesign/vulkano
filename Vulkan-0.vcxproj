@@ -186,7 +186,7 @@
     <ClInclude Include="EngineDevice.h" />
     <ClInclude Include="GFXPipeline.h" />
     <ClInclude Include="aveng_window.h" />
-    <ClInclude Include="aveng_utils.h" />
+    <ClInclude Include="Utils\aveng_utils.h" />
     <ClInclude Include="GUI\imconfig.h" />
     <ClInclude Include="GUI\imgui.h" />
     <ClInclude Include="GUI\imgui_impl_glfw.h" />
@@ -222,6 +222,8 @@
     <ClInclude Include="stb\stb_truetype.h" />
     <ClInclude Include="stb\stb_voxel_render.h" />
     <ClInclude Include="swapchain.h" />
+    <ClInclude Include="theadpool.h" />
+    <ClInclude Include="Utils\window_callbacks.h" />
     <ClInclude Include="XOne.h" />
   </ItemGroup>
   <ItemGroup>
@@ -238,9 +240,6 @@
   </ItemGroup>
   <ItemGroup>
     <Font Include="assets\OpenSans.ttf" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\..\..\3DModels\room.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

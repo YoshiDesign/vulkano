@@ -9,6 +9,7 @@
 #include "aveng_window.h"
 #include "EngineDevice.h"
 #include "Renderer/Renderer.h"
+#include "KeyControl/KeyboardController.h"
 
 namespace aveng {
 
@@ -29,7 +30,14 @@ namespace aveng {
 
 	private:
 
+		// For use similar to a push_constant struct. Passing in read-only data to the pipeline shader modules
+		struct GlobalUbo {
+			alignas(16) glm::mat4 projectionView{ 1.f };
+			alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3{ -1.f, -3.f, 1.f });
+		};
+
 		void loadAppObjects();
+		void updateCamera(float frameTime, AvengAppObject& viewerObject, float aspect, KeyboardController& cameraController, AvengCamera& camera);
 
 		// The window API - Stack allocated
 		AvengWindow aveng_window{ WIDTH, HEIGHT, "Vulkan 0" };
@@ -39,13 +47,17 @@ namespace aveng {
 		// Order of initialization matters here, don't derp it up plz
 		EngineDevice engineDevice{ aveng_window };
 		Renderer renderer{ aveng_window, engineDevice };
-		ImageSystem imageSystem{ engineDevice, "textures/room.png"};
+		ImageSystem imageSystem{ engineDevice, "textures/theme1.png"};
+		AvengCamera camera{};
 
 		std::shared_ptr<AvengModel> avengModelF = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/colored_cube.obj");
 
 		// This declaration must occur after the renderer initializes
 		std::unique_ptr<AvengDescriptorPool> globalPool{};
 		std::vector<AvengAppObject> appObjects;
+
+		// Update items
+
 		
 	};
 

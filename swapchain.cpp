@@ -421,6 +421,7 @@ namespace aveng {
         //    }
         //}
 
+        // Pro-Tip: Immediate mode will not work on most mobile devices
         // for (const auto &availablePresentMode : availablePresentModes) {
         //   if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
         //     std::cout << "Present mode: Immediate" << std::endl;
@@ -430,6 +431,7 @@ namespace aveng {
 
         std::cout << "Present mode: V-Sync" << std::endl;
         return VK_PRESENT_MODE_FIFO_KHR;
+
     }
 
     VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) 
