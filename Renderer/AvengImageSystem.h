@@ -16,7 +16,7 @@ namespace aveng {
 
 	public:
 
-		ImageSystem(EngineDevice& device, const char* filepath);
+		ImageSystem(EngineDevice& device);
 		~ImageSystem();
 
 		void createTextureImage(const char* filepath);

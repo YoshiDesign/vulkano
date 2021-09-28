@@ -15,9 +15,9 @@
 
 namespace aveng {
 
-	ImageSystem::ImageSystem(EngineDevice& device, const char* filepath) : engineDevice{ device } 
+	ImageSystem::ImageSystem(EngineDevice& device) : engineDevice{ device } 
 	{
-		createTextureImage(filepath);
+		createTextureImage();
 		createTextureImageView();
 		createTextureSampler();
 	}
@@ -29,7 +29,7 @@ namespace aveng {
 		vkFreeMemory(engineDevice.device(), textureImageMemory, nullptr);
 	}
 
-	void ImageSystem::createTextureImage(const char* filepath)
+	void ImageSystem::createTextureImage()
 	{
 		// Load our image
 		int texWidth, texHeight, texChannels;
