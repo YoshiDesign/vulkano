@@ -34,6 +34,7 @@ namespace aveng {
 
 	public:
 		using id_t = unsigned int;
+		int imgIndex{0};
 
 		static AvengAppObject createAppObject() 
 		{

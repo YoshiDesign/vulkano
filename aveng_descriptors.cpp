@@ -174,10 +174,10 @@ namespace aveng {
 
     // *************** Descriptor Writer *********************
 
-    AvengDescriptorWriter::AvengDescriptorWriter(AvengDescriptorSetLayout& setLayout, AvengDescriptorPool& pool)
+    AvengDescriptorSetWriter::AvengDescriptorSetWriter(AvengDescriptorSetLayout& setLayout, AvengDescriptorPool& pool)
         : setLayout{ setLayout }, pool{ pool } {}
 
-    AvengDescriptorWriter& AvengDescriptorWriter::writeBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo) 
+    AvengDescriptorSetWriter& AvengDescriptorSetWriter::writeBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo) 
     {
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
@@ -198,7 +198,7 @@ namespace aveng {
         return *this;
     }
 
-    AvengDescriptorWriter& AvengDescriptorWriter::writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfo) 
+    AvengDescriptorSetWriter& AvengDescriptorSetWriter::writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfo, int nImages) 
     {
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
@@ -213,13 +213,13 @@ namespace aveng {
         write.descriptorType = bindingDescription.descriptorType;   // VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER or VK_DESCRIPTOR_TYPE_SAMPLER etc...
         write.dstBinding = binding;                                 // Binding index within this descriptor set
         write.pImageInfo = imageInfo;                               // A pointer to an array of VkDescriptorImageInfo structures or is ignored
-        write.descriptorCount = 1;
+        write.descriptorCount = nImages;
 
         writes.push_back(write);
         return *this;
     }
 
-    bool AvengDescriptorWriter::build(VkDescriptorSet& set) 
+    bool AvengDescriptorSetWriter::build(VkDescriptorSet& set) 
     {
         bool success = pool.allocateDescriptor(setLayout.getDescriptorSetLayout(), set);
         if (!success) 
@@ -230,7 +230,7 @@ namespace aveng {
         return true;
     }
 
-    void AvengDescriptorWriter::overwrite(VkDescriptorSet& set) 
+    void AvengDescriptorSetWriter::overwrite(VkDescriptorSet& set) 
     {
         std::cout << "Updating final descriptor sets!" << std::endl;
         for (auto& write : writes) 

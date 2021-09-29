@@ -242,6 +242,10 @@
   <ItemGroup>
     <Font Include="assets\OpenSans.ttf" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\theme1.png" />
+    <Image Include="textures\tx1p.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -17,6 +17,7 @@ namespace aveng {
 	{
 		glm::mat4 modelMatrix{ 1.f };
 		glm::mat4 normalMatrix{ 1.f };
+		int imgIndex;
 	};
 
 	RenderSystem::RenderSystem(EngineDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> descriptorSetLayouts) : engineDevice{ device }
@@ -102,18 +103,6 @@ namespace aveng {
 		//default:
 		gfxPipeline->bind(frame_content.commandBuffer); // 0
 		// }
-
-		
-
-		vkCmdBindDescriptorSets (
-			frame_content.commandBuffer,
-			VK_PIPELINE_BIND_POINT_GRAPHICS,
-			pipelineLayout,
-			0,
-			1,
-			&frame_content.globalDescriptorSet,
-			0,
-			nullptr);
 		
 		// Every rendered object will use the same projection and view matrix
 		// auto projectionView = frame_content.camera.getProjection() * frame_content.camera.getView();
@@ -123,6 +112,17 @@ namespace aveng {
 		*/
 		for (auto& obj : appObjects) 
 		{
+
+			vkCmdBindDescriptorSets(
+				frame_content.commandBuffer,
+				VK_PIPELINE_BIND_POINT_GRAPHICS,
+				pipelineLayout,
+				0,
+				1,
+				&frame_content.globalDescriptorSet,
+				0,
+				nullptr);
+
 			SimplePushConstantData push{};
 
 			// You can define more properties on the object class to store more information
@@ -177,6 +177,7 @@ namespace aveng {
 			// The matrix describing this model's current orientation
 			push.modelMatrix = obj.transform._mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
+			push.imgIndex = obj.imgIndex;
 
 			vkCmdPushConstants(
 				frame_content.commandBuffer,

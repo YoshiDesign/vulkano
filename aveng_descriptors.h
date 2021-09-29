@@ -67,9 +67,9 @@ namespace aveng {
         VkDescriptorSetLayout descriptorSetLayout;
         std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings;
 
-        VkDescriptorImageInfo	descriptorImageInfos[TEXTURE_ARRAY_SIZE];
+        VkDescriptorImageInfo descriptorImageInfos[TEXTURE_ARRAY_SIZE]{ {},{} };
 
-        friend class AvengDescriptorWriter;
+        friend class AvengDescriptorSetWriter;
     };
 
     class AvengDescriptorPool {
@@ -112,15 +112,15 @@ namespace aveng {
         EngineDevice& engineDevice;
         VkDescriptorPool descriptorPool;
 
-        friend class AvengDescriptorWriter;
+        friend class AvengDescriptorSetWriter;
     };
 
-    class AvengDescriptorWriter {
+    class AvengDescriptorSetWriter {
     public:
-        AvengDescriptorWriter(AvengDescriptorSetLayout& setLayout, AvengDescriptorPool& pool);
+        AvengDescriptorSetWriter(AvengDescriptorSetLayout& setLayout, AvengDescriptorPool& pool);
 
-        AvengDescriptorWriter& writeBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo);
-        AvengDescriptorWriter& writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfo);
+        AvengDescriptorSetWriter& writeBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo);
+        AvengDescriptorSetWriter& writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfo, int nImages);
 
         bool build(VkDescriptorSet& set);
         void overwrite(VkDescriptorSet& set);

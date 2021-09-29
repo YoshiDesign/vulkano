@@ -32,32 +32,31 @@ namespace aveng {
 		ImageSystem(EngineDevice& device);
 		~ImageSystem();
 
-		void createTextureImage();
+		void createTextureImage(const char* filepath, size_t i);
 		VkImageView createImageView(VkImage image, VkFormat format, uint32_t mipLevels);
-		void createTextureImageView();
+		void createTextureImageView(VkImage image, size_t i);
 		void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
 		void createTextureSampler();
 
-		// void loadTextureFromFile(const char* filepath);
-		// Texture getTexture(std::string name) { return textures[name]; }
+		void createImageDescriptor(VkImageView view);
+		VkDescriptorImageInfo getImageInfoAtIndex(int index) { return imageInfosArray[index]; };
+		std::vector<VkDescriptorImageInfo> descriptorInfoForAllImages();
 
-		VkImage getImageInfo() { return image; };
-		VkDescriptorImageInfo& descriptorInfo();
-
+		int nImages = 2;
 	private:
 
-
-
 		// mipLevels is the only dependency keeping us from merging some of these functions with SwapChain's impelmentations of them
-		uint32_t mipLevels{0};
 
 		EngineDevice& engineDevice;
 
+		std::vector<uint32_t> mipLevels;
+		std::vector<VkDescriptorImageInfo> imageInfosArray;
+
 		VkDeviceMemory textureImageMemory;
-		VkImageView textureImageView;
 		VkSampler textureSampler;
-		VkImage image;
+		
+		std::vector<VkImageView> textureImageViews;
 		std::vector<VkImage> images;
 		std::unordered_map<std::string, Texture> textures;
 	};

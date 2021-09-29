@@ -2,6 +2,8 @@
 #include "../aveng_model.h"
 #include <iostream>
 #include <stdexcept>
+#include <algorithm>
+
 
 /*
 	All of the helper functions that submit commands so far have been set up to execute synchronously 
@@ -19,41 +21,57 @@ namespace aveng {
 		//loadTextureFromFile("../textures/theme1.png", "theme1");
 		//loadTextureFromFile("../textures/idk.jpg", "theme1");
 
-		createTextureImage();
-		createTextureImageView();
-		createTextureSampler();
+		const char* image_paths[2] = { "../textures/theme1.png" , "../textures/tx1p.png" };
+		
+		std::cout << "Check: " << image_paths[0] << std::endl;
 
+		for (size_t i = 0; i < 2; i++)
+		{
+			std::cout << "Creating texture image." << std::endl;
+			createTextureImage(image_paths[i], i);
+			std::cout << "Creating texture image view." << std::endl;
+			createTextureImageView(images[i], i);
+			std::cout << "Creating texture image Descriptor." << std::endl;
+			createImageDescriptor(textureImageViews[i]);
+		}
+		createTextureSampler();
 	}
 
 	ImageSystem::~ImageSystem() 
 	{
 		vkDestroySampler(engineDevice.device(), textureSampler, nullptr);
-		vkDestroyImageView(engineDevice.device(), textureImageView, nullptr);
-		vkDestroyImage(engineDevice.device(), image, nullptr);
+		for (auto& view : textureImageViews)
+		{
+			vkDestroyImageView(engineDevice.device(), view, nullptr);
+		}
+		for (auto& img : images) 
+		{
+			vkDestroyImage(engineDevice.device(), img, nullptr);
+		}
+
+
 		vkFreeMemory(engineDevice.device(), textureImageMemory, nullptr);
 	}
 
-	//void ImageSystem::loadTextureFromFile(const char* filepath)
-	//{
-	//	Texture texture;
-	//	
-	//	textures[name] = texture;
-	//}
-
-	void ImageSystem::createTextureImage()
+	void ImageSystem::createTextureImage(const char* filepath, size_t i)
 	{
+
+		VkImage image;
 
 		// Load our image
 		int texWidth, texHeight, texChannels;
-		stbi_uc* pixels = stbi_load("3D/theme1.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+		stbi_uc* pixels = stbi_load("textures/theme1.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
 
+		std::cout << "TxWidth: " << texWidth << "\nTxHeight: " << texHeight << std::endl;
+
 		// Take the number of available mip lvls +1 for level 0
-		mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
+		uint32_t mipLevel = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
+		mipLevels.push_back(mipLevel); // Store for later when we take the LCM
 
-		std::cout << "Initial Mip Lvls: " << mipLevels << std::endl;
+		std::cout << "Initial Mip Lvls: " << mipLevel << std::endl;
 
-		if (!pixels || !mipLevels) 
+		if (!pixels || !mipLevel) 
 		{
 			throw std::runtime_error("failed to load texture image!");
 		}
@@ -73,13 +91,14 @@ namespace aveng {
 
 		stbi_image_free(pixels);
 
+		// Image
 		VkImageCreateInfo imageInfo{};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		imageInfo.imageType = VK_IMAGE_TYPE_2D;
 		imageInfo.extent.width = static_cast<uint32_t>(texWidth);
 		imageInfo.extent.height = static_cast<uint32_t>(texHeight);
 		imageInfo.extent.depth = 1;
-		imageInfo.mipLevels = mipLevels;
+		imageInfo.mipLevels = mipLevel;
 		imageInfo.arrayLayers = 1;
 		imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;	// Being sure to utilize the same image format for the texels as the pixels in the buffer, or the copy op will fail
 		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;	// Specifying an implementation defined ordering of the data, instead of something like row major order
@@ -90,6 +109,7 @@ namespace aveng {
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // Exclusive to 1 queue family, graphics
 		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT; // > 1 if images as attachments?
 		imageInfo.flags = 0; // Optional
+
 		/*
 		* TODO It is possible that the VK_FORMAT_R8G8B8A8_SRGB format is not supported by the graphics hardware. 
 		* You should have a list of acceptable alternatives and go with the best one that is supported.
@@ -105,11 +125,13 @@ namespace aveng {
 			image,
 			textureImageMemory
 		);
-		transitionImageLayout(image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels);
+		transitionImageLayout(image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevel);
 		engineDevice.copyBufferToImage(stagingBuffer.getBuffer(), image, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), 1);
 		//transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL); // This will now occur in generateMipmaps
 
-		generateMipmaps(image, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevels);
+		generateMipmaps(image, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevel);
+		std::cout << "Added texture to image array." << std::endl;
+		images.push_back(image);
 
 	}
 
@@ -123,7 +145,7 @@ namespace aveng {
 		{
 			// Continue without MipMapping. This means less optimization.
 			std::cout << "THIS IMAGE DOES NOT SUPPORT LINEAR BLITTING" << std::endl;
-			transitionImageLayout(image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels);
+			transitionImageLayout(_image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels);
 			/*throw std::runtime_error("texture image format does not support linear blitting!");*/
 			return;
 		}
@@ -283,9 +305,11 @@ namespace aveng {
 	}
 
 
-	void ImageSystem::createTextureImageView()
+	void ImageSystem::createTextureImageView(VkImage image, size_t i)
 	{
-		textureImageView = createImageView(image, VK_FORMAT_R8G8B8A8_SRGB, mipLevels);
+		VkImageView textureImageView = createImageView(image, VK_FORMAT_R8G8B8A8_SRGB, mipLevels[i]);
+		std::cout << "Adding texture image view to array." << std::endl;
+		textureImageViews.push_back(textureImageView);
 	}
 
 	VkImageView ImageSystem::createImageView(VkImage _image, VkFormat format, uint32_t mipLevels)
@@ -309,11 +333,14 @@ namespace aveng {
 			throw std::runtime_error("failed to create texture image view!");
 		}
 
+
 		return imageView;
 	}
 
 	void ImageSystem::createTextureSampler() 
 	{
+
+		auto smallest_mip = min_element(std::begin(mipLevels), std::end(mipLevels));
 
 		VkPhysicalDeviceProperties properties{};
 		vkGetPhysicalDeviceProperties(engineDevice.physicalDevice(), &properties);
@@ -333,7 +360,7 @@ namespace aveng {
 		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 		samplerInfo.minLod = 0.0f; // Optional
-		samplerInfo.maxLod = static_cast<float>(mipLevels); // OR static_cast<float>(mipLevels);
+		samplerInfo.maxLod = (*smallest_mip * 1.0f); // OR static_cast<float>(mipLevel);
 		samplerInfo.mipLodBias = 0.0f; // Optional
 
 		if (vkCreateSampler(engineDevice.device(), &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) 
@@ -342,13 +369,29 @@ namespace aveng {
 		}
 	}
 
-	VkDescriptorImageInfo& ImageSystem::descriptorInfo()
+	//VkDescriptorImageInfo& ImageSystem::descriptorInfo()
+	//{
+	//	VkDescriptorImageInfo imageInfo{};
+	//	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	//	imageInfo.imageView = textureImageView;
+	//	imageInfo.sampler	= textureSampler;
+	//	return imageInfo;
+	//}
+
+	std::vector<VkDescriptorImageInfo> ImageSystem::descriptorInfoForAllImages()
 	{
-		VkDescriptorImageInfo imageInfo{};
-		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView = textureImageView;
-		imageInfo.sampler	= textureSampler;
-		return imageInfo;
+		return imageInfosArray;
+	}
+
+	void ImageSystem::createImageDescriptor(VkImageView view)
+	{
+		// Image Descriptor
+		VkDescriptorImageInfo descriptorImageInfo{};
+		descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		descriptorImageInfo.imageView = view;
+		descriptorImageInfo.sampler = textureSampler;
+		std::cout << "Adding texture image Descriptor to array." << std::endl;
+		imageInfosArray.push_back(descriptorImageInfo);
 	}
 
 }

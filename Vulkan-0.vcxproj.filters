@@ -260,4 +260,12 @@
   <ItemGroup>
     <Font Include="assets\OpenSans.ttf" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\theme1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="textures\tx1p.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

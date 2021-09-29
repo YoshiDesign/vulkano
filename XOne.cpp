@@ -81,22 +81,23 @@ namespace aveng {
 			AvengDescriptorSetLayout::Builder(engineDevice)
 							   // This Descriptor				  // Available from
 				.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)		// Its bindings
-				.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+				.addBinding(1, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, VK_SHADER_STAGE_FRAGMENT_BIT, 2)
 				.build();	// Initialize the Descriptor Set Layout
 
-		std::vector<VkDescriptorSetLayout> descriptorSetLayouts;									// All of the layouts (there is only 1 thus far)
-		std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);				// All descriptor sets for this layout (globalDescriptorSetLayout)
+		
+		std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);			// A global descriptor set for each frame presented from our SwapChain
 		for (int i = 0; i < globalDescriptorSets.size(); i++)
 		{
 			auto bufferInfo = globalUboBuffer.descriptorInfoForIndex(i);
-			auto imageInfo = imageSystem.descriptorInfo();
-			AvengDescriptorWriter(*globalDescriptorSetLayout, *globalPool)								// Write our descriptors according to the layout's bindings
+			auto imageInfo = imageSystem.descriptorInfoForAllImages();
+			AvengDescriptorSetWriter(*globalDescriptorSetLayout, *globalPool)							// Write our descriptors according to the layout's bindings
 				.writeBuffer(0, &bufferInfo)															// Write a buffer. Send the buffer info with it
-				.writeImage(1, &imageInfo)																// Write an image Sampler
-				.build(globalDescriptorSets[i]);
+				.writeImage(1, imageInfo.data(), imageSystem.nImages)									// Write an array of image descriptors to 1 descriptor set
+				.build(globalDescriptorSets[i]);														// Build the global descriptor set for this frame
 		}
 
 		// Add the layouts
+		std::vector<VkDescriptorSetLayout> descriptorSetLayouts;									// All of the layouts (there is only 1 thus far)
 		descriptorSetLayouts.push_back(globalDescriptorSetLayout->getDescriptorSetLayout());
 
 		// Note that the renderSystem is initialized with a pointer to the Render Pass
