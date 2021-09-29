@@ -3,6 +3,13 @@
  *
  * Initially based off VulkanBuffer by Sascha Willems -
  * https://github.com/SaschaWillems/Vulkan/blob/master/base/VulkanBuffer.h
+ * 
+ * Notes:
+ * 
+ * Buffers represent linear arrays of data which are used for various purposes 
+ * by binding them to a graphics or compute pipeline via descriptor sets or via 
+ * certain commands, or by directly specifying them as parameters to certain commands.
+ * 
  */
 
 #include "aveng_buffer.h"
@@ -17,8 +24,8 @@ namespace aveng {
      * Returns the minimum instance size required to be compatible with devices minOffsetAlignment
      *
      * @param instanceSize The size of an instance
-     * @param minOffsetAlignment The minimum required alignment, in bytes, for the offset member (eg
-     * minUniformBufferOffsetAlignment)
+     * @param minOffsetAlignment The minimum required alignment, in bytes, for the offset member
+     * (e.g. minUniformBufferOffsetAlignment)
      *
      * @return VkResult of the buffer mapping call
      */
@@ -53,7 +60,8 @@ namespace aveng {
         device.createBuffer(bufferSize, usageFlags, memoryPropertyFlags, buffer, memory);
     }
 
-    AvengBuffer::~AvengBuffer() {
+    AvengBuffer::~AvengBuffer() 
+    {
         unmap();
         vkDestroyBuffer(engineDevice.device(), buffer, nullptr);
         vkFreeMemory(engineDevice.device(), memory, nullptr);
@@ -68,12 +76,17 @@ namespace aveng {
      *
      * @return VkResult of the buffer mapping call
      */
-    VkResult AvengBuffer::map(VkDeviceSize size, VkDeviceSize offset) {
+    VkResult AvengBuffer::map(VkDeviceSize size, VkDeviceSize offset) 
+    {
+
         assert(buffer && memory && "Called map on buffer before create");
+
         if (size == VK_WHOLE_SIZE) {
             return vkMapMemory(engineDevice.device(), memory, 0, bufferSize, 0, &mapped);
         }
+
         return vkMapMemory(engineDevice.device(), memory, offset, size, 0, &mapped);
+
     }
 
     /**
@@ -81,7 +94,8 @@ namespace aveng {
      *
      * @note Does not return a result as vkUnmapMemory can't fail
      */
-    void AvengBuffer::unmap() {
+    void AvengBuffer::unmap() 
+    {
         if (mapped) {
             vkUnmapMemory(engineDevice.device(), memory);
             mapped = nullptr;
@@ -97,7 +111,8 @@ namespace aveng {
      * @param offset (Optional) Byte offset from beginning of mapped region
      *
      */
-    void AvengBuffer::writeToBuffer(void* data, VkDeviceSize size, VkDeviceSize offset) {
+    void AvengBuffer::writeToBuffer(void* data, VkDeviceSize size, VkDeviceSize offset) 
+    {
         assert(mapped && "Cannot copy to unmapped buffer");
 
         if (size == VK_WHOLE_SIZE) {
@@ -121,7 +136,8 @@ namespace aveng {
      *
      * @return VkResult of the flush call
      */
-    VkResult AvengBuffer::flush(VkDeviceSize size, VkDeviceSize offset) {
+    VkResult AvengBuffer::flush(VkDeviceSize size, VkDeviceSize offset) 
+    {
         VkMappedMemoryRange mappedRange = {};
         mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
         mappedRange.memory = memory;
@@ -141,7 +157,8 @@ namespace aveng {
      *
      * @return VkResult of the invalidate call
      */
-    VkResult AvengBuffer::invalidate(VkDeviceSize size, VkDeviceSize offset) {
+    VkResult AvengBuffer::invalidate(VkDeviceSize size, VkDeviceSize offset) 
+    {
         VkMappedMemoryRange mappedRange = {};
         mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
         mappedRange.memory = memory;
@@ -174,7 +191,8 @@ namespace aveng {
      * @param index Used in offset calculation
      *
      */
-    void AvengBuffer::writeToIndex(void* data, int index) {
+    void AvengBuffer::writeToIndex(void* data, int index) 
+    {
         writeToBuffer(data, instanceSize, index * alignmentSize);
     }
 
@@ -193,7 +211,8 @@ namespace aveng {
      *
      * @return VkDescriptorBufferInfo for instance at index
      */
-    VkDescriptorBufferInfo AvengBuffer::descriptorInfoForIndex(int index) {
+    VkDescriptorBufferInfo AvengBuffer::descriptorInfoForIndex(int index) 
+    {
         return descriptorInfo(alignmentSize, index * alignmentSize);
     }
 
@@ -206,7 +225,8 @@ namespace aveng {
      *
      * @return VkResult of the invalidate call
      */
-    VkResult AvengBuffer::invalidateIndex(int index) {
+    VkResult AvengBuffer::invalidateIndex(int index) 
+    {
         return invalidate(alignmentSize, index * alignmentSize);
     }
 

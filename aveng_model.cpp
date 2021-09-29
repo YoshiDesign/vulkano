@@ -9,7 +9,6 @@
 #include <glm/gtx/hash.hpp>
 #include <unordered_map>
 
-
 namespace std {
 
 	// This function allows us to take a vertex struct instance and hash it, for use by an unordered map key
@@ -29,9 +28,17 @@ namespace std {
 
 namespace aveng {
 
+	struct Model {
+		tinyobj::attrib_t attrib;
+		std::vector<tinyobj::shape_t> shapes;
+		std::vector<tinyobj::material_t> materials;
+	};
+
 	AvengModel::AvengModel(EngineDevice& device, const AvengModel::Builder& builder) 
 		: engineDevice{ device }
 	{
+		/*loadModelFromFile("../3D/ship_demo.obj", "holy_ship");
+		loadModelFromFile("../3D/colored_cube.obj", "colored_cube");*/
 		createVertexBuffers(builder.vertices);		// The vertex shader takes input from a vertex buffer from `layout(location = n) in vec3 vertexAttribute`. The vertexAttribute is defined by the vertex Buffer
 		createIndexBuffers(builder.indices);
 	}
@@ -45,11 +52,6 @@ namespace aveng {
 		Builder builder{};
 		builder.loadModel(filepath);
 		return std::make_unique<AvengModel>(device, builder);
-	}
-
-	std::unique_ptr<AvengModel> AvengModel::createTextureFromFile(EngineDevice& device, const std::string& filepath)
-	{
-
 	}
 
 	/*
@@ -86,7 +88,7 @@ namespace aveng {
 			vertexCount,
 			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 			// Host Coherent bit ensures the *data buffer is flushed automatically so we dont have to call the VkFlushMappedMemoryRanges
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT // Memory properties
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT // Memory properties - This is GPU heap allocated and super fast
 		);
 
 		// Copy memory from the staging buffer to the vertex buffer
@@ -131,7 +133,7 @@ namespace aveng {
 			indexCount,
 			VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 			// Transfer bit ensures that this buffer's location in device memory will receive data from our transfer source bit
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT // // Memory properties - This is GPU heap allocated and super fast
 		);
 
 		engineDevice.copyBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);

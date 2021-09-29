@@ -1,6 +1,6 @@
 #include "aveng_descriptors.h"
+
 #include <iostream>
-// std
 #include <cassert>
 #include <stdexcept>
 
@@ -8,7 +8,14 @@ namespace aveng {
 
     // *************** Descriptor Set Layout Builder *********************
 
-    AvengDescriptorSetLayout::Builder& AvengDescriptorSetLayout::Builder::addBinding(
+    AvengDescriptorSetLayout::Builder::Builder(EngineDevice& device) : engineDevice{ device } {}
+
+    /*
+     * Add an individual descriptor definition to 
+     * be added to a descriptor set for the layout being constructed
+     */
+    AvengDescriptorSetLayout::Builder& 
+    AvengDescriptorSetLayout::Builder::addBinding(
         uint32_t binding,
         VkDescriptorType descriptorType,
         VkShaderStageFlags stageFlags,
@@ -19,29 +26,34 @@ namespace aveng {
         assert(bindings.count(binding) == 0 && "Binding already in use");
 
         VkDescriptorSetLayoutBinding layoutBinding{};
-        layoutBinding.binding = binding;
-        layoutBinding.descriptorType = descriptorType;
-        layoutBinding.descriptorCount = count;
-        layoutBinding.stageFlags = stageFlags;
-        bindings[binding] = layoutBinding;
+        layoutBinding.binding = binding;                // Binding location, 0, 1, 2, etc
+        layoutBinding.descriptorType = descriptorType;  // Ex. VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER(_DYNAMIC) or VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
+        layoutBinding.descriptorCount = count;          // Number of descriptors this layout will use
+        layoutBinding.stageFlags = stageFlags;          // Default: 1 (VK_SHADER_STAGE_VERTEX_BIT) A VkShaderStageFlagBits determining which pipeline shader stages can access this layout binding. 
+
+        bindings[binding] = layoutBinding;              // Add the binding to the map
 
         return *this;
     }
 
+    /*
+    * Create a unique pointer to a Descriptor Set Layout using the
+    */
     std::unique_ptr<AvengDescriptorSetLayout> AvengDescriptorSetLayout::Builder::build() const 
     {
+        // Descriptor Set Layout Builder initializes its parent class
         return std::make_unique<AvengDescriptorSetLayout>(engineDevice, bindings);
     }
 
     // *************** Descriptor Set Layout *********************
-
-    AvengDescriptorSetLayout::AvengDescriptorSetLayout(
-        EngineDevice& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings)
+    AvengDescriptorSetLayout::AvengDescriptorSetLayout(EngineDevice& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings)
         : engineDevice{ device }, bindings{ bindings } 
     {
-        std::cout << "Create layout" << std::endl;
+
+        // Warning: Potential to circumvent this loop by simply using a vector for bindings. Why do we need the unordered_map?
         std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
-        for (auto kv : bindings) {
+        for (auto kv : bindings) 
+        {
             setLayoutBindings.push_back(kv.second);
         }
 
@@ -50,13 +62,11 @@ namespace aveng {
         descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
         descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
 
-        if (vkCreateDescriptorSetLayout(
-            engineDevice.device(),
-            &descriptorSetLayoutInfo,
-            nullptr,
-            &descriptorSetLayout) != VK_SUCCESS) {
+        if (vkCreateDescriptorSetLayout(engineDevice.device(), &descriptorSetLayoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) 
+        {
             throw std::runtime_error("failed to create descriptor set layout!");
         }
+
     }
 
     AvengDescriptorSetLayout::~AvengDescriptorSetLayout() 
@@ -65,26 +75,39 @@ namespace aveng {
     }
 
     // *************** Descriptor Pool Builder *********************
+    AvengDescriptorPool::Builder::Builder(EngineDevice& device) : engineDevice{ device } {}
 
-    AvengDescriptorPool::Builder& AvengDescriptorPool::Builder::addPoolSize(
-        VkDescriptorType descriptorType, uint32_t count) 
+    AvengDescriptorPool::Builder& AvengDescriptorPool::Builder::addPoolSize(VkDescriptorType descriptorType, uint32_t count) 
     {
+        /*
+        * Reference
+        * typedef struct VkDescriptorPoolSize {
+            VkDescriptorType    type;                   // This matches the type of the descriptors it is meant to allocate
+            uint32_t            descriptorCount;        // The number of descriptors of that type to allocate
+}           VkDescriptorPoolSize;
+        */
         poolSizes.push_back({ descriptorType, count });
         return *this;
     }
 
-    AvengDescriptorPool::Builder& AvengDescriptorPool::Builder::setPoolFlags(
-        VkDescriptorPoolCreateFlags flags) 
+    AvengDescriptorPool::Builder& AvengDescriptorPool::Builder::setPoolFlags(VkDescriptorPoolCreateFlags flags) 
     {
+        // See: VkDescriptorPoolCreateFlagBits - This is where we can specify things like updating after binding
+        // Pro Tip: Descriptor pools don't guarantee thread safe
         poolFlags = flags;
         return *this;
     }
+
     AvengDescriptorPool::Builder& AvengDescriptorPool::Builder::setMaxSets(uint32_t count) 
     {
+        // Sync'd to SwapChain::MAX_FRAMES_IN_FLIGHT
         maxSets = count;
         return *this;
     }
 
+    /*
+    * Create a unique pointer to a Descriptor Pool using the data gathered throughout binding of descriptors
+    */
     std::unique_ptr<AvengDescriptorPool> AvengDescriptorPool::Builder::build() const 
     {
         return std::make_unique<AvengDescriptorPool>(engineDevice, maxSets, poolFlags, poolSizes);
@@ -113,7 +136,8 @@ namespace aveng {
         }
     }
 
-    AvengDescriptorPool::~AvengDescriptorPool() {
+    AvengDescriptorPool::~AvengDescriptorPool() 
+    {
         vkDestroyDescriptorPool(engineDevice.device(), descriptorPool, nullptr);
     }
 
@@ -130,6 +154,7 @@ namespace aveng {
         if (vkAllocateDescriptorSets(engineDevice.device(), &allocInfo, &descriptor) != VK_SUCCESS) {
             return false;
         }
+
         return true;
     }
 
@@ -163,10 +188,10 @@ namespace aveng {
             "Binding single descriptor info, but binding expects multiple");
 
         VkWriteDescriptorSet write{};
-        write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        write.descriptorType = bindingDescription.descriptorType;
-        write.dstBinding = binding;
-        write.pBufferInfo = bufferInfo;
+        write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;       // The type of this structure.
+        write.descriptorType = bindingDescription.descriptorType;   // VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER or VK_DESCRIPTOR_TYPE_SAMPLER etc...
+        write.dstBinding = binding;                                 // Binding index within this descriptor set
+        write.pBufferInfo = bufferInfo;                             // A pointer to an array of VkDescriptorBufferInfo structures or is ignored
         write.descriptorCount = 1;
 
         writes.push_back(write);
@@ -184,10 +209,10 @@ namespace aveng {
             "Binding single descriptor info, but binding expects multiple");
 
         VkWriteDescriptorSet write{};
-        write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        write.descriptorType = bindingDescription.descriptorType;
-        write.dstBinding = binding;
-        write.pImageInfo = imageInfo;
+        write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;       // The type of this structure.
+        write.descriptorType = bindingDescription.descriptorType;   // VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER or VK_DESCRIPTOR_TYPE_SAMPLER etc...
+        write.dstBinding = binding;                                 // Binding index within this descriptor set
+        write.pImageInfo = imageInfo;                               // A pointer to an array of VkDescriptorImageInfo structures or is ignored
         write.descriptorCount = 1;
 
         writes.push_back(write);

@@ -1,5 +1,4 @@
 #include <iostream>
-#define LOG(a) std::cout<<a<<std::endl;
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -10,6 +9,8 @@
 
 #include "RenderSystem.h"
 
+#define LOG(a) std::cout<<a<<std::endl;
+
 namespace aveng {
 
 	struct SimplePushConstantData 
@@ -18,9 +19,9 @@ namespace aveng {
 		glm::mat4 normalMatrix{ 1.f };
 	};
 
-	RenderSystem::RenderSystem(EngineDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout) : engineDevice{ device }
+	RenderSystem::RenderSystem(EngineDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> descriptorSetLayouts) : engineDevice{ device }
 	{
-		createPipelineLayout(globalDescriptorSetLayout);
+		createPipelineLayout(descriptorSetLayouts);
 		createPipeline(renderPass);
 	}
 
@@ -30,39 +31,38 @@ namespace aveng {
 	}
 	 
 	/*
-	* Describe the pipeline layout in terms of how
-	* we are programming it.
-	* 
-	* A pipeline layout includes location, size and offset information about:
-	* Descriptor sets and their layout
-	* Push Constant data
-	*/
-	void RenderSystem::createPipelineLayout(VkDescriptorSetLayout descriptorSetLayout)
+	 * Setup of the pipeline layout. 
+	 * Here we include our Push Constant information
+	 * as well as our descriptor set layouts.
+	 */
+	void RenderSystem::createPipelineLayout(std::vector<VkDescriptorSetLayout> descriptorSetLayouts)
 	{
+
 		VkPushConstantRange pushConstantRange{};
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantRange.offset = 0;
 		pushConstantRange.size = sizeof(SimplePushConstantData);
 
-		std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ descriptorSetLayout };
+		/*std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ descriptorSetLayout };*/
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-		//  Structure specifying the parameters of a newly created pipeline layout object
-		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		// Tell the pipeline about our descriptor sets
-		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size()); // How many
-		pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data(); // a pointer to an array of VkDescriptorSetLayout objects.
-		// Push constants are used to send additional data to our shaders, similar to uniform buffers but much smaller and faster
+		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;				// Hook it up
+		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size()); // How many descriptor set layouts are to be hooked into the pipeline
+		pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();							// a pointer to an array of VkDescriptorSetLayout objects.
 		pipelineLayoutInfo.pushConstantRangeCount = 1;
 		pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
-		if (vkCreatePipelineLayout(engineDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+		// Create the pipeline layout, updating our pipelineLayout member.
+		if (vkCreatePipelineLayout(engineDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) 
+		{
 			throw std::runtime_error("failed to create pipeline layout!");
 		}
 
 	}
 
 	/*
+	* Call to the construction of a Graphics Pipeline.
+	* Note that shader filepaths are relative to the GFXPipeline.cpp file.
 	*/
 	void RenderSystem::createPipeline(VkRenderPass renderPass)
 	{
@@ -116,7 +116,7 @@ namespace aveng {
 			nullptr);
 		
 		// Every rendered object will use the same projection and view matrix
-		//auto projectionView = frame_content.camera.getProjection() * frame_content.camera.getView();
+		// auto projectionView = frame_content.camera.getProjection() * frame_content.camera.getView();
 
 		/*
 		* Thread object bind/draw calls here
@@ -185,7 +185,7 @@ namespace aveng {
 				0,
 				sizeof(SimplePushConstantData),
 				&push
-			); 
+			);
 
 			obj.model->bind(frame_content.commandBuffer);
 			obj.model->draw(frame_content.commandBuffer);

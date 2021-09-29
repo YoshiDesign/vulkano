@@ -55,8 +55,7 @@ namespace aveng {
 		AvengModel& operator=(const AvengModel&) = delete;
 
 		static std::unique_ptr<AvengModel> createModelFromFile(EngineDevice& device, const std::string& filepath);
-		static std::unique_ptr<AvengModel> createTextureFromFile(EngineDevice& device, const std::string& filepath);
-
+		
 		void bind(VkCommandBuffer commandBuffer);
 		void draw(VkCommandBuffer commandBuffer);
 	

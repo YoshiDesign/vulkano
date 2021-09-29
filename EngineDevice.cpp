@@ -607,6 +607,7 @@ namespace aveng {
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
+        // Create the buffer
         if (vkCreateBuffer(_device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) 
         {
             throw std::runtime_error("failed to create vertex buffer!");
@@ -616,18 +617,19 @@ namespace aveng {
         VkMemoryRequirements memRequirements;
         vkGetBufferMemoryRequirements(_device, buffer, &memRequirements);
 
-        // 
+        // Allocate the buffer's memory
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
+        // Allocate memory object. bufferMemory will now contain information about the allocated memory
         if (vkAllocateMemory(_device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) 
         {
             throw std::runtime_error("failed to allocate vertex buffer memory!");
         }
 
-        // Bind the buffer to the memory we've allocated
+        // Bind the buffer to device memory. NO SPARSE MEMORY BINDING FLAGS
         vkBindBufferMemory(_device, buffer, bufferMemory, 0);
     }
 

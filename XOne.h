@@ -24,7 +24,7 @@ namespace aveng {
 
 		XOne(const XOne&) = delete;
 		XOne &operator=(const XOne&) = delete;
-		int fib(int n, int a = 0, int b = 1);
+		// int fib(int n, int a = 0, int b = 1);
 		
 		void run();
 
@@ -44,13 +44,11 @@ namespace aveng {
 		glm::vec4 mods;
 		glm::vec3 clear_color = { 0.5f, 0.3f, 0.6f };
 
-		// Order of initialization matters here, don't derp it up plz
+		// !! Order of initialization matters !!
 		EngineDevice engineDevice{ aveng_window };
 		Renderer renderer{ aveng_window, engineDevice };
 		ImageSystem imageSystem{ engineDevice };
 		AvengCamera camera{};
-
-		std::shared_ptr<AvengModel> avengModelF = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/colored_cube.obj");
 
 		// This declaration must occur after the renderer initializes
 		std::unique_ptr<AvengDescriptorPool> globalPool{};

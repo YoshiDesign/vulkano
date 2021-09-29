@@ -1,6 +1,5 @@
 #include "AvengImageSystem.h"
 #include "../aveng_model.h"
-#include "../stb/stb_image.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -15,25 +14,38 @@
 
 namespace aveng {
 
-	ImageSystem::ImageSystem(EngineDevice& device) : engineDevice{ device } 
+	ImageSystem::ImageSystem(EngineDevice& device) : engineDevice{ device }
 	{
+		//loadTextureFromFile("../textures/theme1.png", "theme1");
+		//loadTextureFromFile("../textures/idk.jpg", "theme1");
+
 		createTextureImage();
 		createTextureImageView();
 		createTextureSampler();
+
 	}
+
 	ImageSystem::~ImageSystem() 
 	{
 		vkDestroySampler(engineDevice.device(), textureSampler, nullptr);
 		vkDestroyImageView(engineDevice.device(), textureImageView, nullptr);
-		vkDestroyImage(engineDevice.device(), textureImage, nullptr);
+		vkDestroyImage(engineDevice.device(), image, nullptr);
 		vkFreeMemory(engineDevice.device(), textureImageMemory, nullptr);
 	}
 
+	//void ImageSystem::loadTextureFromFile(const char* filepath)
+	//{
+	//	Texture texture;
+	//	
+	//	textures[name] = texture;
+	//}
+
 	void ImageSystem::createTextureImage()
 	{
+
 		// Load our image
 		int texWidth, texHeight, texChannels;
-		stbi_uc* pixels = stbi_load(filepath, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+		stbi_uc* pixels = stbi_load("3D/theme1.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
 
 		// Take the number of available mip lvls +1 for level 0
@@ -82,26 +94,26 @@ namespace aveng {
 		* TODO It is possible that the VK_FORMAT_R8G8B8A8_SRGB format is not supported by the graphics hardware. 
 		* You should have a list of acceptable alternatives and go with the best one that is supported.
 		*/
-		if (vkCreateImage(engineDevice.device(), &imageInfo, nullptr, &textureImage) != VK_SUCCESS) 
+		if (vkCreateImage(engineDevice.device(), &imageInfo, nullptr, &image) != VK_SUCCESS) 
 		{
 			throw std::runtime_error("failed to create image!");
 		}
 
 		engineDevice.createImageWithInfo(
 			imageInfo,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-			textureImage,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, // Memory properties - This is GPU heap allocated and super fast
+			image,
 			textureImageMemory
 		);
-		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels);
-		engineDevice.copyBufferToImage(stagingBuffer.getBuffer(), textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), 1);
+		transitionImageLayout(image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels);
+		engineDevice.copyBufferToImage(stagingBuffer.getBuffer(), image, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), 1);
 		//transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL); // This will now occur in generateMipmaps
 
-		generateMipmaps(textureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevels);
+		generateMipmaps(image, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevels);
 
 	}
 
-	void ImageSystem::generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels)
+	void ImageSystem::generateMipmaps(VkImage _image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels)
 	{
 		// Check if image format supports linear blitting
 		VkFormatProperties formatProperties;
@@ -111,7 +123,7 @@ namespace aveng {
 		{
 			// Continue without MipMapping. This means less optimization.
 			std::cout << "THIS IMAGE DOES NOT SUPPORT LINEAR BLITTING" << std::endl;
-			transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels);
+			transitionImageLayout(image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels);
 			/*throw std::runtime_error("texture image format does not support linear blitting!");*/
 			return;
 		}
@@ -120,7 +132,7 @@ namespace aveng {
 
 		VkImageMemoryBarrier barrier{};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		barrier.image = image;
+		barrier.image = _image;
 		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -159,8 +171,8 @@ namespace aveng {
 			blit.dstSubresource.layerCount = 1;
 
 			vkCmdBlitImage(commandBuffer,
-				image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-				image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+				_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+				_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 				1, &blit,
 				VK_FILTER_LINEAR);
 
@@ -273,15 +285,15 @@ namespace aveng {
 
 	void ImageSystem::createTextureImageView()
 	{
-		textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, mipLevels);
+		textureImageView = createImageView(image, VK_FORMAT_R8G8B8A8_SRGB, mipLevels);
 	}
 
-	VkImageView ImageSystem::createImageView(VkImage image, VkFormat format, uint32_t mipLevels)
+	VkImageView ImageSystem::createImageView(VkImage _image, VkFormat format, uint32_t mipLevels)
 	{
 
 		VkImageViewCreateInfo viewInfo{};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.image = image;
+		viewInfo.image = _image;
 		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 		viewInfo.format = format;
 		viewInfo.subresourceRange.levelCount = mipLevels;
@@ -335,7 +347,7 @@ namespace aveng {
 		VkDescriptorImageInfo imageInfo{};
 		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		imageInfo.imageView = textureImageView;
-		imageInfo.sampler = textureSampler;
+		imageInfo.sampler	= textureSampler;
 		return imageInfo;
 	}
 

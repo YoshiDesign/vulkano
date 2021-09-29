@@ -351,7 +351,7 @@ namespace aveng {
 
             device.createImageWithInfo(
                 imageInfo,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, // Memory properties - This is GPU heap allocated and super fast
                 depthImages[i],
                 depthImageMemorys[i]);
 

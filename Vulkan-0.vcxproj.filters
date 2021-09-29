@@ -93,6 +93,9 @@
     <ClCompile Include="Renderer\AvengImageSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Utils\VulkanTools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aveng_window.h">
@@ -236,7 +239,7 @@
     <ClInclude Include="Utils\window_callbacks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="theadpool.h">
+    <ClInclude Include="threadpool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -246,10 +249,10 @@
     <None Include="compile.bat">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="shaders\ubo_vert_shader.vert" />
-    <None Include="shaders\ubo_frag_shader.frag" />
     <None Include="shaders\simple_shader2.vert" />
     <None Include="shaders\simple_shader2.frag" />
+    <None Include="shaders\simple_shader_objects.vert" />
+    <None Include="shaders\simple_shader_objects.frag" />
   </ItemGroup>
   <ItemGroup>
     <Text Include=".gitignore" />

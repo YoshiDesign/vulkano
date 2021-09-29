@@ -7,6 +7,37 @@
 #include <unordered_map>
 #include <vector>
 
+#define TEXTURE_ARRAY_SIZE  2
+
+/* ******************** References ******************** *\
+* 
+* A descriptor set layout object is defined by an array of zero or more descriptor bindings
+* Each individual descriptor binding is specified by a descriptor type, a count (array size) 
+* of the number of descriptors in the binding, a set of shader stages that can access the binding, 
+* and (if using immutable samplers) an array of sampler descriptors.
+* 
+* // Provided by VK_VERSION_1_0
+* typedef struct VkDescriptorSetLayoutBinding {
+*     uint32_t              binding;              // The binding number of this entry and corresponds to a resource of the same binding number in the shader stages.
+*     VkDescriptorType      descriptorType;       // Which type of resource descriptors are used for this binding.
+*     uint32_t              descriptorCount;      // the number of descriptors contained in the binding, accessed in a shader as an array, except if INLINE
+*     VkShaderStageFlags    stageFlags;           // A bitmask specifying which pipeline shader stages can access a resource for this binding
+*     const VkSampler*      pImmutableSamplers;
+* } VkDescriptorSetLayoutBinding;
+* 
+*     *If descriptorType is VK_DESCRIPTOR_TYPE_SAMPLER or VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 
+*     and descriptorCount is not 0 and pImmutableSamplers is not NULL, pImmutableSamplers must be a 
+*     valid pointer to an array of descriptorCount valid VkSampler handles
+* 
+* From VkGuide, on the arrangement of descriptor set layouts - 
+* ...you will see that some devices will only allow up to 4 descriptor sets to be bound to a given pipeline...
+* The descriptor set number 0 will be used for engine-global resources, and bound once per frame.
+* The descriptor set number 1 will be used for per-pass resources, and bound once per pass.
+* The descriptor set number 2 will be used for material resources, and the number 3 will be used for per-object resources.
+* This way, the inner render loops will only be binding descriptor sets 2 and 3, and performance will be high.
+* 
+*/
+
 namespace aveng {
 
     class AvengDescriptorSetLayout {
@@ -14,13 +45,8 @@ namespace aveng {
 
         class Builder {
         public:
-            Builder(EngineDevice& device) : engineDevice{ device } {}
-
-            Builder& addBinding(
-                uint32_t binding,
-                VkDescriptorType descriptorType,
-                VkShaderStageFlags stageFlags,
-                uint32_t count = 1);
+            Builder(EngineDevice& device);
+            Builder& addBinding(uint32_t binding, VkDescriptorType descriptorType, VkShaderStageFlags stageFlags, uint32_t count = 1);
             std::unique_ptr<AvengDescriptorSetLayout> build() const;
 
         private:
@@ -41,6 +67,8 @@ namespace aveng {
         VkDescriptorSetLayout descriptorSetLayout;
         std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings;
 
+        VkDescriptorImageInfo	descriptorImageInfos[TEXTURE_ARRAY_SIZE];
+
         friend class AvengDescriptorWriter;
     };
 
@@ -48,7 +76,7 @@ namespace aveng {
     public:
         class Builder {
         public:
-            Builder(EngineDevice& device) : engineDevice{ device } {}
+            Builder(EngineDevice& device);
 
             Builder& addPoolSize(VkDescriptorType descriptorType, uint32_t count);
             Builder& setPoolFlags(VkDescriptorPoolCreateFlags flags);
@@ -63,10 +91,12 @@ namespace aveng {
         };
 
         AvengDescriptorPool(
-            EngineDevice& engineDevice,
-            uint32_t maxSets,
-            VkDescriptorPoolCreateFlags poolFlags,
-            const std::vector<VkDescriptorPoolSize>& poolSizes);
+            EngineDevice& engineDevice, 
+            uint32_t maxSets, 
+            VkDescriptorPoolCreateFlags poolFlags, 
+            const std::vector<VkDescriptorPoolSize>& poolSizes
+        );
+
         ~AvengDescriptorPool();
         AvengDescriptorPool(const AvengDescriptorPool&) = delete;
         AvengDescriptorPool& operator=(const AvengDescriptorPool&) = delete;

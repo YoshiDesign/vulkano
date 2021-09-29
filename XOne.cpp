@@ -3,8 +3,9 @@
 #include "aveng_imgui.h"
 #include "aveng_buffer.h"
 #include "XOne.h"
-#include "Mods/Mods.h"
 #include "Utils/window_callbacks.h"
+#include "Utils/aveng_utils.h"
+#include "aveng_frame_content.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -18,7 +19,6 @@
 
 
 namespace aveng {
-
 
 	int WindowCallbacks::current_pipeline{ 1 };
 
@@ -34,17 +34,19 @@ namespace aveng {
 	{
 		// Set callback functions for keys bound to the window
 		glfwSetKeyCallback(aveng_window.getGLFWwindow(), WindowCallbacks::testKeyCallback);
+
 		/*
 		* Call the pool builder to setup our pool for construction.
 		*/
 		globalPool = AvengDescriptorPool::Builder(engineDevice)
 			.setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+						 // Type							// Max no. of descriptor sets
 			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
 			.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT)
-			.build();	// Build is what ultimately initializes the construction of the pool. How rad
-
+			.build();
 
 		loadAppObjects();
+
 	}
 
 	XOne::~XOne()
@@ -55,10 +57,11 @@ namespace aveng {
 	void XOne::run()
 	{
 		
-
-		auto minOffsetAlignment = std::lcm(
+		auto minOffsetAlignment =  //pad_uniform_buffer_size(sizeof(GlobalUbo), engineDevice.properties.limits.minUniformBufferOffsetAlignment);
+			std::lcm(
 			engineDevice.properties.limits.minUniformBufferOffsetAlignment,
-			engineDevice.properties.limits.nonCoherentAtomSize);
+			engineDevice.properties.limits.nonCoherentAtomSize
+		);
 
 		// Creating a uniform buffer
 		AvengBuffer globalUboBuffer{
@@ -73,26 +76,31 @@ namespace aveng {
 		// enable writing to it's memory
 		globalUboBuffer.map();
 
-		// Assemble some pipeline layout descriptor sets
-		auto globalDescriptorSetLayout =	// Descriptor set layout binding for a uniform buffer
+		// Initialize a Builder for binding descriptor sets to the Graphics Pipeline
+		std::unique_ptr<AvengDescriptorSetLayout> globalDescriptorSetLayout =								// The layout
 			AvengDescriptorSetLayout::Builder(engineDevice)
-			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
-			.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-			.build();
+							   // This Descriptor				  // Available from
+				.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)		// Its bindings
+				.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+				.build();	// Initialize the Descriptor Set Layout
 
-		std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
+		std::vector<VkDescriptorSetLayout> descriptorSetLayouts;									// All of the layouts (there is only 1 thus far)
+		std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);				// All descriptor sets for this layout (globalDescriptorSetLayout)
 		for (int i = 0; i < globalDescriptorSets.size(); i++)
 		{
 			auto bufferInfo = globalUboBuffer.descriptorInfoForIndex(i);
 			auto imageInfo = imageSystem.descriptorInfo();
-			AvengDescriptorWriter(*globalDescriptorSetLayout, *globalPool)
-				.writeBuffer(0, &bufferInfo)
-				.writeImage(1, &imageInfo)
+			AvengDescriptorWriter(*globalDescriptorSetLayout, *globalPool)								// Write our descriptors according to the layout's bindings
+				.writeBuffer(0, &bufferInfo)															// Write a buffer. Send the buffer info with it
+				.writeImage(1, &imageInfo)																// Write an image Sampler
 				.build(globalDescriptorSets[i]);
 		}
 
+		// Add the layouts
+		descriptorSetLayouts.push_back(globalDescriptorSetLayout->getDescriptorSetLayout());
+
 		// Note that the renderSystem is initialized with a pointer to the Render Pass
-		RenderSystem renderSystem{ engineDevice, renderer.getSwapChainRenderPass(), globalDescriptorSetLayout->getDescriptorSetLayout() };
+		RenderSystem renderSystem{ engineDevice, renderer.getSwapChainRenderPass(), descriptorSetLayouts };
 
 		//camera.setViewTarget(glm::vec3(-1.f, -2.f, -20.f), glm::vec3(0.f, 0.f, 3.5f));
 
@@ -197,17 +205,16 @@ namespace aveng {
 	*/
 	void XOne::loadAppObjects() 
 	{
-		
 		//fib(1000);
-		std::shared_ptr<AvengModel> avengModel = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/ship_demo.obj");
-		//std::shared_ptr<AvengModel> avengModel2 = AvengModel::createModelFromFile(engineDevice, "C:/dev/3DModels/holy_ship.obj");
+		std::shared_ptr<AvengModel> holyShipModel    = AvengModel::createModelFromFile(engineDevice, "3D/holy_ship.obj");
+		std::shared_ptr<AvengModel> coloredCubeModel = AvengModel::createModelFromFile(engineDevice, "3D/colored_cube.obj");
 
 		for (int i = 0; i < 2; i++) 
 			for (int j = 0; j < 2; j++) 
 				for (int k = 0; k < 1; k++) {
 		
 					auto gameObj = AvengAppObject::createAppObject();
-					gameObj.model = avengModel;
+					gameObj.model = coloredCubeModel;
 					gameObj.transform.translation = { static_cast<float>(i * 7.2f), static_cast<float>(j * 7.2f), static_cast<float>(k * 7.2f) };
 					gameObj.transform.scale = { .5f, 0.5f, 0.5f };
 
@@ -217,11 +224,11 @@ namespace aveng {
 		
 	}
 
-	int XOne::fib(int n, int a, int b)
+	/*int XOne::fib(int n, int a, int b)
 	{
 		auto gameObj = AvengAppObject::createAppObject();
 
-		gameObj.model = avengModelF;
+		gameObj.model = AvengModel;
 		gameObj.transform.translation = {
 			static_cast<float>(static_cast<int>(b) % 250) * .001,
 			static_cast<float>(static_cast<int>(b) % 550) * .005,
@@ -241,7 +248,7 @@ namespace aveng {
 		appObjects.push_back(std::move(gameObj));
 		return fib(n - 1, b, a + b);
 
-	}
+	}*/
 
 	void XOne::updateCamera(float frameTime, AvengAppObject& viewerObject, float aspect, KeyboardController& cameraController, AvengCamera& camera)
 	{
