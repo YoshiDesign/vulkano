@@ -21,7 +21,7 @@ namespace aveng {
 		//loadTextureFromFile("../textures/theme1.png", "theme1");
 		//loadTextureFromFile("../textures/idk.jpg", "theme1");
 
-		const char* image_paths[2] = { "../textures/theme1.png" , "../textures/tx1p.png" };
+		const char* image_paths[2] = {"textures/tx1p.png", "textures/theme1.png"  };
 		
 		std::cout << "Check: " << image_paths[0] << std::endl;
 
@@ -31,10 +31,11 @@ namespace aveng {
 			createTextureImage(image_paths[i], i);
 			std::cout << "Creating texture image view." << std::endl;
 			createTextureImageView(images[i], i);
-			std::cout << "Creating texture image Descriptor." << std::endl;
-			createImageDescriptor(textureImageViews[i]);
 		}
 		createTextureSampler();
+
+		std::cout << "Creating texture image Descriptor." << std::endl;
+		createImageDescriptors(textureImageViews);
 	}
 
 	ImageSystem::~ImageSystem() 
@@ -60,7 +61,7 @@ namespace aveng {
 
 		// Load our image
 		int texWidth, texHeight, texChannels;
-		stbi_uc* pixels = stbi_load("textures/theme1.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+		stbi_uc* pixels = stbi_load(filepath, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
 
 		std::cout << "TxWidth: " << texWidth << "\nTxHeight: " << texHeight << std::endl;
@@ -102,7 +103,8 @@ namespace aveng {
 		imageInfo.arrayLayers = 1;
 		imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;	// Being sure to utilize the same image format for the texels as the pixels in the buffer, or the copy op will fail
 		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;	// Specifying an implementation defined ordering of the data, instead of something like row major order
-		// Note: If you want to access individual texels of the image data, you need to use VK_IMAGE_TILING_LINEAR instead
+		// Note: If you want to access individual texels of the image data, you need to use VK_IMAGE_TILING_LINEAR instead, this is a suboptimal tiling format
+		// as it does not allow the underlying hardware to map the image into memory as it pleases.
 		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; // No need to preserve texel data during the first transition to the image memory from the staging buffer
 		// e.g. You're using an image as a transfer source
 		imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;	// Destination for the buffer copy- Also a source (for mipmapping due to vkCmdBlitImage). VK_IMAGE_USAGE_SAMPLED_BIT means we'd like to be able to access the image from our shaders
@@ -130,12 +132,10 @@ namespace aveng {
 		//transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL); // This will now occur in generateMipmaps
 
 		generateMipmaps(image, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevel);
-		std::cout << "Added texture to image array." << std::endl;
-		images.push_back(image);
 
 	}
 
-	void ImageSystem::generateMipmaps(VkImage _image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels)
+	void ImageSystem::generateMipmaps(VkImage _image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t _mipLevels)
 	{
 		// Check if image format supports linear blitting
 		VkFormatProperties formatProperties;
@@ -145,7 +145,7 @@ namespace aveng {
 		{
 			// Continue without MipMapping. This means less optimization.
 			std::cout << "THIS IMAGE DOES NOT SUPPORT LINEAR BLITTING" << std::endl;
-			transitionImageLayout(_image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels);
+			transitionImageLayout(_image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, _mipLevels);
 			/*throw std::runtime_error("texture image format does not support linear blitting!");*/
 			return;
 		}
@@ -165,7 +165,7 @@ namespace aveng {
 		int32_t mipWidth = texWidth;
 		int32_t mipHeight = texHeight;
 
-		for (uint32_t i = 1; i < mipLevels; i++) {
+		for (uint32_t i = 1; i < _mipLevels; i++) {
 			barrier.subresourceRange.baseMipLevel = i - 1;
 			barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 			barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
@@ -213,7 +213,7 @@ namespace aveng {
 			if (mipHeight > 1) mipHeight /= 2;
 		}
 
-		barrier.subresourceRange.baseMipLevel = mipLevels - 1;
+		barrier.subresourceRange.baseMipLevel = _mipLevels - 1;
 		barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 		barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -224,6 +224,9 @@ namespace aveng {
 			0, nullptr,
 			0, nullptr,
 			1, &barrier);
+
+		std::cout << "Added texture to image array." << std::endl;
+		images.push_back(_image);
 
 		engineDevice.endSingleTimeCommands(commandBuffer);
 	}
@@ -369,29 +372,19 @@ namespace aveng {
 		}
 	}
 
-	//VkDescriptorImageInfo& ImageSystem::descriptorInfo()
-	//{
-	//	VkDescriptorImageInfo imageInfo{};
-	//	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	//	imageInfo.imageView = textureImageView;
-	//	imageInfo.sampler	= textureSampler;
-	//	return imageInfo;
-	//}
-
-	std::vector<VkDescriptorImageInfo> ImageSystem::descriptorInfoForAllImages()
+	void ImageSystem::createImageDescriptors(std::vector<VkImageView> views)
 	{
-		return imageInfosArray;
-	}
+		for (VkImageView view : views) {
+			// Image Descriptor
+			VkDescriptorImageInfo descriptorImageInfo{};
+			descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			descriptorImageInfo.imageView = view;
+			descriptorImageInfo.sampler = textureSampler;
 
-	void ImageSystem::createImageDescriptor(VkImageView view)
-	{
-		// Image Descriptor
-		VkDescriptorImageInfo descriptorImageInfo{};
-		descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		descriptorImageInfo.imageView = view;
-		descriptorImageInfo.sampler = textureSampler;
-		std::cout << "Adding texture image Descriptor to array." << std::endl;
-		imageInfosArray.push_back(descriptorImageInfo);
+			std::cout << "Adding texture image Descriptor to array." << std::endl;
+			imageInfosArray.push_back(descriptorImageInfo);
+
+		}
 	}
 
 }

@@ -39,14 +39,14 @@ namespace aveng {
 		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
 		void createTextureSampler();
 
-		void createImageDescriptor(VkImageView view);
+		void createImageDescriptors(std::vector<VkImageView> views);
 		VkDescriptorImageInfo getImageInfoAtIndex(int index) { return imageInfosArray[index]; };
-		std::vector<VkDescriptorImageInfo> descriptorInfoForAllImages();
+		std::vector<VkDescriptorImageInfo> descriptorInfoForAllImages(){ return imageInfosArray; }
 
 		int nImages = 2;
 	private:
 
-		// mipLevels is the only dependency keeping us from merging some of these functions with SwapChain's impelmentations of them
+		// mipLevels is one dependency keeping us from merging some of these functions with SwapChain's impelmentations of them
 
 		EngineDevice& engineDevice;
 

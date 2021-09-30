@@ -52,6 +52,7 @@ namespace aveng {
 
 		// This declaration must occur after the renderer initializes
 		std::unique_ptr<AvengDescriptorPool> globalPool{};
+		std::unique_ptr<AvengDescriptorPool> anotherPool{};
 		std::vector<AvengAppObject> appObjects;
 
 		// Update items

@@ -31,7 +31,7 @@ namespace aveng {
         layoutBinding.descriptorCount = count;          // Number of descriptors this layout will use
         layoutBinding.stageFlags = stageFlags;          // Default: 1 (VK_SHADER_STAGE_VERTEX_BIT) A VkShaderStageFlagBits determining which pipeline shader stages can access this layout binding. 
 
-        bindings[binding] = layoutBinding;              // Add the binding to the map
+        layout_bindings[binding] = layoutBinding;              // Add the binding to the map
 
         return *this;
     }
@@ -42,17 +42,16 @@ namespace aveng {
     std::unique_ptr<AvengDescriptorSetLayout> AvengDescriptorSetLayout::Builder::build() const 
     {
         // Descriptor Set Layout Builder initializes its parent class
-        return std::make_unique<AvengDescriptorSetLayout>(engineDevice, bindings);
+        return std::make_unique<AvengDescriptorSetLayout>(engineDevice, layout_bindings);
     }
 
     // *************** Descriptor Set Layout *********************
-    AvengDescriptorSetLayout::AvengDescriptorSetLayout(EngineDevice& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings)
-        : engineDevice{ device }, bindings{ bindings } 
+    AvengDescriptorSetLayout::AvengDescriptorSetLayout(EngineDevice& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> layout_bindings)
+        : engineDevice{ device }, layout_bindings{ layout_bindings } // Note that this delivers layout bindings from the Builder to the AvengDescriptorSetLayout
     {
 
-        // Warning: Potential to circumvent this loop by simply using a vector for bindings. Why do we need the unordered_map?
         std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
-        for (auto kv : bindings) 
+        for (auto kv : layout_bindings) 
         {
             setLayoutBindings.push_back(kv.second);
         }
@@ -181,7 +180,8 @@ namespace aveng {
     {
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
-        auto& bindingDescription = setLayout.bindings[binding];
+        auto& bindingDescription = setLayout.layout_bindings[binding];
+        std::cout << "Binding Descriptor type for Buffer: " << bindingDescription.descriptorType << std::endl;
 
         assert(
             bindingDescription.descriptorCount == 1 &&
@@ -202,7 +202,9 @@ namespace aveng {
     {
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
-        auto& bindingDescription = setLayout.bindings[binding];
+        auto& bindingDescription = setLayout.layout_bindings[binding];
+
+        std::cout << "Binding Descriptor type for Image: " << bindingDescription.descriptorType << std::endl;
 
         assert(
             bindingDescription.descriptorCount == 1 &&
@@ -213,7 +215,8 @@ namespace aveng {
         write.descriptorType = bindingDescription.descriptorType;   // VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER or VK_DESCRIPTOR_TYPE_SAMPLER etc...
         write.dstBinding = binding;                                 // Binding index within this descriptor set
         write.pImageInfo = imageInfo;                               // A pointer to an array of VkDescriptorImageInfo structures or is ignored
-        write.descriptorCount = nImages;
+        //write.descriptorCount = nImages;
+        write.descriptorCount = 1;
 
         writes.push_back(write);
         return *this;

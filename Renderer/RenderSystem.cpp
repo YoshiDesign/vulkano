@@ -17,7 +17,6 @@ namespace aveng {
 	{
 		glm::mat4 modelMatrix{ 1.f };
 		glm::mat4 normalMatrix{ 1.f };
-		int imgIndex;
 	};
 
 	RenderSystem::RenderSystem(EngineDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> descriptorSetLayouts) : engineDevice{ device }
@@ -40,14 +39,15 @@ namespace aveng {
 	{
 
 		VkPushConstantRange pushConstantRange{};
-		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT; // | VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantRange.offset = 0;
-		pushConstantRange.size = sizeof(SimplePushConstantData);
+		pushConstantRange.size = sizeof(SimplePushConstantData);	// Must be a multiple of 4. The layout of the push constant variables is specified in the shader.
 
 		/*std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ descriptorSetLayout };*/
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;				// Hook it up
+		std::cout << "DSet Count: " << descriptorSetLayouts.size() << std::endl;
 		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size()); // How many descriptor set layouts are to be hooked into the pipeline
 		pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();							// a pointer to an array of VkDescriptorSetLayout objects.
 		pipelineLayoutInfo.pushConstantRangeCount = 1;
@@ -106,20 +106,28 @@ namespace aveng {
 		
 		// Every rendered object will use the same projection and view matrix
 		// auto projectionView = frame_content.camera.getProjection() * frame_content.camera.getView();
+		vkCmdBindDescriptorSets(
+			frame_content.commandBuffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			pipelineLayout,
+			0,
+			1,
+			&frame_content.globalDescriptorSet,
+			0,
+			nullptr);
 
 		/*
 		* Thread object bind/draw calls here
 		*/
 		for (auto& obj : appObjects) 
 		{
-
 			vkCmdBindDescriptorSets(
 				frame_content.commandBuffer,
 				VK_PIPELINE_BIND_POINT_GRAPHICS,
 				pipelineLayout,
-				0,
 				1,
-				&frame_content.globalDescriptorSet,
+				1,
+				&frame_content.textureDescriptorSet,
 				0,
 				nullptr);
 
@@ -177,7 +185,6 @@ namespace aveng {
 			// The matrix describing this model's current orientation
 			push.modelMatrix = obj.transform._mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
-			push.imgIndex = obj.imgIndex;
 
 			vkCmdPushConstants(
 				frame_content.commandBuffer,

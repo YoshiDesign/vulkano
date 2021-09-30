@@ -51,7 +51,7 @@ namespace aveng {
 
         private:
             EngineDevice& engineDevice;
-            std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings{};
+            std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> layout_bindings{};
         };
 
 
@@ -65,7 +65,7 @@ namespace aveng {
     private:
         EngineDevice& engineDevice;
         VkDescriptorSetLayout descriptorSetLayout;
-        std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings;
+        std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> layout_bindings;
 
         VkDescriptorImageInfo descriptorImageInfos[TEXTURE_ARRAY_SIZE]{ {},{} };
 

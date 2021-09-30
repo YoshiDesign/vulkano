@@ -76,29 +76,49 @@ namespace aveng {
 		// enable writing to it's memory
 		globalUboBuffer.map();
 
-		// Initialize a Builder for binding descriptor sets to the Graphics Pipeline
+		// Bind descriptor sets to the graphics pipeline
+
+		// Descriptor Layout 0 -- Global
 		std::unique_ptr<AvengDescriptorSetLayout> globalDescriptorSetLayout =								// The layout
 			AvengDescriptorSetLayout::Builder(engineDevice)
 							   // This Descriptor				  // Available from
 				.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)		// Its bindings
-				.addBinding(1, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, VK_SHADER_STAGE_FRAGMENT_BIT, 2)
+				.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 2)
+				//.addBinding(2, VK_DESCRIPTOR_TYPE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 				.build();	// Initialize the Descriptor Set Layout
 
-		
 		std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);			// A global descriptor set for each frame presented from our SwapChain
 		for (int i = 0; i < globalDescriptorSets.size(); i++)
 		{
 			auto bufferInfo = globalUboBuffer.descriptorInfoForIndex(i);
-			auto imageInfo = imageSystem.descriptorInfoForAllImages();
 			AvengDescriptorSetWriter(*globalDescriptorSetLayout, *globalPool)							// Write our descriptors according to the layout's bindings
 				.writeBuffer(0, &bufferInfo)															// Write a buffer. Send the buffer info with it
-				.writeImage(1, imageInfo.data(), imageSystem.nImages)									// Write an array of image descriptors to 1 descriptor set
 				.build(globalDescriptorSets[i]);														// Build the global descriptor set for this frame
+		}
+		
+		//// Descriptor Layout 1 - Per object
+		std::unique_ptr<AvengDescriptorSetLayout> textureDescriptorSetLayout =								// The layout
+			AvengDescriptorSetLayout::Builder(engineDevice)
+			// This Descriptor				  // Available from
+			.addBinding(1, VK_DESCRIPTOR_TYPE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+			.addBinding(2, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, VK_SHADER_STAGE_FRAGMENT_BIT, 2)
+			.build();	// Initialize the Descriptor Set Layout
+
+		std::vector<VkDescriptorSet> textureDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);			// A global descriptor set for each frame presented from our SwapChain
+		for (int i = 0; i < textureDescriptorSets.size(); i++)
+		{
+			auto imageInfo = imageSystem.descriptorInfoForAllImages();
+			AvengDescriptorSetWriter(*globalDescriptorSetLayout, *globalPool)							// Write our descriptors according to the layout's bindings
+				.writeImage(1, imageInfo.data(), imageSystem.nImages)									// Write an array of image descriptors to 1 descriptor set
+				.build(textureDescriptorSets[i]);														// Build the global descriptor set for this frame
 		}
 
 		// Add the layouts
 		std::vector<VkDescriptorSetLayout> descriptorSetLayouts;									// All of the layouts (there is only 1 thus far)
 		descriptorSetLayouts.push_back(globalDescriptorSetLayout->getDescriptorSetLayout());
+		//descriptorSetLayouts.push_back(textureDescriptorSetLayout->getDescriptorSetLayout());
+
+		
 
 		// Note that the renderSystem is initialized with a pointer to the Render Pass
 		RenderSystem renderSystem{ engineDevice, renderer.getSwapChainRenderPass(), descriptorSetLayouts };
@@ -165,7 +185,8 @@ namespace aveng {
 					frameTime,
 					commandBuffer,
 					camera,
-					globalDescriptorSets[frameIndex]
+					globalDescriptorSets[frameIndex],
+					textureDescriptorSets[frameIndex]
 				};
 
 				x += frameTime;
