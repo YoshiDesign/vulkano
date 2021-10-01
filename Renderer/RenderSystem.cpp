@@ -15,11 +15,12 @@ namespace aveng {
 
 	struct SimplePushConstantData 
 	{
-		glm::mat4 modelMatrix{ 1.f };
-		glm::mat4 normalMatrix{ 1.f };
+		alignas(16) glm::mat4 modelMatrix;
+		alignas(16) int imDex;
+
 	};
 
-	RenderSystem::RenderSystem(EngineDevice& device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> descriptorSetLayouts) : engineDevice{ device }
+	RenderSystem::RenderSystem(EngineDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayouts) : engineDevice{ device }
 	{
 		createPipelineLayout(descriptorSetLayouts);
 		createPipeline(renderPass);
@@ -35,21 +36,19 @@ namespace aveng {
 	 * Here we include our Push Constant information
 	 * as well as our descriptor set layouts.
 	 */
-	void RenderSystem::createPipelineLayout(std::vector<VkDescriptorSetLayout> descriptorSetLayouts)
+	void RenderSystem::createPipelineLayout(VkDescriptorSetLayout descriptorSetLayouts)
 	{
+		std::cout << "[] Size Of PushConstant\t" << sizeof(int) << std::endl;
 
 		VkPushConstantRange pushConstantRange{};
-		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT; // | VK_SHADER_STAGE_FRAGMENT_BIT;
+		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantRange.offset = 0;
-		pushConstantRange.size = sizeof(SimplePushConstantData);	// Must be a multiple of 4. The layout of the push constant variables is specified in the shader.
-
-		/*std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ descriptorSetLayout };*/
+		pushConstantRange.size = sizeof(SimplePushConstantData);	// Must be a multiple of 4
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;				// Hook it up
-		std::cout << "DSet Count: " << descriptorSetLayouts.size() << std::endl;
-		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size()); // How many descriptor set layouts are to be hooked into the pipeline
-		pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();							// a pointer to an array of VkDescriptorSetLayout objects.
+		pipelineLayoutInfo.setLayoutCount = 1; // How many descriptor set layouts are to be hooked into the pipeline
+		pipelineLayoutInfo.pSetLayouts = &descriptorSetLayouts;							// a pointer to an array of VkDescriptorSetLayout objects.
 		pipelineLayoutInfo.pushConstantRangeCount = 1;
 		pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
@@ -104,8 +103,6 @@ namespace aveng {
 		gfxPipeline->bind(frame_content.commandBuffer); // 0
 		// }
 		
-		// Every rendered object will use the same projection and view matrix
-		// auto projectionView = frame_content.camera.getProjection() * frame_content.camera.getView();
 		vkCmdBindDescriptorSets(
 			frame_content.commandBuffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -121,27 +118,8 @@ namespace aveng {
 		*/
 		for (auto& obj : appObjects) 
 		{
-			vkCmdBindDescriptorSets(
-				frame_content.commandBuffer,
-				VK_PIPELINE_BIND_POINT_GRAPHICS,
-				pipelineLayout,
-				1,
-				1,
-				&frame_content.textureDescriptorSet,
-				0,
-				nullptr);
 
 			SimplePushConstantData push{};
-
-			// You can define more properties on the object class to store more information
-			// for which to calculate shit with instead of doing it all in the app file or this one................
-			//obj.transform.translation = {
-			//
-			//	static_cast<float>((obj.transform.translation.x + .001)), // + frametime) * mods.w),
-			//	static_cast<float>((obj.transform.translation.y)), // + frametime) * mods.w),
-			//	static_cast<float>(obj.transform.translation.z),
-			//
-			//};
 
 			if (last_sec != sec) {
 				last_sec = sec;
@@ -181,10 +159,12 @@ namespace aveng {
 				};
 			}
 
-
-			// The matrix describing this model's current orientation
+			//push.imDex = obj.get_texture();
 			push.modelMatrix = obj.transform._mat4();
-			push.normalMatrix = obj.transform.normalMatrix();
+			push.imDex = obj.get_texture();
+
+			//std::cout << "DEBUGE" << std::endl;
+			//LOG(push.imDex);
 
 			vkCmdPushConstants(
 				frame_content.commandBuffer,

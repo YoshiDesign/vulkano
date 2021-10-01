@@ -4,6 +4,7 @@
 
 #include "../stb/stb_image.h"
 
+#include <iostream>
 #include <unordered_map>
 #include <vector>
 
@@ -18,6 +19,7 @@
 namespace aveng {
 
 	struct Texture {
+
 		stbi_uc* pixels;
 		int texWidth;
 		int texHeight;
@@ -41,9 +43,12 @@ namespace aveng {
 
 		void createImageDescriptors(std::vector<VkImageView> views);
 		VkDescriptorImageInfo getImageInfoAtIndex(int index) { return imageInfosArray[index]; };
-		std::vector<VkDescriptorImageInfo> descriptorInfoForAllImages(){ return imageInfosArray; }
+		std::vector<VkDescriptorImageInfo> descriptorInfoForAllImages(){ 
+			std::cout << "[] Image info array size:\t" << imageInfosArray.size() << std::endl;
+			return imageInfosArray; 
+		}
 
-		int nImages = 2;
+		int nImages = 4;
 	private:
 
 		// mipLevels is one dependency keeping us from merging some of these functions with SwapChain's impelmentations of them

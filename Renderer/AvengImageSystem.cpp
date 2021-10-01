@@ -21,11 +21,11 @@ namespace aveng {
 		//loadTextureFromFile("../textures/theme1.png", "theme1");
 		//loadTextureFromFile("../textures/idk.jpg", "theme1");
 
-		const char* image_paths[2] = {"textures/tx1p.png", "textures/theme1.png"  };
+		const char* image_paths[4] = { "textures/theme1.png", "textures/theme2.png", "textures/theme3.png", "textures/theme4.png" };
 		
 		std::cout << "Check: " << image_paths[0] << std::endl;
 
-		for (size_t i = 0; i < 2; i++)
+		for (size_t i = 0; i < 4; i++)
 		{
 			std::cout << "Creating texture image." << std::endl;
 			createTextureImage(image_paths[i], i);
@@ -40,7 +40,7 @@ namespace aveng {
 
 	ImageSystem::~ImageSystem() 
 	{
-		vkDestroySampler(engineDevice.device(), textureSampler, nullptr);
+		
 		for (auto& view : textureImageViews)
 		{
 			vkDestroyImageView(engineDevice.device(), view, nullptr);
@@ -50,7 +50,7 @@ namespace aveng {
 			vkDestroyImage(engineDevice.device(), img, nullptr);
 		}
 
-
+		vkDestroySampler(engineDevice.device(), textureSampler, nullptr);
 		vkFreeMemory(engineDevice.device(), textureImageMemory, nullptr);
 	}
 
@@ -374,6 +374,7 @@ namespace aveng {
 
 	void ImageSystem::createImageDescriptors(std::vector<VkImageView> views)
 	{
+		std::cout << "[] Number of Image Views:\t" << views.size() << std::endl;
 		for (VkImageView view : views) {
 			// Image Descriptor
 			VkDescriptorImageInfo descriptorImageInfo{};

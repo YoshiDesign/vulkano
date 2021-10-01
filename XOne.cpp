@@ -81,47 +81,23 @@ namespace aveng {
 		// Descriptor Layout 0 -- Global
 		std::unique_ptr<AvengDescriptorSetLayout> globalDescriptorSetLayout =								// The layout
 			AvengDescriptorSetLayout::Builder(engineDevice)
-							   // This Descriptor				  // Available from
 				.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)		// Its bindings
-				.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 2)
-				//.addBinding(2, VK_DESCRIPTOR_TYPE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+				.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 4)		// Its bindings
 				.build();	// Initialize the Descriptor Set Layout
 
 		std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);			// A global descriptor set for each frame presented from our SwapChain
 		for (int i = 0; i < globalDescriptorSets.size(); i++)
 		{
+			auto imageInfo  = imageSystem.descriptorInfoForAllImages();
 			auto bufferInfo = globalUboBuffer.descriptorInfoForIndex(i);
 			AvengDescriptorSetWriter(*globalDescriptorSetLayout, *globalPool)							// Write our descriptors according to the layout's bindings
 				.writeBuffer(0, &bufferInfo)															// Write a buffer. Send the buffer info with it
+				.writeImage(1, imageInfo.data(), imageSystem.nImages)
 				.build(globalDescriptorSets[i]);														// Build the global descriptor set for this frame
 		}
-		
-		//// Descriptor Layout 1 - Per object
-		std::unique_ptr<AvengDescriptorSetLayout> textureDescriptorSetLayout =								// The layout
-			AvengDescriptorSetLayout::Builder(engineDevice)
-			// This Descriptor				  // Available from
-			.addBinding(1, VK_DESCRIPTOR_TYPE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-			.addBinding(2, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, VK_SHADER_STAGE_FRAGMENT_BIT, 2)
-			.build();	// Initialize the Descriptor Set Layout
-
-		std::vector<VkDescriptorSet> textureDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);			// A global descriptor set for each frame presented from our SwapChain
-		for (int i = 0; i < textureDescriptorSets.size(); i++)
-		{
-			auto imageInfo = imageSystem.descriptorInfoForAllImages();
-			AvengDescriptorSetWriter(*globalDescriptorSetLayout, *globalPool)							// Write our descriptors according to the layout's bindings
-				.writeImage(1, imageInfo.data(), imageSystem.nImages)									// Write an array of image descriptors to 1 descriptor set
-				.build(textureDescriptorSets[i]);														// Build the global descriptor set for this frame
-		}
-
-		// Add the layouts
-		std::vector<VkDescriptorSetLayout> descriptorSetLayouts;									// All of the layouts (there is only 1 thus far)
-		descriptorSetLayouts.push_back(globalDescriptorSetLayout->getDescriptorSetLayout());
-		//descriptorSetLayouts.push_back(textureDescriptorSetLayout->getDescriptorSetLayout());
-
-		
 
 		// Note that the renderSystem is initialized with a pointer to the Render Pass
-		RenderSystem renderSystem{ engineDevice, renderer.getSwapChainRenderPass(), descriptorSetLayouts };
+		RenderSystem renderSystem{ engineDevice, renderer.getSwapChainRenderPass(), globalDescriptorSetLayout->getDescriptorSetLayout() };
 
 		//camera.setViewTarget(glm::vec3(-1.f, -2.f, -20.f), glm::vec3(0.f, 0.f, 3.5f));
 
@@ -186,7 +162,6 @@ namespace aveng {
 					commandBuffer,
 					camera,
 					globalDescriptorSets[frameIndex],
-					textureDescriptorSets[frameIndex]
 				};
 
 				x += frameTime;
@@ -200,6 +175,7 @@ namespace aveng {
 				// Update our global uniform buffer
 				GlobalUbo ubo{};
 				ubo.projectionView = camera.getProjection() * camera.getView();
+				ubo.lightDirection = glm::normalize(glm::vec3{ -1.f, -3.f, 1.f });;
 				globalUboBuffer.writeToIndex(&ubo, frameIndex);
 				globalUboBuffer.flushIndex(frameIndex);
 
@@ -231,14 +207,17 @@ namespace aveng {
 		std::shared_ptr<AvengModel> holyShipModel    = AvengModel::createModelFromFile(engineDevice, "3D/holy_ship.obj");
 		std::shared_ptr<AvengModel> coloredCubeModel = AvengModel::createModelFromFile(engineDevice, "3D/colored_cube.obj");
 
+		size_t t = 0;
 		for (int i = 0; i < 2; i++) 
 			for (int j = 0; j < 2; j++) 
 				for (int k = 0; k < 1; k++) {
-		
+					std::cout << t << std::endl;
+					t = (t + 1) % 4;
 					auto gameObj = AvengAppObject::createAppObject();
 					gameObj.model = coloredCubeModel;
 					gameObj.transform.translation = { static_cast<float>(i * 7.2f), static_cast<float>(j * 7.2f), static_cast<float>(k * 7.2f) };
 					gameObj.transform.scale = { .5f, 0.5f, 0.5f };
+					gameObj.set_texture(t);
 
 					appObjects.push_back(std::move(gameObj));
 				

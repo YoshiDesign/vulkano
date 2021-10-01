@@ -27,6 +27,7 @@ namespace aveng {
 
         VkDescriptorSetLayoutBinding layoutBinding{};
         layoutBinding.binding = binding;                // Binding location, 0, 1, 2, etc
+        layoutBinding.pImmutableSamplers = nullptr;
         layoutBinding.descriptorType = descriptorType;  // Ex. VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER(_DYNAMIC) or VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
         layoutBinding.descriptorCount = count;          // Number of descriptors this layout will use
         layoutBinding.stageFlags = stageFlags;          // Default: 1 (VK_SHADER_STAGE_VERTEX_BIT) A VkShaderStageFlagBits determining which pipeline shader stages can access this layout binding. 
@@ -210,13 +211,15 @@ namespace aveng {
             bindingDescription.descriptorCount == 1 &&
             "Binding single descriptor info, but binding expects multiple");
 
+        std::cout << "[] Images:\t" << nImages << std::endl;
         VkWriteDescriptorSet write{};
         write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;       // The type of this structure.
         write.descriptorType = bindingDescription.descriptorType;   // VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER or VK_DESCRIPTOR_TYPE_SAMPLER etc...
         write.dstBinding = binding;                                 // Binding index within this descriptor set
+        write.dstArrayElement = 0;
         write.pImageInfo = imageInfo;                               // A pointer to an array of VkDescriptorImageInfo structures or is ignored
-        //write.descriptorCount = nImages;
-        write.descriptorCount = 1;
+        write.descriptorCount = nImages;
+        // write.descriptorCount = 1;
 
         writes.push_back(write);
         return *this;

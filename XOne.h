@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+
 #include "Renderer/RenderSystem.h"
 #include "aveng_descriptors.h"
 #include "Renderer/AvengImageSystem.h"
@@ -33,7 +34,9 @@ namespace aveng {
 		// For use similar to a push_constant struct. Passing in read-only data to the pipeline shader modules
 		struct GlobalUbo {
 			alignas(16) glm::mat4 projectionView{ 1.f };
-			alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3{ -1.f, -3.f, 1.f });
+			alignas(16) glm::mat4 modelMatrix{ 1.f };
+			alignas(16) glm::mat4 normalMatrix{ 1.f };
+			alignas(16) glm::vec3 lightDirection{ 1.f };
 		};
 
 		void loadAppObjects();

@@ -20,8 +20,8 @@ namespace aveng {
 
 		struct Vertex {
 			// These 4 items get packed into our vertex buffers
-			glm::vec3 position;	// Position of the vertex
-			glm::vec3 color;	// color at this vertex
+			glm::vec3 position{};	// Position of the vertex
+			glm::vec3 color{};	// color at this vertex
 			glm::vec3 normal{}; // surface norms
 			glm::vec2 uv{};		// 2d texture coordinates
 

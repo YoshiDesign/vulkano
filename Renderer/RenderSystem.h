@@ -14,7 +14,7 @@ namespace aveng {
 
 	public:
 
-		RenderSystem(EngineDevice &device, VkRenderPass renderPass, std::vector<VkDescriptorSetLayout> descriptorSetLayouts);
+		RenderSystem(EngineDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayouts);
 		~RenderSystem();
 
 		RenderSystem(const RenderSystem&) = delete;
@@ -24,7 +24,7 @@ namespace aveng {
 
 	private:
 
-		void createPipelineLayout(std::vector<VkDescriptorSetLayout> descriptorSetLayouts);
+		void createPipelineLayout(VkDescriptorSetLayout descriptorSetLayouts);
 		void createPipeline(VkRenderPass renderPass);
 
 		int last_sec;
