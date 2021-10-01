@@ -31,14 +31,6 @@ namespace aveng {
 
 	private:
 
-		// For use similar to a push_constant struct. Passing in read-only data to the pipeline shader modules
-		struct GlobalUbo {
-			alignas(16) glm::mat4 projectionView{ 1.f };
-			alignas(16) glm::mat4 modelMatrix{ 1.f };
-			alignas(16) glm::mat4 normalMatrix{ 1.f };
-			alignas(16) glm::vec3 lightDirection{ 1.f };
-		};
-
 		void loadAppObjects();
 		void updateCamera(float frameTime, AvengAppObject& viewerObject, float aspect, KeyboardController& cameraController, AvengCamera& camera);
 
@@ -50,16 +42,11 @@ namespace aveng {
 		// !! Order of initialization matters !!
 		EngineDevice engineDevice{ aveng_window };
 		Renderer renderer{ aveng_window, engineDevice };
-		ImageSystem imageSystem{ engineDevice };
 		AvengCamera camera{};
 
 		// This declaration must occur after the renderer initializes
 		std::unique_ptr<AvengDescriptorPool> globalPool{};
-		std::unique_ptr<AvengDescriptorPool> anotherPool{};
 		std::vector<AvengAppObject> appObjects;
-
-		// Update items
-
 		
 	};
 

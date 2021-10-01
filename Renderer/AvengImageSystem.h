@@ -43,7 +43,8 @@ namespace aveng {
 
 		void createImageDescriptors(std::vector<VkImageView> views);
 		VkDescriptorImageInfo getImageInfoAtIndex(int index) { return imageInfosArray[index]; };
-		std::vector<VkDescriptorImageInfo> descriptorInfoForAllImages(){ 
+		std::vector<VkDescriptorImageInfo> descriptorInfoForAllImages()
+		{ 
 			std::cout << "[] Image info array size:\t" << imageInfosArray.size() << std::endl;
 			return imageInfosArray; 
 		}
@@ -58,7 +59,7 @@ namespace aveng {
 		std::vector<uint32_t> mipLevels;
 		std::vector<VkDescriptorImageInfo> imageInfosArray;
 
-		VkDeviceMemory textureImageMemory;
+		std::vector<VkDeviceMemory> allImageMemory;
 		VkSampler textureSampler;
 		
 		std::vector<VkImageView> textureImageViews;

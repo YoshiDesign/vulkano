@@ -16,6 +16,7 @@
 #include <array>
 #include <numeric>
 #include <chrono>
+#include <memory>
 
 
 namespace aveng {
@@ -41,7 +42,7 @@ namespace aveng {
 		globalPool = AvengDescriptorPool::Builder(engineDevice)
 			.setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
 						 // Type							// Max no. of descriptor sets
-			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT * 4)
 			.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT)
 			.build();
 
@@ -56,12 +57,20 @@ namespace aveng {
 
 	void XOne::run()
 	{
-		
-		auto minOffsetAlignment =  //pad_uniform_buffer_size(sizeof(GlobalUbo), engineDevice.properties.limits.minUniformBufferOffsetAlignment);
-			std::lcm(
+
+		auto minOffsetAlignment = std::lcm(
 			engineDevice.properties.limits.minUniformBufferOffsetAlignment,
-			engineDevice.properties.limits.nonCoherentAtomSize
-		);
+			engineDevice.properties.limits.nonCoherentAtomSize);
+
+		// For use similar to a push_constant struct. Passing in read-only data to the pipeline shader modules
+		struct GlobalUbo {
+			alignas(16) glm::mat4 projectionView{ 1.f };
+			alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3{ -1.f, -3.f, 1.f });
+		};
+
+		struct FragUbo {
+			alignas(16) int consts[4] = { 0, 0, 0, 0 };
+		};
 
 		// Creating a uniform buffer
 		AvengBuffer globalUboBuffer{
@@ -76,24 +85,29 @@ namespace aveng {
 		// enable writing to it's memory
 		globalUboBuffer.map();
 
+		ImageSystem imageSystem{ engineDevice };
 		// Bind descriptor sets to the graphics pipeline
 
 		// Descriptor Layout 0 -- Global
-		std::unique_ptr<AvengDescriptorSetLayout> globalDescriptorSetLayout =								// The layout
+		std::unique_ptr<AvengDescriptorSetLayout> globalDescriptorSetLayout =									// The layout
 			AvengDescriptorSetLayout::Builder(engineDevice)
-				.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)		// Its bindings
+				.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)					// Its bindings
 				.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 4)		// Its bindings
+				//.addBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
 				.build();	// Initialize the Descriptor Set Layout
 
+		// Write our descriptors according to the layout's bindings
 		std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);			// A global descriptor set for each frame presented from our SwapChain
 		for (int i = 0; i < globalDescriptorSets.size(); i++)
 		{
-			auto imageInfo  = imageSystem.descriptorInfoForAllImages();
-			auto bufferInfo = globalUboBuffer.descriptorInfoForIndex(i);
-			AvengDescriptorSetWriter(*globalDescriptorSetLayout, *globalPool)							// Write our descriptors according to the layout's bindings
-				.writeBuffer(0, &bufferInfo)															// Write a buffer. Send the buffer info with it
+			auto imageInfo		= imageSystem.descriptorInfoForAllImages();
+			auto bufferInfo		= globalUboBuffer.descriptorInfoForIndex(i);
+			//auto fragBufferInfo = fragBuffers[i]->descriptorInfo();
+			AvengDescriptorSetWriter(*globalDescriptorSetLayout, *globalPool)
+				.writeBuffer(0, &bufferInfo)
 				.writeImage(1, imageInfo.data(), imageSystem.nImages)
-				.build(globalDescriptorSets[i]);														// Build the global descriptor set for this frame
+				//.writeBuffer(2, &fragBufferInfo)
+				.build(globalDescriptorSets[i]);
 		}
 
 		// Note that the renderSystem is initialized with a pointer to the Render Pass
@@ -175,7 +189,6 @@ namespace aveng {
 				// Update our global uniform buffer
 				GlobalUbo ubo{};
 				ubo.projectionView = camera.getProjection() * camera.getView();
-				ubo.lightDirection = glm::normalize(glm::vec3{ -1.f, -3.f, 1.f });;
 				globalUboBuffer.writeToIndex(&ubo, frameIndex);
 				globalUboBuffer.flushIndex(frameIndex);
 

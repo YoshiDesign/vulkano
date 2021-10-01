@@ -14,6 +14,7 @@ namespace aveng {
 
 	public:
 
+
 		RenderSystem(EngineDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayouts);
 		~RenderSystem();
 

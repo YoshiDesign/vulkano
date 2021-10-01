@@ -13,11 +13,10 @@
 
 namespace aveng {
 
-	struct SimplePushConstantData 
+	struct SimplePushConstantData
 	{
-		alignas(16) glm::mat4 modelMatrix;
-		alignas(16) int imDex;
-
+		glm::mat4 modelMatrix{ 1.f };
+		glm::mat4 normalMatrix{ 1.f };
 	};
 
 	RenderSystem::RenderSystem(EngineDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayouts) : engineDevice{ device }
@@ -30,7 +29,7 @@ namespace aveng {
 	{
 		vkDestroyPipelineLayout(engineDevice.device(), pipelineLayout, nullptr);
 	}
-	 
+
 	/*
 	 * Setup of the pipeline layout. 
 	 * Here we include our Push Constant information
@@ -126,7 +125,6 @@ namespace aveng {
 				std::cout << obj.transform.translation.x << ", " << obj.transform.translation.y << ", " << obj.transform.translation.z << "\nMod w:" << mods.w << std::endl;
 			}
 
-			 
 			if (obj.transform.translation.x > 10) {
 				obj.transform.rotation = {
 				static_cast<float>(obj.transform.rotation.x + frametime),
@@ -159,12 +157,9 @@ namespace aveng {
 				};
 			}
 
-			//push.imDex = obj.get_texture();
+			// The matrix describing this model's current orientation
 			push.modelMatrix = obj.transform._mat4();
-			push.imDex = obj.get_texture();
-
-			//std::cout << "DEBUGE" << std::endl;
-			//LOG(push.imDex);
+			push.normalMatrix = obj.transform.normalMatrix();
 
 			vkCmdPushConstants(
 				frame_content.commandBuffer,

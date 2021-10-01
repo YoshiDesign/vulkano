@@ -41,23 +41,23 @@ namespace aveng {
 	ImageSystem::~ImageSystem() 
 	{
 		
-		for (auto& view : textureImageViews)
+		for (int i=0; i < images.size(); i++) 
 		{
-			vkDestroyImageView(engineDevice.device(), view, nullptr);
-		}
-		for (auto& img : images) 
-		{
-			vkDestroyImage(engineDevice.device(), img, nullptr);
+			std::cout << "Destroying Images:\t" << images.size() << std::endl;
+			vkDestroyImage(engineDevice.device(), images[i], nullptr);
+			vkDestroyImageView(engineDevice.device(), textureImageViews[i], nullptr);
+			vkFreeMemory(engineDevice.device(), allImageMemory[i], nullptr);
 		}
 
 		vkDestroySampler(engineDevice.device(), textureSampler, nullptr);
-		vkFreeMemory(engineDevice.device(), textureImageMemory, nullptr);
+
 	}
 
 	void ImageSystem::createTextureImage(const char* filepath, size_t i)
 	{
 
 		VkImage image;
+		VkDeviceMemory imageMemory;
 
 		// Load our image
 		int texWidth, texHeight, texChannels;
@@ -125,12 +125,14 @@ namespace aveng {
 			imageInfo,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, // Memory properties - This is GPU heap allocated and super fast
 			image,
-			textureImageMemory
+			imageMemory
 		);
+		allImageMemory.push_back(imageMemory);
+
 		transitionImageLayout(image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevel);
 		engineDevice.copyBufferToImage(stagingBuffer.getBuffer(), image, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), 1);
 		//transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL); // This will now occur in generateMipmaps
-
+		
 		generateMipmaps(image, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevel);
 
 	}

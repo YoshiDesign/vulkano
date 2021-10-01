@@ -8,15 +8,16 @@ layout(location = 1) in vec2 fragTexCoord;
 
 layout(location = 0) out vec4 outColor;
 
-layout(push_constant) uniform PushFrag {
-    mat4 modelMatrix;
-    int imDex;
-} push_frag;
+// Model matrix and a pretty normal matrix
+layout(push_constant) uniform Push {
+	mat4 modelMatrix;
+	mat4 normalMatrix;
+} push;
 
 void main() {
 
     // Gamma correction
-    vec4 result = texture(texSampler[push_frag.imDex], fragTexCoord);
+    vec4 result = texture(texSampler[3], fragTexCoord);
     float gamma = 1.1;
     result.rgb = pow(result.rgb, vec3(1.0 / gamma));
 
