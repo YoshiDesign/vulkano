@@ -1,4 +1,5 @@
 #include "aveng_window.h"
+#include <iostream>
 #include <stdexcept>
 
 namespace aveng {
@@ -38,6 +39,7 @@ namespace aveng {
 
 		// Whenever our window is resized, this callback is executed with the args in the callback's signature (new width and height)
 		glfwSetFramebufferSizeCallback(window, framebufferResizedCallback);
+
 	}
 
 	void AvengWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface)

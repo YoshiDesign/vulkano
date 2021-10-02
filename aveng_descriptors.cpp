@@ -23,7 +23,7 @@ namespace aveng {
     {
      
         std::cout << "Adding Binding (1 & 6): " << descriptorType << " at binding: " << binding << std::endl;
-        assert(bindings.count(binding) == 0 && "Binding already in use");
+        assert(layout_bindings.count(binding) == 0 && "Binding already in use");
 
         VkDescriptorSetLayoutBinding layoutBinding{};
         layoutBinding.binding = binding;                // Binding location, 0, 1, 2, etc
@@ -52,7 +52,7 @@ namespace aveng {
     {
 
         std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
-        for (auto kv : layout_bindings) 
+        for (auto const& kv : layout_bindings) 
         {
             setLayoutBindings.push_back(kv.second);
         }

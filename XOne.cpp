@@ -132,7 +132,7 @@ namespace aveng {
 			Object Space - Objects initially exist at the origin of object space
 			World Space  - The model matrix created by the AppObject's transform component coordinates objects with World Space
 			Camera Space - The view transformation, applied to our objects, moves objects from World Space into Camera Space;
-							where the camera is at the origin and all object's coord's are relative to their position and orientation
+						   where the camera is at the origin and all object's coord's are relative to their position and orientation
 
 					* The camera does not actually exist, we're just transforming objects AS IF the camera were there
 					
