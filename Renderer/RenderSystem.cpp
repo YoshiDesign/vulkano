@@ -90,7 +90,6 @@ namespace aveng {
 		);
 	}
 
-
 	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, uint8_t pipe_no, glm::vec4& mods, int sec, float frametime)
 	{
 		// Bind our current pipeline configuration
@@ -120,9 +119,10 @@ namespace aveng {
 
 			SimplePushConstantData push{};
 
+			// 1s tick
 			if (last_sec != sec) {
 				last_sec = sec;
-				std::cout << obj.transform.translation.x << ", " << obj.transform.translation.y << ", " << obj.transform.translation.z << "\nMod w:" << mods.w << std::endl;
+				
 			}
 
 			if (obj.transform.translation.x > 10) {

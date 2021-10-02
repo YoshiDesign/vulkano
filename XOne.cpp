@@ -43,7 +43,7 @@ namespace aveng {
 			.setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
 						 // Type							// Max no. of descriptor sets
 			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT * 4)
-			.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+			//.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT)
 			.build();
 
 		loadAppObjects();
@@ -81,37 +81,51 @@ namespace aveng {
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
 			minOffsetAlignment
 		};
+		
+		// Creating a uniform buffer
+		//AvengBuffer fragBuffer{
+		//	engineDevice,
+		//	sizeof(FragUbo),
+		//	SwapChain::MAX_FRAMES_IN_FLIGHT,
+		//	VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+		//	VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+		//	minOffsetAlignment
+		//};
 
 		// enable writing to it's memory
 		globalUboBuffer.map();
 
-		ImageSystem imageSystem{ engineDevice };
+		//ImageSystem imageSystem{ engineDevice };
 		// Bind descriptor sets to the graphics pipeline
 
 		// Descriptor Layout 0 -- Global
 		std::unique_ptr<AvengDescriptorSetLayout> globalDescriptorSetLayout =									// The layout
 			AvengDescriptorSetLayout::Builder(engineDevice)
 				.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)					// Its bindings
-				.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 4)		// Its bindings
-				//.addBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
+				//.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 4)		// Its bindings
+				//.addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
 				.build();	// Initialize the Descriptor Set Layout
 
 		// Write our descriptors according to the layout's bindings
 		std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);			// A global descriptor set for each frame presented from our SwapChain
 		for (int i = 0; i < globalDescriptorSets.size(); i++)
 		{
-			auto imageInfo		= imageSystem.descriptorInfoForAllImages();
+			//auto imageInfo		= imageSystem.descriptorInfoForAllImages();
 			auto bufferInfo		= globalUboBuffer.descriptorInfoForIndex(i);
-			//auto fragBufferInfo = fragBuffers[i]->descriptorInfo();
+			//auto fragBufferInfo = fragBuffer.descriptorInfo();
 			AvengDescriptorSetWriter(*globalDescriptorSetLayout, *globalPool)
 				.writeBuffer(0, &bufferInfo)
-				.writeImage(1, imageInfo.data(), imageSystem.nImages)
-				//.writeBuffer(2, &fragBufferInfo)
+				//.writeImage(1, imageInfo.data(), imageSystem.nImages)
+				//.writeBuffer(1, &fragBufferInfo)
 				.build(globalDescriptorSets[i]);
 		}
 
 		// Note that the renderSystem is initialized with a pointer to the Render Pass
-		RenderSystem renderSystem{ engineDevice, renderer.getSwapChainRenderPass(), globalDescriptorSetLayout->getDescriptorSetLayout() };
+		RenderSystem renderSystem{ 
+			engineDevice, 
+			renderer.getSwapChainRenderPass(), 
+			globalDescriptorSetLayout->getDescriptorSetLayout()
+		};
 
 		//camera.setViewTarget(glm::vec3(-1.f, -2.f, -20.f), glm::vec3(0.f, 0.f, 3.5f));
 
@@ -219,20 +233,42 @@ namespace aveng {
 		//fib(1000);
 		std::shared_ptr<AvengModel> holyShipModel    = AvengModel::createModelFromFile(engineDevice, "3D/holy_ship.obj");
 		std::shared_ptr<AvengModel> coloredCubeModel = AvengModel::createModelFromFile(engineDevice, "3D/colored_cube.obj");
+		std::shared_ptr<AvengModel> rc = AvengModel::createModelFromFile(engineDevice, "3D/rc.obj");
+		std::shared_ptr<AvengModel> bc = AvengModel::createModelFromFile(engineDevice, "3D/bc.obj");
 
 		size_t t = 0;
-		for (int i = 0; i < 2; i++) 
-			for (int j = 0; j < 2; j++) 
-				for (int k = 0; k < 1; k++) {
-					std::cout << t << std::endl;
-					t = (t + 1) % 4;
+		for (int i = 0; i < 100; i++) 
+			for (int j = 0; j < 10; j++) 
+				for (int k = 0; k < 100; k++) {
+					//t = (t + 1) % 4;
+					//if (t % 2)
+					//{
+					//	auto gameObj = AvengAppObject::createAppObject();
+					//	gameObj.model = bc;
+					//	gameObj.transform.translation = { static_cast<float>(i * 0.15f), static_cast<float>(j * 0.15f), static_cast<float>(k * 0.15f) };
+					//	gameObj.transform.scale = { .05f, 0.05f, 0.05f };
+					//	//gameObj.set_texture(t);
+
+					//	appObjects.push_back(std::move(gameObj));
+					//}
+					//else {
+					//	auto gameObj = AvengAppObject::createAppObject();
+					//	gameObj.model = rc;
+					//	gameObj.transform.translation = { static_cast<float>(i * 0.15f), static_cast<float>(j * 0.15f), static_cast<float>(k * 0.15f) };
+					//	gameObj.transform.scale = { .05f, 0.05f, 0.05f };
+					//	//gameObj.set_texture(t);
+
+					//	appObjects.push_back(std::move(gameObj));
+					//}
+
 					auto gameObj = AvengAppObject::createAppObject();
 					gameObj.model = coloredCubeModel;
-					gameObj.transform.translation = { static_cast<float>(i * 7.2f), static_cast<float>(j * 7.2f), static_cast<float>(k * 7.2f) };
-					gameObj.transform.scale = { .5f, 0.5f, 0.5f };
-					gameObj.set_texture(t);
+					gameObj.transform.translation = { static_cast<float>(i * 0.55f), static_cast<float>(j * 0.55f), static_cast<float>(k * 0.55f) };
+					gameObj.transform.scale = { .005f, 0.005f, 0.005f };
+					//gameObj.set_texture(t);
 
 					appObjects.push_back(std::move(gameObj));
+					
 				
 				}
 		
