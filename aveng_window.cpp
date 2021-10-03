@@ -26,7 +26,7 @@ namespace aveng {
 		// Instruct GLFW to NOT use the OpenGL API since we're using Vulkan
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-		// Open in windowed mode - Since we're using Vulkan we need to handle window resizing in a different way : See : TODO
+		// Open in windowed mode - Since we're using Vulkan we need to handle window resizing in a different way
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 		// @type GLFWwindow* window;
@@ -59,4 +59,4 @@ namespace aveng {
 		avengWindow->height = height;
 	}
 
-} // NS
+} 

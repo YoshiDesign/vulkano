@@ -69,8 +69,8 @@ namespace aveng {
         std::vector<VkDescriptorSetLayoutBinding> layout_bindings;
         std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> assert_layout_bindings;
 
-
-        VkDescriptorImageInfo descriptorImageInfos[TEXTURE_ARRAY_SIZE]{ {},{} };
+        // This idea is implemented in AvengImageSystem because it requires image views
+        //VkDescriptorImageInfo descriptorImageInfos[TEXTURE_ARRAY_SIZE]{ {},{} };
 
         friend class AvengDescriptorSetWriter;
     };

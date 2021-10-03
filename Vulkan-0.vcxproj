@@ -225,6 +225,7 @@
     <ClInclude Include="stb\stb_voxel_render.h" />
     <ClInclude Include="swapchain.h" />
     <ClInclude Include="threadpool.h" />
+    <ClInclude Include="Utils\data.h" />
     <ClInclude Include="Utils\window_callbacks.h" />
     <ClInclude Include="XOne.h" />
   </ItemGroup>

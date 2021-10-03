@@ -61,13 +61,15 @@ namespace aveng {
         //    setLayoutBindings.push_back(kv.second);
         //}
 
-        for (auto lBinding : layout_bindings) 
-        {
-            std::cout << "----Binding Info:\nBinding:\t" << lBinding.binding
-                << "\nType:\t" << lBinding.descriptorType
-                << "\nNum Descriptors:\t" << lBinding.descriptorCount
-                << "\nStage:\t" << lBinding.stageFlags << std::endl;
-        }
+        // DEBUG YOU FOOL
+        // 
+        //for (auto lBinding : layout_bindings) 
+        //{
+        //    std::cout << "----Binding Info:\nBinding:\t" << lBinding.binding
+        //        << "\nType:\t" << lBinding.descriptorType
+        //        << "\nNum Descriptors:\t" << lBinding.descriptorCount
+        //        << "\nStage:\t" << lBinding.stageFlags << std::endl;
+        //}
 
         VkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo{};
         descriptorSetLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;

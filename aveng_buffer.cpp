@@ -55,7 +55,6 @@ namespace aveng {
         memoryPropertyFlags{ memoryPropertyFlags } 
     {
         alignmentSize = getAlignment(instanceSize, minOffsetAlignment);
-        std::cout << "AlignmentSize : \t" << alignmentSize << std::endl;
         bufferSize = alignmentSize * instanceCount;
 
         // Call to engineDevice

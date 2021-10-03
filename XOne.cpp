@@ -26,14 +26,6 @@ namespace aveng {
 
 	int WindowCallbacks::current_pipeline{ 1 };
 
-	struct GuiStuff {
-
-		glm::vec4 _mods;
-		int no_objects;
-		float dt;
-
-	};
-
 	XOne::XOne() 
 	{
 		// Set callback functions for keys bound to the window
@@ -64,37 +56,27 @@ namespace aveng {
 
 		ImageSystem imageSystem{ engineDevice };
 
-		auto minOffsetAlignment = std::lcm(
-			engineDevice.properties.limits.minUniformBufferOffsetAlignment,
-			engineDevice.properties.limits.nonCoherentAtomSize);
-
-		// For use similar to a push_constant struct. Passing in read-only data to the pipeline shader modules
-		struct GlobalUbo {
-			alignas(16) glm::mat4 projectionView{ 1.f };
-			alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3{ -1.f, -3.f, 1.f });
-		};
+		//auto minOffsetAlignment = std::lcm(
+		//	engineDevice.properties.limits.minUniformBufferOffsetAlignment,
+		//	engineDevice.properties.limits.nonCoherentAtomSize);
 
 		// Create global uniform buffers mapped into device memory
 		std::vector<std::unique_ptr<AvengBuffer>> uboBuffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
+		std::vector<std::unique_ptr<AvengBuffer>> fragBuffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < uboBuffers.size(); i++) {
-			uboBuffers[i] = std::make_unique<AvengBuffer>(
-				engineDevice,
-				sizeof(GlobalUbo),
-				1,
-				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+			uboBuffers[i] = std::make_unique<AvengBuffer>(engineDevice,
+														  sizeof(GlobalUbo),
+														  1,
+														  VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+														  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 			uboBuffers[i]->map();
 		}
-
-		// Create per-object "fragment" uniform buffers mapped into device memory
-		std::vector<std::unique_ptr<AvengBuffer>> fragBuffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < fragBuffers.size(); i++) {
-			fragBuffers[i] = std::make_unique<AvengBuffer>(
-				engineDevice,
-				sizeof(RenderSystem::FragUbo) * 8000,
-				1,
-				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+			fragBuffers[i] = std::make_unique<AvengBuffer>(engineDevice,
+														   sizeof(RenderSystem::FragUbo) * 8000,
+														   1,
+														   VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+														   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 			fragBuffers[i]->map();
 		}
 
@@ -119,8 +101,8 @@ namespace aveng {
 		for (int i = 0; i < SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 		{
 			// Write first set
-			auto imageInfo		= imageSystem.descriptorInfoForAllImages();
-			auto bufferInfo		= uboBuffers[i]->descriptorInfo();
+			auto imageInfo	= imageSystem.descriptorInfoForAllImages();
+			auto bufferInfo	= uboBuffers[i]->descriptorInfo();
 
 			AvengDescriptorSetWriter(*globalDescriptorSetLayout, *globalPool)
 				.writeBuffer(0, &bufferInfo)
@@ -172,10 +154,10 @@ namespace aveng {
 		*/
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
-		float x = 0.0f;
-		int dt = 0;
+		float dx = 0.0f;
 
-		GuiStuff stuff{ mods, appObjects.size() };
+		Data data{ mods, appObjects.size(), 0.0f, 0, 0 };
+
 
 		// Keep the window open until shouldClose is truthy
 		while (!aveng_window.shouldClose()) {
@@ -190,6 +172,10 @@ namespace aveng {
 			auto newTime = std::chrono::high_resolution_clock::now();
 			float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
 			currentTime = newTime;
+
+			// Data
+			data.dt = frameTime;
+			data.cur_pipe = WindowCallbacks::getCurPipeline();
 
 			//frameTime = glm::min(frameTime, MAX_FRAME_TIME);	// Use this to lock to a specific max frame rate
 
@@ -209,11 +195,10 @@ namespace aveng {
 					fragDescriptorSets[frameIndex]
 				};
 
-				x += frameTime;
-				if (x > 1.0f) {
-					x = 0.0f;
-					dt += 1;
-					if (dt > 10000) dt = 0;
+				dx += frameTime;
+				if (dx > 1.0f) {
+					dx = 0.0f;
+					data.sec = (data.sec + 1) % 10000;
 				}
 
 				// Update our global uniform buffer
@@ -222,14 +207,17 @@ namespace aveng {
 				uboBuffers[frameIndex]->writeToBuffer(&ubo);
 				uboBuffers[frameIndex]->flush();
 
-				AvengBuffer& cur_frag = *fragBuffers[frameIndex];
-
 				// Render
 				renderer.beginSwapChainRenderPass(commandBuffer);
-				renderSystem.renderAppObjects(frame_content, appObjects, WindowCallbacks::getCurPipeline(), dt, frameTime, cur_frag);
+				renderSystem.renderAppObjects(
+					frame_content, 
+					appObjects, 
+					data, 
+					*fragBuffers[frameIndex]);
+
 				aveng_imgui.newFrame();
 				
-				aveng_imgui.runGUI(stuff._mods, stuff.no_objects, stuff.dt);
+				aveng_imgui.runGUI(data);
 				aveng_imgui.render(commandBuffer);
 
 				renderer.endSwapChainRenderPass(commandBuffer);

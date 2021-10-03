@@ -64,7 +64,6 @@ namespace aveng {
     /**
      * Class Functions
      */
-
     // Default Constructor - Initialize Vulkan
     EngineDevice::EngineDevice(AvengWindow &window) : window{window} 
     {

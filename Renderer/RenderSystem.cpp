@@ -28,11 +28,6 @@ namespace aveng {
 
 		VkDescriptorSetLayout descriptorSetLayouts[2] = { globalDescriptorSetLayouts , fragDescriptorSetLayouts };
 
-		offsets[0] = 0;
-		offsets[1] = 4;
-		offsets[2] = 8;
-		offsets[3] = 12;
-
 		createPipelineLayout(descriptorSetLayouts);
 		createPipeline(renderPass);
 	}
@@ -102,18 +97,18 @@ namespace aveng {
 		);
 	}
 
-	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, uint8_t pipe_no, int sec, float frametime, AvengBuffer& fragBuffer)
+	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, Data data, AvengBuffer& fragBuffer)
 	{
 		int obj_no = 0;
 
 		// Bind our current pipeline configuration
-		//switch (pipe_no)
-		//{
-		//case 0: gfxPipeline->bind(frame_content.commandBuffer);  break;
-		//case 1: gfxPipeline2->bind(frame_content.commandBuffer); break;
-		//default:
-		gfxPipeline->bind(frame_content.commandBuffer); // 0
-		// }
+		switch (data.cur_pipe)
+		{
+			case 98: gfxPipeline->bind(frame_content.commandBuffer);  break;
+			case 99: gfxPipeline2->bind(frame_content.commandBuffer); break;
+			default:
+				gfxPipeline->bind(frame_content.commandBuffer); // 0
+		 }
 		
 		vkCmdBindDescriptorSets(
 			frame_content.commandBuffer,
@@ -130,61 +125,61 @@ namespace aveng {
 		*/
 		for (auto& obj : appObjects) 
 		{
-
+			// This object's dynamic offset in any per-object uniform buffers (currently: FragUbo)
+			uint32_t dynamicOffset = obj_no * static_cast<uint32_t>(deviceAlignment);
 			SimplePushConstantData push{};
 
+			// Update our frag uniform buffer
+			FragUbo fubo{ 3 };
+
+			if (obj_no == 3) { fubo.imDex = 1; }
+			else fubo.imDex = 0;
+
+			fragBuffer.writeToBuffer(&fubo, sizeof(FragUbo), dynamicOffset);
+			fragBuffer.flush();
+			obj_no += 1;
+
 			// 1s tick
-			if (last_sec != sec) {
-				last_sec = sec;
+			if (last_sec != data.sec) {
+				last_sec  = data.sec;
 				
 			}
 
 			if (obj.transform.translation.x > 10) {
 				obj.transform.rotation = {
-				static_cast<float>(obj.transform.rotation.x + frametime),
-				static_cast<float>(obj.transform.rotation.y + frametime),
-				static_cast<float>(obj.transform.rotation.z + frametime)
+				static_cast<float>(obj.transform.rotation.x + data.dt),
+				static_cast<float>(obj.transform.rotation.y + data.dt),
+				static_cast<float>(obj.transform.rotation.z + data.dt)
 				};
 			}
 
 			if (obj.transform.translation.x < 10) {
 				obj.transform.rotation = {
-					static_cast<float>(obj.transform.rotation.x - frametime),
-					static_cast<float>(obj.transform.rotation.y - frametime),
-					static_cast<float>(obj.transform.rotation.z - frametime)
+					static_cast<float>(obj.transform.rotation.x - data.dt),
+					static_cast<float>(obj.transform.rotation.y - data.dt),
+					static_cast<float>(obj.transform.rotation.z - data.dt)
 				};
 			}
 
 			if (obj.transform.translation.z < 10) {
 				obj.transform.rotation = {
-					static_cast<float>(obj.transform.rotation.x + frametime * 1.2),
-					static_cast<float>(obj.transform.rotation.y + frametime * 1.2),
-					static_cast<float>(obj.transform.rotation.z + frametime * 1.2)
+					static_cast<float>(obj.transform.rotation.x + data.dt * 1.2),
+					static_cast<float>(obj.transform.rotation.y + data.dt * 1.2),
+					static_cast<float>(obj.transform.rotation.z + data.dt * 1.2)
 				};
 			}
 
 			if (obj.transform.translation.z > 10) {
 				obj.transform.rotation = {
-					static_cast<float>(obj.transform.rotation.x - frametime),
-					static_cast<float>(obj.transform.rotation.y + frametime),
-					static_cast<float>(obj.transform.rotation.z - frametime * 1.1)
+					static_cast<float>(obj.transform.rotation.x - data.dt),
+					static_cast<float>(obj.transform.rotation.y + data.dt),
+					static_cast<float>(obj.transform.rotation.z - data.dt * 1.1)
 				};
 			}
 
 			// The matrix describing this model's current orientation
-			push.modelMatrix = obj.transform._mat4();
+			push.modelMatrix  = obj.transform._mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
-
-			size_t deviceAlignment = engineDevice.properties.limits.minUniformBufferOffsetAlignment;
-			//size_t uniformBufferSize = sizeof(FragUbo);
-			//size_t dynamicAlignment = (uniformBufferSize / deviceAlignment) * deviceAlignment + ((uniformBufferSize % deviceAlignment) > 0 ? deviceAlignment : 0);
-
-			// Update our frag uniform buffer
-			FragUbo fubo{ obj.texture_id };
-			uint32_t dynamicOffset = obj_no * static_cast<uint32_t>(deviceAlignment);
-
-			fragBuffer.writeToBuffer(&fubo, sizeof(FragUbo), dynamicOffset);
-			fragBuffer.flush();
 			
 			vkCmdBindDescriptorSets(
 				frame_content.commandBuffer,
@@ -203,8 +198,6 @@ namespace aveng {
 				0,
 				sizeof(SimplePushConstantData),
 				&push);
-
-			obj_no += 1;
 
 			obj.model->bind(frame_content.commandBuffer);
 			obj.model->draw(frame_content.commandBuffer);

@@ -7,6 +7,7 @@
 #include "../EngineDevice.h"
 #include "../aveng_frame_content.h"
 #include "../GFXPipeline.h"
+#include "../Utils/data.h"
 
 namespace aveng {
 
@@ -24,7 +25,7 @@ namespace aveng {
 
 		RenderSystem(const RenderSystem&) = delete;
 		RenderSystem& operator=(const RenderSystem&) = delete;
-		void renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject> &appObjects, uint8_t pipe_no, int dt, float frametime, AvengBuffer& fragBuffer);
+		void renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject> &appObjects, Data data, AvengBuffer& fragBuffer);
 		VkPipelineLayout getPipelineLayout() { return pipelineLayout; }
 
 	private:
@@ -34,8 +35,7 @@ namespace aveng {
 
 		int last_sec;
 		EngineDevice &engineDevice;
-
-		uint32_t offsets[4];
+		size_t deviceAlignment = engineDevice.properties.limits.minUniformBufferOffsetAlignment;
 
 		// Rendering Pipelines - Heap Allocated
 		std::unique_ptr<GFXPipeline> gfxPipeline;

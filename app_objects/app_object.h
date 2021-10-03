@@ -43,7 +43,7 @@ namespace aveng {
 	public:
 		using id_t = unsigned int;
 
-		static AvengAppObject createAppObject(int texture_id) 
+		static AvengAppObject createAppObject(int texture_id)
 		{
 			static id_t currentId = 0;
 			return AvengAppObject{ currentId++, texture_id };
@@ -58,9 +58,8 @@ namespace aveng {
 
 		const id_t getId() { return id; }
 
-		int get_texture() {
-			return texture_id;
-		}
+		int get_texture() { return texture_id; }
+		void set_texture(int texture) { texture_id = texture; }
 
 		std::shared_ptr<AvengModel> model{};
 		glm::vec3 color{};

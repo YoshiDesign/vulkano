@@ -242,6 +242,9 @@
     <ClInclude Include="threadpool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Utils\data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\simple_shader.vert" />
