@@ -47,6 +47,7 @@ namespace aveng {
 						 // Type							// Max no. of descriptor sets
 			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT * 8)
 			.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT * 16)
+			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, SwapChain::MAX_FRAMES_IN_FLIGHT * 8)
 			.build();
 
 		loadAppObjects();
@@ -90,7 +91,7 @@ namespace aveng {
 		for (int i = 0; i < fragBuffers.size(); i++) {
 			fragBuffers[i] = std::make_unique<AvengBuffer>(
 				engineDevice,
-				sizeof(RenderSystem::FragUbo),
+				sizeof(RenderSystem::FragUbo) * 8000,
 				1,
 				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
@@ -108,7 +109,7 @@ namespace aveng {
 		// Descriptor Set 1 -- Per object
 		std::unique_ptr<AvengDescriptorSetLayout> fragDescriptorSetLayout =
 			AvengDescriptorSetLayout::Builder(engineDevice)
-				.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
+				.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, VK_SHADER_STAGE_FRAGMENT_BIT)
 				.build();
 
 		// Write our descriptors according to the layout's bindings once for every possible frame in flight
@@ -261,7 +262,7 @@ namespace aveng {
 					std::cout << t << std::endl;
 					auto gameObj = AvengAppObject::createAppObject(t);
 					gameObj.model = bc;
-					gameObj.transform.translation = { static_cast<float>(i * 1.55f), static_cast<float>(j * 1.55f), static_cast<float>(k * 1.55f) };
+					gameObj.transform.translation = { static_cast<float>(i * 4.55f), static_cast<float>(j * 1.55f), static_cast<float>(k * 1.55f) };
 					gameObj.transform.scale = { .4f, 0.4f, 0.4f };
 
 					appObjects.push_back(std::move(gameObj));

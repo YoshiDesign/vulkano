@@ -28,6 +28,11 @@ namespace aveng {
 
 		VkDescriptorSetLayout descriptorSetLayouts[2] = { globalDescriptorSetLayouts , fragDescriptorSetLayouts };
 
+		offsets[0] = 0;
+		offsets[1] = 4;
+		offsets[2] = 8;
+		offsets[3] = 12;
+
 		createPipelineLayout(descriptorSetLayouts);
 		createPipeline(renderPass);
 	}
@@ -99,6 +104,8 @@ namespace aveng {
 
 	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, uint8_t pipe_no, int sec, float frametime, AvengBuffer& fragBuffer)
 	{
+		int obj_no = 0;
+
 		// Bind our current pipeline configuration
 		//switch (pipe_no)
 		//{
@@ -170,11 +177,15 @@ namespace aveng {
 
 			std::cout << static_cast<int>(obj.get_texture()) << "\t"<< sec % 4 << std::endl;
 
-			// Update our frag uniform buffer
-			FragUbo fubo{ sec };
-			//fubo.imDex = obj.texture_id;
+			size_t deviceAlignment = engineDevice.properties.limits.minUniformBufferOffsetAlignment;
+			//size_t uniformBufferSize = sizeof(FragUbo);
+			//size_t dynamicAlignment = (uniformBufferSize / deviceAlignment) * deviceAlignment + ((uniformBufferSize % deviceAlignment) > 0 ? deviceAlignment : 0);
 
-			fragBuffer.writeToBuffer(&fubo);
+			// Update our frag uniform buffer
+			FragUbo fubo{ obj.texture_id };
+			uint32_t dynamicOffset = obj_no * static_cast<uint32_t>(deviceAlignment);
+
+			fragBuffer.writeToBuffer(&fubo, sizeof(FragUbo), dynamicOffset);
 			fragBuffer.flush();
 			
 			vkCmdBindDescriptorSets(
@@ -184,8 +195,8 @@ namespace aveng {
 				1,
 				1,
 				&frame_content.fragDescriptorSet,
-				0,
-				nullptr);
+				1,
+				&dynamicOffset);
 
 			vkCmdPushConstants(
 				frame_content.commandBuffer,
@@ -194,6 +205,8 @@ namespace aveng {
 				0,
 				sizeof(SimplePushConstantData),
 				&push);
+
+			obj_no += 1;
 
 			obj.model->bind(frame_content.commandBuffer);
 			obj.model->draw(frame_content.commandBuffer);

@@ -35,6 +35,8 @@ namespace aveng {
 		int last_sec;
 		EngineDevice &engineDevice;
 
+		uint32_t offsets[4];
+
 		// Rendering Pipelines - Heap Allocated
 		std::unique_ptr<GFXPipeline> gfxPipeline;
 		std::unique_ptr<GFXPipeline> gfxPipeline2;
