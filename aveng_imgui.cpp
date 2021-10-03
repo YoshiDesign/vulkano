@@ -31,13 +31,16 @@ namespace aveng {
             {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000},
             {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
             {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000} };
+
         VkDescriptorPoolCreateInfo pool_info = {};
         pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
         pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
         pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
         pool_info.pPoolSizes = pool_sizes;
-        if (vkCreateDescriptorPool(device.device(), &pool_info, nullptr, &descriptorPool) != VK_SUCCESS) {
+
+        if (vkCreateDescriptorPool(device.device(), &pool_info, nullptr, &descriptorPool) != VK_SUCCESS) 
+        {
             throw std::runtime_error("failed to set up descriptor pool for imgui");
         }
 
@@ -105,7 +108,7 @@ namespace aveng {
         ImGui_ImplVulkan_RenderDrawData(drawdata, commandBuffer);
     }
 
-    void AvengImgui::runGUI(glm::vec4 mods, size_t num_objs, float dt) {
+    void AvengImgui::runGUI(Data data) {
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can
         // browse its code to learn more about Dear ImGui!).
         if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
@@ -113,28 +116,29 @@ namespace aveng {
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named
         // window.
         {
-            static float f = 0.0f;
+            static float slider = 0.0f;
             static int counter = 0;
 
             ImGui::Begin("Debug you fool!"); 
 
             ImGui::Text(
-                "Objects: %d", num_objs); 
+                "Objects: %d", data.num_objs); 
             ImGui::Text(
-                "X: %lf\nY: %lf\nZ: %lf\nW: %lf\ndt: %lf", mods.x, mods.y, mods.z, mods.w, dt);
+                "X: %lf\nY: %lf\nZ: %lf\nW: %lf\ndt: %lf\n", data.mods.x, data.mods.y, data.mods.z, data.mods.w, data.dt);
             
             //ImGui::Checkbox("Another Window", &show_another_window);
 
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);  // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::ColorEdit3("clear color",
-                (float*)&clear_color);  // Edit 3 floats representing a color
-
-            //if (ImGui::Button("Button"))  // Buttons return true when clicked (most widgets return true
-            //    ++counter;                // when edited/activated)
+            ImGui::SliderFloat("float", &slider, 0.0f, 1.0f);  // Edit 1 float using a slider from 0.0f to 1.0f
+            //ImGui::ColorEdit3("clear color",
+                //(float*)&clear_color);  // Edit 3 floats representing a color
             
-            //ImGui::SameLine();
+            if (ImGui::Button("GFX"))
+                WindowCallbacks::updatePipeline();
+            ImGui::SameLine();
+            ImGui::Text("GFX-Pipe:\t%d", data.cur_pipe);
+           
             ImGui::Text(
-                "t = %.3f ms/frame (%.1f FPS)",
+                "Frame = %.3f ms/frame (%.1f FPS)",
                 1000.0f / ImGui::GetIO().Framerate,
             ImGui::GetIO().Framerate);
             //ImGui::Text("c = %d", counter);

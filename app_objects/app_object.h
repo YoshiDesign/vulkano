@@ -3,6 +3,7 @@
 #include "../aveng_model.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <memory>
+#include <unordered_map>
 
 namespace aveng {
 
@@ -25,6 +26,13 @@ namespace aveng {
 	class AvengAppObject 
 	{
 
+		enum textures {
+			THEME_1 = 0,
+			THEME_2,
+			THEME_3,
+			THEME_4
+		};
+
 		// For Physics
 		struct RigidBody2dComponent 
 		{
@@ -35,11 +43,13 @@ namespace aveng {
 	public:
 		using id_t = unsigned int;
 
-		static AvengAppObject createAppObject() 
+		static AvengAppObject createAppObject(int texture_id)
 		{
 			static id_t currentId = 0;
-			return AvengAppObject{ currentId++ };
+			return AvengAppObject{ currentId++, texture_id };
 		}
+
+		AvengAppObject(id_t objId, int texture_id) : id{ objId }, texture_id{ texture_id } {}
 
 		AvengAppObject(const AvengAppObject&) = delete;
 		AvengAppObject &operator=(const AvengAppObject&) = delete;
@@ -48,14 +58,18 @@ namespace aveng {
 
 		const id_t getId() { return id; }
 
+		int get_texture() { return texture_id; }
+		void set_texture(int texture) { texture_id = texture; }
+
 		std::shared_ptr<AvengModel> model{};
 		glm::vec3 color{};
 		TransformComponent transform{};
 		RigidBody2dComponent rigidBody2d;
 
+		int texture_id;
+
 	private:
 
-		AvengAppObject(id_t objId) : id{ objId } {}
 		id_t id;
 
 	};

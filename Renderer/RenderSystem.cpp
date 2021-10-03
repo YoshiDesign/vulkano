@@ -1,5 +1,4 @@
 #include <iostream>
-#define LOG(a) std::cout<<a<<std::endl;
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -10,17 +9,26 @@
 
 #include "RenderSystem.h"
 
+#define LOG(a) std::cout<<a<<std::endl;
+
 namespace aveng {
 
-	struct SimplePushConstantData 
+	struct SimplePushConstantData
 	{
 		glm::mat4 modelMatrix{ 1.f };
 		glm::mat4 normalMatrix{ 1.f };
 	};
 
-	RenderSystem::RenderSystem(EngineDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout) : engineDevice{ device }
+	RenderSystem::RenderSystem(
+		EngineDevice& device, 
+		VkRenderPass renderPass, 
+		VkDescriptorSetLayout globalDescriptorSetLayouts,
+		VkDescriptorSetLayout fragDescriptorSetLayouts) : engineDevice{ device }
 	{
-		createPipelineLayout(globalDescriptorSetLayout);
+
+		VkDescriptorSetLayout descriptorSetLayouts[2] = { globalDescriptorSetLayouts , fragDescriptorSetLayouts };
+
+		createPipelineLayout(descriptorSetLayouts);
 		createPipeline(renderPass);
 	}
 
@@ -28,41 +36,39 @@ namespace aveng {
 	{
 		vkDestroyPipelineLayout(engineDevice.device(), pipelineLayout, nullptr);
 	}
-	 
+
 	/*
-	* Describe the pipeline layout in terms of how
-	* we are programming it.
-	* 
-	* A pipeline layout includes location, size and offset information about:
-	* Descriptor sets and their layout
-	* Push Constant data
-	*/
-	void RenderSystem::createPipelineLayout(VkDescriptorSetLayout descriptorSetLayout)
+	 * Setup of the pipeline layout. 
+	 * Here we include our Push Constant information
+	 * as well as our descriptor set layouts.
+	 */
+	void RenderSystem::createPipelineLayout(VkDescriptorSetLayout* descriptorSetLayouts)
 	{
+
+		// Initialize push constant range(s)
 		VkPushConstantRange pushConstantRange{};
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantRange.offset = 0;
-		pushConstantRange.size = sizeof(SimplePushConstantData);
-
-		std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ descriptorSetLayout };
+		pushConstantRange.size = sizeof(SimplePushConstantData);	// Must be a multiple of 4
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-		//  Structure specifying the parameters of a newly created pipeline layout object
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		// Tell the pipeline about our descriptor sets
-		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size()); // How many
-		pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data(); // a pointer to an array of VkDescriptorSetLayout objects.
-		// Push constants are used to send additional data to our shaders, similar to uniform buffers but much smaller and faster
+		pipelineLayoutInfo.setLayoutCount = 2;										// How many descriptor set layouts are to be hooked into the pipeline
+		pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts;						// a pointer to an array of VkDescriptorSetLayout objects.
 		pipelineLayoutInfo.pushConstantRangeCount = 1;
 		pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
-		if (vkCreatePipelineLayout(engineDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+		// Create the pipeline layout, updating our pipelineLayout member.
+		if (vkCreatePipelineLayout(engineDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) 
+		{
 			throw std::runtime_error("failed to create pipeline layout!");
 		}
 
 	}
 
 	/*
+	* Call to the construction of a Graphics Pipeline.
+	* Note that shader filepaths are relative to the GFXPipeline.cpp file.
 	*/
 	void RenderSystem::createPipeline(VkRenderPass renderPass)
 	{
@@ -91,21 +97,20 @@ namespace aveng {
 		);
 	}
 
-
-	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, uint8_t pipe_no, glm::vec4& mods, int sec, float frametime)
+	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, Data data, AvengBuffer& fragBuffer)
 	{
+		int obj_no = 0;
+
 		// Bind our current pipeline configuration
-		//switch (pipe_no)
-		//{
-		//case 0: gfxPipeline->bind(frame_content.commandBuffer);  break;
-		//case 1: gfxPipeline2->bind(frame_content.commandBuffer); break;
-		//default:
-		gfxPipeline->bind(frame_content.commandBuffer); // 0
-		// }
-
+		switch (data.cur_pipe)
+		{
+			case 98: gfxPipeline->bind(frame_content.commandBuffer);  break;
+			case 99: gfxPipeline2->bind(frame_content.commandBuffer); break;
+			default:
+				gfxPipeline->bind(frame_content.commandBuffer); // 0
+		 }
 		
-
-		vkCmdBindDescriptorSets (
+		vkCmdBindDescriptorSets(
 			frame_content.commandBuffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
 			pipelineLayout,
@@ -114,69 +119,77 @@ namespace aveng {
 			&frame_content.globalDescriptorSet,
 			0,
 			nullptr);
-		
-		// Every rendered object will use the same projection and view matrix
-		//auto projectionView = frame_content.camera.getProjection() * frame_content.camera.getView();
 
 		/*
 		* Thread object bind/draw calls here
 		*/
 		for (auto& obj : appObjects) 
 		{
+			// This object's dynamic offset in any per-object uniform buffers (currently: FragUbo)
+			uint32_t dynamicOffset = obj_no * static_cast<uint32_t>(deviceAlignment);
 			SimplePushConstantData push{};
 
-			// You can define more properties on the object class to store more information
-			// for which to calculate shit with instead of doing it all in the app file or this one................
-			//obj.transform.translation = {
-			//
-			//	static_cast<float>((obj.transform.translation.x + .001)), // + frametime) * mods.w),
-			//	static_cast<float>((obj.transform.translation.y)), // + frametime) * mods.w),
-			//	static_cast<float>(obj.transform.translation.z),
-			//
-			//};
+			// Update our frag uniform buffer
+			FragUbo fubo{ 3 };
 
-			if (last_sec != sec) {
-				last_sec = sec;
-				std::cout << obj.transform.translation.x << ", " << obj.transform.translation.y << ", " << obj.transform.translation.z << "\nMod w:" << mods.w << std::endl;
+			if (obj_no == 3) { fubo.imDex = 1; }
+			else fubo.imDex = 0;
+
+			fragBuffer.writeToBuffer(&fubo, sizeof(FragUbo), dynamicOffset);
+			fragBuffer.flush();
+			obj_no += 1;
+
+			// 1s tick
+			if (last_sec != data.sec) {
+				last_sec  = data.sec;
+				
 			}
 
-			 
 			if (obj.transform.translation.x > 10) {
 				obj.transform.rotation = {
-				static_cast<float>(obj.transform.rotation.x + frametime),
-				static_cast<float>(obj.transform.rotation.y + frametime),
-				static_cast<float>(obj.transform.rotation.z + frametime)
+				static_cast<float>(obj.transform.rotation.x + data.dt),
+				static_cast<float>(obj.transform.rotation.y + data.dt),
+				static_cast<float>(obj.transform.rotation.z + data.dt)
 				};
 			}
 
 			if (obj.transform.translation.x < 10) {
 				obj.transform.rotation = {
-					static_cast<float>(obj.transform.rotation.x - frametime),
-					static_cast<float>(obj.transform.rotation.y - frametime),
-					static_cast<float>(obj.transform.rotation.z - frametime)
+					static_cast<float>(obj.transform.rotation.x - data.dt),
+					static_cast<float>(obj.transform.rotation.y - data.dt),
+					static_cast<float>(obj.transform.rotation.z - data.dt)
 				};
 			}
 
 			if (obj.transform.translation.z < 10) {
 				obj.transform.rotation = {
-					static_cast<float>(obj.transform.rotation.x + frametime * 1.2),
-					static_cast<float>(obj.transform.rotation.y + frametime * 1.2),
-					static_cast<float>(obj.transform.rotation.z + frametime * 1.2)
+					static_cast<float>(obj.transform.rotation.x + data.dt * 1.2),
+					static_cast<float>(obj.transform.rotation.y + data.dt * 1.2),
+					static_cast<float>(obj.transform.rotation.z + data.dt * 1.2)
 				};
 			}
 
 			if (obj.transform.translation.z > 10) {
 				obj.transform.rotation = {
-					static_cast<float>(obj.transform.rotation.x - frametime),
-					static_cast<float>(obj.transform.rotation.y + frametime),
-					static_cast<float>(obj.transform.rotation.z - frametime * 1.1)
+					static_cast<float>(obj.transform.rotation.x - data.dt),
+					static_cast<float>(obj.transform.rotation.y + data.dt),
+					static_cast<float>(obj.transform.rotation.z - data.dt * 1.1)
 				};
 			}
 
-
 			// The matrix describing this model's current orientation
-			push.modelMatrix = obj.transform._mat4();
+			push.modelMatrix  = obj.transform._mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
+			
+			vkCmdBindDescriptorSets(
+				frame_content.commandBuffer,
+				VK_PIPELINE_BIND_POINT_GRAPHICS,
+				pipelineLayout,
+				1,
+				1,
+				&frame_content.fragDescriptorSet,
+				1,
+				&dynamicOffset);
 
 			vkCmdPushConstants(
 				frame_content.commandBuffer,
@@ -184,11 +197,11 @@ namespace aveng {
 				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0,
 				sizeof(SimplePushConstantData),
-				&push
-			); 
+				&push);
 
 			obj.model->bind(frame_content.commandBuffer);
 			obj.model->draw(frame_content.commandBuffer);
+
 		}
 	}
 

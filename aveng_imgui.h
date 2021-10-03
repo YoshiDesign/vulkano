@@ -2,8 +2,11 @@
 
 #include "EngineDevice.h"
 #include "aveng_window.h"
-#include <glm/glm.hpp>
+#include "Utils/data.h"
+#include "Utils/window_callbacks.h"
+
 // libs
+#include <glm/glm.hpp>
 #include "GUI/imgui.h"
 #include "GUI/imgui_impl_glfw.h"
 #include "GUI/imgui_impl_vulkan.h"
@@ -35,7 +38,7 @@ namespace aveng {
 		bool show_demo_window = false;
 		bool show_another_window = false;
 		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-		void runGUI(glm::vec4 mods, size_t num_objs, float dt);
+		void runGUI(Data data);
 
 	private:
 		EngineDevice& engineDevice;

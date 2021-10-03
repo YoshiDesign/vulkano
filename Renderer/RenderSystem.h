@@ -7,37 +7,37 @@
 #include "../EngineDevice.h"
 #include "../aveng_frame_content.h"
 #include "../GFXPipeline.h"
-
+#include "../Utils/data.h"
 
 namespace aveng {
 
-	/**
-	* Notes:
-	* 
-	* The renderSystem's lifecycle is not tied to the RenderPass'
-	*/
 	class RenderSystem {
 
 	public:
 
-		RenderSystem(EngineDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout);
+		struct FragUbo {
+			alignas(sizeof(int)) int imDex;
+		};
+
+
+		RenderSystem(EngineDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout, VkDescriptorSetLayout fragDescriptorSetLayouts);
 		~RenderSystem();
 
 		RenderSystem(const RenderSystem&) = delete;
 		RenderSystem& operator=(const RenderSystem&) = delete;
-		void renderAppObjects(FrameContent& commandBuffer, std::vector<AvengAppObject> &appObjects, uint8_t pipe_no, glm::vec4& mods, int dt, float frametime);
+		void renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject> &appObjects, Data data, AvengBuffer& fragBuffer);
 		VkPipelineLayout getPipelineLayout() { return pipelineLayout; }
 
 	private:
 
-		void createPipelineLayout(VkDescriptorSetLayout globalDescriptorSetLayout);
-		// The renderPass will be used to create the pipeline
+		void createPipelineLayout(VkDescriptorSetLayout* descriptorSetLayouts);
 		void createPipeline(VkRenderPass renderPass);
 
 		int last_sec;
-
 		EngineDevice &engineDevice;
-		// The Graphics API - Pointer Allocated
+		size_t deviceAlignment = engineDevice.properties.limits.minUniformBufferOffsetAlignment;
+
+		// Rendering Pipelines - Heap Allocated
 		std::unique_ptr<GFXPipeline> gfxPipeline;
 		std::unique_ptr<GFXPipeline> gfxPipeline2;
 		VkPipelineLayout pipelineLayout;
