@@ -25,7 +25,7 @@ namespace aveng {
         uint32_t count) 
     {
      
-        std::cout << "Adding Binding:\t" << binding << "\tCount:\t " << count << "\tType:\t" << descriptorType << "\At Stage:\t" << stageFlags <<  std::endl;
+        //std::cout << "Adding Binding:\t" << binding << "\tCount:\t " << count << "\tType:\t" << descriptorType << "\At Stage:\t" << stageFlags <<  std::endl;
         assert(assert_layout_bindings.count(binding) == 0 && "Binding already in use");
 
         VkDescriptorSetLayoutBinding layoutBinding{};
@@ -155,7 +155,7 @@ namespace aveng {
 
     bool AvengDescriptorPool::allocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const 
     {
-        DBUG("Allocate Descriptor");
+
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorPool = descriptorPool;
@@ -165,7 +165,6 @@ namespace aveng {
         // Might want to create a "DescriptorPoolManager" class that handles this case, and builds
         // a new pool whenever an old pool fills up. But this is beyond our current scope
         if (vkAllocateDescriptorSets(engineDevice.device(), &allocInfo, &descriptor) != VK_SUCCESS) {
-            DBUG("Failed")
             return false;
         }
 
@@ -242,15 +241,12 @@ namespace aveng {
 
     bool AvengDescriptorSetWriter::build(VkDescriptorSet& set) 
     {
-        INFO(243, "\t");
-        DBUG("Success?\t")
+
         bool success = pool.allocateDescriptor(setLayout.getDescriptorSetLayout(), set);
         if (!success) 
         {
-            DBUG("False");
             return false;
         }
-        DBUG("TRUE");
         overwrite(set);
         return true;
     }

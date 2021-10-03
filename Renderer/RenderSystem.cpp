@@ -175,8 +175,6 @@ namespace aveng {
 			push.modelMatrix = obj.transform._mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
 
-			std::cout << static_cast<int>(obj.get_texture()) << "\t"<< sec % 4 << std::endl;
-
 			size_t deviceAlignment = engineDevice.properties.limits.minUniformBufferOffsetAlignment;
 			//size_t uniformBufferSize = sizeof(FragUbo);
 			//size_t dynamicAlignment = (uniformBufferSize / deviceAlignment) * deviceAlignment + ((uniformBufferSize % deviceAlignment) > 0 ? deviceAlignment : 0);

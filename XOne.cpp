@@ -259,7 +259,6 @@ namespace aveng {
 			for (int j = 0; j < 3; j++) 
 				for (int k = 0; k < 3; k++) {
 					
-					std::cout << t << std::endl;
 					auto gameObj = AvengAppObject::createAppObject(t);
 					gameObj.model = bc;
 					gameObj.transform.translation = { static_cast<float>(i * 4.55f), static_cast<float>(j * 1.55f), static_cast<float>(k * 1.55f) };

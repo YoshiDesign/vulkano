@@ -48,8 +48,6 @@ namespace aveng {
 		VkDescriptorImageInfo getImageInfoAtIndex(int index) { return imageInfosArray[index]; };
 		std::vector<VkDescriptorImageInfo> descriptorInfoForAllImages()
 		{ 
-			INFO(51,"\t")
-			std::cout << "[] Image info array size:\t" << imageInfosArray.size() << std::endl;
 			return imageInfosArray; 
 		}
 
