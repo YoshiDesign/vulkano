@@ -1,4 +1,5 @@
 #version 450
+#extension GL_ARB_separate_shader_objects : enable
 
 // Input from the vertex buffer
 layout(location = 0) in vec3 position;
@@ -20,7 +21,7 @@ layout(push_constant) uniform Push {
 	mat4 normalMatrix;
 } push;
 
-const float AMBIENT = 0.52;
+const float AMBIENT = 0.12;
 
 void main() {
   gl_Position = ubo.projectionViewMatrix * push.modelMatrix * vec4(position, 1.0);

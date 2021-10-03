@@ -4,6 +4,9 @@
 #include <cassert>
 #include <stdexcept>
 
+#define INFO(ln, sep) std::cout << "aveng_descriptors.cpp::" << ln << ":\n" << sep;
+#define DBUG(x) std::cout << x << std::endl;
+
 namespace aveng {
 
     // *************** Descriptor Set Layout Builder *********************
@@ -22,17 +25,17 @@ namespace aveng {
         uint32_t count) 
     {
      
-        std::cout << "Adding Binding (1 & 6): " << descriptorType << " at binding: " << binding << std::endl;
-        assert(layout_bindings.count(binding) == 0 && "Binding already in use");
+        std::cout << "Adding Binding:\t" << binding << "\tCount:\t " << count << "\tType:\t" << descriptorType << "\At Stage:\t" << stageFlags <<  std::endl;
+        assert(assert_layout_bindings.count(binding) == 0 && "Binding already in use");
 
         VkDescriptorSetLayoutBinding layoutBinding{};
         layoutBinding.binding = binding;                // Binding location, 0, 1, 2, etc
         layoutBinding.pImmutableSamplers = nullptr;
         layoutBinding.descriptorType = descriptorType;  // Ex. VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER(_DYNAMIC) or VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
-        layoutBinding.descriptorCount = count;          // Number of descriptors this layout will use
-        layoutBinding.stageFlags = stageFlags;          // Default: 1 (VK_SHADER_STAGE_VERTEX_BIT) A VkShaderStageFlagBits determining which pipeline shader stages can access this layout binding. 
+        layoutBinding.descriptorCount = count;          // Default: 1 - Number of descriptors this layout will use
+        layoutBinding.stageFlags = stageFlags;          // (VK_SHADER_STAGE_VERTEX_BIT) A VkShaderStageFlagBits determining which pipeline shader stages can access this layout binding. 
 
-        layout_bindings[binding] = layoutBinding;              // Add the binding to the map
+        layout_bindings.push_back(layoutBinding);       // Add the descriptor binding to the vector member
 
         return *this;
     }
@@ -47,20 +50,29 @@ namespace aveng {
     }
 
     // *************** Descriptor Set Layout *********************
-    AvengDescriptorSetLayout::AvengDescriptorSetLayout(EngineDevice& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> layout_bindings)
+    AvengDescriptorSetLayout::AvengDescriptorSetLayout(EngineDevice& device, std::vector<VkDescriptorSetLayoutBinding> layout_bindings)
         : engineDevice{ device }, layout_bindings{ layout_bindings } // Note that this delivers layout bindings from the Builder to the AvengDescriptorSetLayout
     {
 
-        std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
-        for (auto const& kv : layout_bindings) 
+        //std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
+        //for (auto const& kv : layout_bindings) 
+        //{
+        //    std::cout << "Pushing Back:\t" << kv.first << std::endl;
+        //    setLayoutBindings.push_back(kv.second);
+        //}
+
+        for (auto lBinding : layout_bindings) 
         {
-            setLayoutBindings.push_back(kv.second);
+            std::cout << "----Binding Info:\nBinding:\t" << lBinding.binding
+                << "\nType:\t" << lBinding.descriptorType
+                << "\nNum Descriptors:\t" << lBinding.descriptorCount
+                << "\nStage:\t" << lBinding.stageFlags << std::endl;
         }
 
         VkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo{};
         descriptorSetLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
-        descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
+        descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(layout_bindings.size());
+        descriptorSetLayoutInfo.pBindings = layout_bindings.data();
 
         if (vkCreateDescriptorSetLayout(engineDevice.device(), &descriptorSetLayoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) 
         {
@@ -93,7 +105,7 @@ namespace aveng {
     AvengDescriptorPool::Builder& AvengDescriptorPool::Builder::setPoolFlags(VkDescriptorPoolCreateFlags flags) 
     {
         // See: VkDescriptorPoolCreateFlagBits - This is where we can specify things like updating after binding
-        // Pro Tip: Descriptor pools don't guarantee thread safe
+        // Pro Tip: Descriptor pools don't guarantee thread safety
         poolFlags = flags;
         return *this;
     }
@@ -143,6 +155,7 @@ namespace aveng {
 
     bool AvengDescriptorPool::allocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const 
     {
+        DBUG("Allocate Descriptor");
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorPool = descriptorPool;
@@ -152,6 +165,7 @@ namespace aveng {
         // Might want to create a "DescriptorPoolManager" class that handles this case, and builds
         // a new pool whenever an old pool fills up. But this is beyond our current scope
         if (vkAllocateDescriptorSets(engineDevice.device(), &allocInfo, &descriptor) != VK_SUCCESS) {
+            DBUG("Failed")
             return false;
         }
 
@@ -211,6 +225,7 @@ namespace aveng {
             bindingDescription.descriptorCount == 1 &&
             "Binding single descriptor info, but binding expects multiple");
 
+        INFO(226, "\t")
         std::cout << "[] Images:\t" << nImages << std::endl;
         VkWriteDescriptorSet write{};
         write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;       // The type of this structure.
@@ -227,11 +242,15 @@ namespace aveng {
 
     bool AvengDescriptorSetWriter::build(VkDescriptorSet& set) 
     {
+        INFO(243, "\t");
+        DBUG("Success?\t")
         bool success = pool.allocateDescriptor(setLayout.getDescriptorSetLayout(), set);
         if (!success) 
         {
+            DBUG("False");
             return false;
         }
+        DBUG("TRUE");
         overwrite(set);
         return true;
     }

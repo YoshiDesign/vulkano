@@ -14,18 +14,22 @@ namespace aveng {
 
 	public:
 
+		struct FragUbo {
+			alignas(sizeof(int)) int imDex;
+		};
 
-		RenderSystem(EngineDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayouts);
+
+		RenderSystem(EngineDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout, VkDescriptorSetLayout fragDescriptorSetLayouts);
 		~RenderSystem();
 
 		RenderSystem(const RenderSystem&) = delete;
 		RenderSystem& operator=(const RenderSystem&) = delete;
-		void renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject> &appObjects, uint8_t pipe_no, glm::vec4& mods, int dt, float frametime);
+		void renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject> &appObjects, uint8_t pipe_no, int dt, float frametime, AvengBuffer& fragBuffer);
 		VkPipelineLayout getPipelineLayout() { return pipelineLayout; }
 
 	private:
 
-		void createPipelineLayout(VkDescriptorSetLayout descriptorSetLayouts);
+		void createPipelineLayout(VkDescriptorSetLayout* descriptorSetLayouts);
 		void createPipeline(VkRenderPass renderPass);
 
 		int last_sec;

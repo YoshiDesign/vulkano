@@ -17,6 +17,7 @@
  // std
 #include <cassert>
 #include <cstring>
+#include <iostream>
 
 namespace aveng {
 
@@ -54,6 +55,7 @@ namespace aveng {
         memoryPropertyFlags{ memoryPropertyFlags } 
     {
         alignmentSize = getAlignment(instanceSize, minOffsetAlignment);
+        std::cout << "AlignmentSize : \t" << alignmentSize << std::endl;
         bufferSize = alignmentSize * instanceCount;
 
         // Call to engineDevice
@@ -76,17 +78,9 @@ namespace aveng {
      *
      * @return VkResult of the buffer mapping call
      */
-    VkResult AvengBuffer::map(VkDeviceSize size, VkDeviceSize offset) 
-    {
-
+    VkResult AvengBuffer::map(VkDeviceSize size, VkDeviceSize offset) {
         assert(buffer && memory && "Called map on buffer before create");
-
-        if (size == VK_WHOLE_SIZE) {
-            return vkMapMemory(engineDevice.device(), memory, 0, bufferSize, 0, &mapped);
-        }
-
         return vkMapMemory(engineDevice.device(), memory, offset, size, 0, &mapped);
-
     }
 
     /**

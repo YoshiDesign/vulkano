@@ -51,11 +51,12 @@ namespace aveng {
 
         private:
             EngineDevice& engineDevice;
-            std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> layout_bindings{};
+            std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> assert_layout_bindings{};
+            std::vector<VkDescriptorSetLayoutBinding> layout_bindings{};
         };
 
 
-        AvengDescriptorSetLayout(EngineDevice& engineDevice, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
+        AvengDescriptorSetLayout(EngineDevice& engineDevice, std::vector<VkDescriptorSetLayoutBinding> bindings);
         ~AvengDescriptorSetLayout();
         AvengDescriptorSetLayout(const AvengDescriptorSetLayout&) = delete;
         AvengDescriptorSetLayout& operator=(const AvengDescriptorSetLayout&) = delete;
@@ -65,7 +66,9 @@ namespace aveng {
     private:
         EngineDevice& engineDevice;
         VkDescriptorSetLayout descriptorSetLayout;
-        std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> layout_bindings;
+        std::vector<VkDescriptorSetLayoutBinding> layout_bindings;
+        std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> assert_layout_bindings;
+
 
         VkDescriptorImageInfo descriptorImageInfos[TEXTURE_ARRAY_SIZE]{ {},{} };
 

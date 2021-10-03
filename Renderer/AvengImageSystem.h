@@ -8,6 +8,9 @@
 #include <unordered_map>
 #include <vector>
 
+#define INFO(ln, sep) std::cout << "AvengImageSystem.cpp::" << ln << ":\n" << sep;
+#define DBUG(x) std::cout << x << std::endl;
+
 /*
 	All of the helper functions that submit commands so far have been set up to execute synchronously
 	by waiting for the queue to become idle. For practical applications it is recommended to combine
@@ -45,6 +48,7 @@ namespace aveng {
 		VkDescriptorImageInfo getImageInfoAtIndex(int index) { return imageInfosArray[index]; };
 		std::vector<VkDescriptorImageInfo> descriptorInfoForAllImages()
 		{ 
+			INFO(51,"\t")
 			std::cout << "[] Image info array size:\t" << imageInfosArray.size() << std::endl;
 			return imageInfosArray; 
 		}

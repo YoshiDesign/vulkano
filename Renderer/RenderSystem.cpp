@@ -19,8 +19,15 @@ namespace aveng {
 		glm::mat4 normalMatrix{ 1.f };
 	};
 
-	RenderSystem::RenderSystem(EngineDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayouts) : engineDevice{ device }
+	RenderSystem::RenderSystem(
+		EngineDevice& device, 
+		VkRenderPass renderPass, 
+		VkDescriptorSetLayout globalDescriptorSetLayouts,
+		VkDescriptorSetLayout fragDescriptorSetLayouts) : engineDevice{ device }
 	{
+
+		VkDescriptorSetLayout descriptorSetLayouts[2] = { globalDescriptorSetLayouts , fragDescriptorSetLayouts };
+
 		createPipelineLayout(descriptorSetLayouts);
 		createPipeline(renderPass);
 	}
@@ -35,19 +42,19 @@ namespace aveng {
 	 * Here we include our Push Constant information
 	 * as well as our descriptor set layouts.
 	 */
-	void RenderSystem::createPipelineLayout(VkDescriptorSetLayout descriptorSetLayouts)
+	void RenderSystem::createPipelineLayout(VkDescriptorSetLayout* descriptorSetLayouts)
 	{
-		std::cout << "[] Size Of PushConstant\t" << sizeof(int) << std::endl;
 
+		// Initialize push constant range(s)
 		VkPushConstantRange pushConstantRange{};
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantRange.offset = 0;
 		pushConstantRange.size = sizeof(SimplePushConstantData);	// Must be a multiple of 4
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;				// Hook it up
-		pipelineLayoutInfo.setLayoutCount = 1; // How many descriptor set layouts are to be hooked into the pipeline
-		pipelineLayoutInfo.pSetLayouts = &descriptorSetLayouts;							// a pointer to an array of VkDescriptorSetLayout objects.
+		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutInfo.setLayoutCount = 2;										// How many descriptor set layouts are to be hooked into the pipeline
+		pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts;						// a pointer to an array of VkDescriptorSetLayout objects.
 		pipelineLayoutInfo.pushConstantRangeCount = 1;
 		pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
@@ -90,7 +97,7 @@ namespace aveng {
 		);
 	}
 
-	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, uint8_t pipe_no, glm::vec4& mods, int sec, float frametime)
+	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, uint8_t pipe_no, int sec, float frametime, AvengBuffer& fragBuffer)
 	{
 		// Bind our current pipeline configuration
 		//switch (pipe_no)
@@ -161,17 +168,36 @@ namespace aveng {
 			push.modelMatrix = obj.transform._mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
 
+			std::cout << static_cast<int>(obj.get_texture()) << "\t"<< sec % 4 << std::endl;
+
+			// Update our frag uniform buffer
+			FragUbo fubo{ sec };
+			//fubo.imDex = obj.texture_id;
+
+			fragBuffer.writeToBuffer(&fubo);
+			fragBuffer.flush();
+			
+			vkCmdBindDescriptorSets(
+				frame_content.commandBuffer,
+				VK_PIPELINE_BIND_POINT_GRAPHICS,
+				pipelineLayout,
+				1,
+				1,
+				&frame_content.fragDescriptorSet,
+				0,
+				nullptr);
+
 			vkCmdPushConstants(
 				frame_content.commandBuffer,
 				pipelineLayout,
 				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0,
 				sizeof(SimplePushConstantData),
-				&push
-			);
+				&push);
 
 			obj.model->bind(frame_content.commandBuffer);
 			obj.model->draw(frame_content.commandBuffer);
+
 		}
 	}
 

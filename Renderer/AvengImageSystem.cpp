@@ -21,21 +21,16 @@ namespace aveng {
 		//loadTextureFromFile("../textures/theme1.png", "theme1");
 		//loadTextureFromFile("../textures/idk.jpg", "theme1");
 
-		// const char* image_paths[4] = { "textures/theme1.png", "textures/theme2.png", "textures/theme3.png", "textures/theme4.png" };
-		const char* image_paths[4] = { "textures/sm1.png", "textures/sm1.png", "textures/sm1.png", "textures/sm1.png" };
+		const char* image_paths[4] = { "textures/theme1.png", "textures/theme2.png", "textures/theme3.png", "textures/theme4.png" };
+		// const char* image_paths[4] = { "textures/sm1.png", "textures/sm2.png", "textures/sm3.png", "textures/sm4.png" };
 		
-		std::cout << "Check: " << image_paths[0] << std::endl;
-
 		for (size_t i = 0; i < 4; i++)
 		{
-			std::cout << "Creating texture image." << std::endl;
 			createTextureImage(image_paths[i], i);
-			std::cout << "Creating texture image view." << std::endl;
 			createTextureImageView(images[i], i);
 		}
 		createTextureSampler();
 
-		std::cout << "Creating texture image Descriptor." << std::endl;
 		createImageDescriptors(textureImageViews);
 	}
 
@@ -44,7 +39,6 @@ namespace aveng {
 		
 		for (int i=0; i < images.size(); i++) 
 		{
-			std::cout << "Destroying Images:\t" << images.size() << std::endl;
 			vkDestroyImage(engineDevice.device(), images[i], nullptr);
 			vkDestroyImageView(engineDevice.device(), textureImageViews[i], nullptr);
 			vkFreeMemory(engineDevice.device(), allImageMemory[i], nullptr);
@@ -65,13 +59,9 @@ namespace aveng {
 		stbi_uc* pixels = stbi_load(filepath, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
 
-		std::cout << "TxWidth: " << texWidth << "\nTxHeight: " << texHeight << std::endl;
-
 		// Take the number of available mip lvls +1 for level 0
 		uint32_t mipLevel = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
 		mipLevels.push_back(mipLevel); // Store for later when we take the LCM
-
-		std::cout << "Initial Mip Lvls: " << mipLevel << std::endl;
 
 		if (!pixels || !mipLevel) 
 		{
@@ -147,7 +137,7 @@ namespace aveng {
 		if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) 
 		{
 			// Continue without MipMapping. This means less optimization.
-			std::cout << "THIS IMAGE DOES NOT SUPPORT LINEAR BLITTING" << std::endl;
+			std::cout << "This image does not support linear blitting" << std::endl;
 			transitionImageLayout(_image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, _mipLevels);
 			/*throw std::runtime_error("texture image format does not support linear blitting!");*/
 			return;
@@ -228,7 +218,6 @@ namespace aveng {
 			0, nullptr,
 			1, &barrier);
 
-		std::cout << "Added texture to image array." << std::endl;
 		images.push_back(_image);
 
 		engineDevice.endSingleTimeCommands(commandBuffer);
@@ -314,7 +303,6 @@ namespace aveng {
 	void ImageSystem::createTextureImageView(VkImage image, size_t i)
 	{
 		VkImageView textureImageView = createImageView(image, VK_FORMAT_R8G8B8A8_SRGB, mipLevels[i]);
-		std::cout << "Adding texture image view to array." << std::endl;
 		textureImageViews.push_back(textureImageView);
 	}
 
@@ -377,7 +365,6 @@ namespace aveng {
 
 	void ImageSystem::createImageDescriptors(std::vector<VkImageView> views)
 	{
-		std::cout << "[] Number of Image Views:\t" << views.size() << std::endl;
 		for (VkImageView view : views) {
 			// Image Descriptor
 			VkDescriptorImageInfo descriptorImageInfo{};
@@ -385,7 +372,6 @@ namespace aveng {
 			descriptorImageInfo.imageView = view;
 			descriptorImageInfo.sampler = textureSampler;
 
-			std::cout << "Adding texture image Descriptor to array." << std::endl;
 			imageInfosArray.push_back(descriptorImageInfo);
 
 		}
