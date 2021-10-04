@@ -1,8 +1,8 @@
 #pragma once
-#include "../EngineDevice.h"
+#include "../../CoreVK/EngineDevice.h"
 #include "Renderer.h"
 
-#include "../stb/stb_image.h"
+#include "../../stb/stb_image.h"
 
 #include <iostream>
 #include <unordered_map>

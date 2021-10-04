@@ -1,4 +1,6 @@
 #include "swapchain.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "../stb/stb_image.h"
 
 // std
 #include <array>
@@ -8,8 +10,6 @@
 #include <limits>
 #include <set>
 #include <stdexcept>
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
 
 
 namespace aveng {

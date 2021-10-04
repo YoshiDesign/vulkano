@@ -131,18 +131,14 @@ namespace aveng {
 			SimplePushConstantData push{};
 
 			// Update our frag uniform buffer
-			FragUbo fubo{ 3 };
-
-			if (obj_no == 3) { fubo.imDex = 1; }
-			else fubo.imDex = 0;
+			FragUbo fubo{obj.get_texture()};
 			
-
 			// 1s tick
 			if (last_sec != data.sec) {
 				last_sec  = data.sec;
 				
 			}
-			if (obj_no != 0) {
+			if (obj_no != 0 && obj_no != 1) {
 				if (obj.transform.translation.x > 10) {
 					obj.transform.rotation = {
 					static_cast<float>(obj.transform.rotation.x + data.dt),

@@ -3,15 +3,15 @@
 #include <memory>
 #include <vector>
 
-#include "Renderer/RenderSystem.h"
-#include "aveng_descriptors.h"
-#include "Renderer/AvengImageSystem.h"
-#include "Scene/app_object.h"
-#include "aveng_window.h"
-#include "EngineDevice.h"
-#include "Renderer/Renderer.h"
-#include "KeyControl/KeyboardController.h"
-#include "Utils/data.h"
+#include "Core/Renderer/RenderSystem.h"
+#include "CoreVK/aveng_descriptors.h"
+#include "Core/Renderer/AvengImageSystem.h"
+#include "Core/app_object.h"
+#include "Core/Peripheral/aveng_window.h"
+#include "CoreVK/EngineDevice.h"
+#include "Core/Renderer/Renderer.h"
+#include "Core/Peripheral/KeyboardController.h"
+#include "Core/data.h"
 
 namespace aveng {
 

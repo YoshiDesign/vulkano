@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Scene/app_object.h"
-#include "../aveng_window.h"
+#include "../app_object.h"
+#include "aveng_window.h"
 
 
 namespace aveng {
@@ -24,8 +24,8 @@ namespace aveng {
         void moveInPlaneXZ(GLFWwindow* window, float dt, AvengAppObject& appObject);
 
         KeyMappings keys{};
-        float moveSpeed{ 3.f };
-        float lookSpeed{ 1.5f };
+        float moveSpeed{ 10.f };
+        float lookSpeed{ 2.0f };
 
 	};
 }

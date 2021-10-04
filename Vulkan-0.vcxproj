@@ -150,14 +150,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Scene\app_object.cpp" />
-    <ClCompile Include="aveng_buffer.cpp" />
-    <ClCompile Include="aveng_imgui.cpp" />
-    <ClCompile Include="aveng_model.cpp" />
-    <ClCompile Include="aveng_window.cpp" />
-    <ClCompile Include="Camera\aveng_camera.cpp" />
-    <ClCompile Include="EngineDevice.cpp" />
-    <ClCompile Include="GFXPipeline.cpp" />
+    <ClCompile Include="Core\app_object.cpp" />
+    <ClCompile Include="CoreVK\aveng_buffer.cpp" />
+    <ClCompile Include="GUI\aveng_imgui.cpp" />
+    <ClCompile Include="Core\aveng_model.cpp" />
+    <ClCompile Include="Core\Peripheral\aveng_window.cpp" />
+    <ClCompile Include="Core\Camera\aveng_camera.cpp" />
+    <ClCompile Include="CoreVK\EngineDevice.cpp" />
+    <ClCompile Include="CoreVK\GFXPipeline.cpp" />
     <ClCompile Include="GUI\imgui.cpp" />
     <ClCompile Include="GUI\imgui_demo.cpp" />
     <ClCompile Include="GUI\imgui_draw.cpp" />
@@ -165,30 +165,30 @@
     <ClCompile Include="GUI\imgui_impl_vulkan.cpp" />
     <ClCompile Include="GUI\imgui_tables.cpp" />
     <ClCompile Include="GUI\imgui_widgets.cpp" />
-    <ClCompile Include="KeyControl\KeyboardController.cpp" />
+    <ClCompile Include="Core\Peripheral\KeyboardController.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Renderer\AvengImageSystem.cpp" />
-    <ClCompile Include="Renderer\Renderer.cpp" />
-    <ClCompile Include="Renderer\RenderSystem.cpp" />
-    <ClCompile Include="aveng_descriptors.cpp" />
+    <ClCompile Include="Core\Renderer\AvengImageSystem.cpp" />
+    <ClCompile Include="Core\Renderer\Renderer.cpp" />
+    <ClCompile Include="Core\Renderer\RenderSystem.cpp" />
+    <ClCompile Include="CoreVK\aveng_descriptors.cpp" />
     <ClCompile Include="stb\stb_vorbis.c" />
-    <ClCompile Include="swapchain.cpp" />
-    <ClCompile Include="Utils\UUID.cpp" />
-    <ClCompile Include="Utils\VulkanXTools.cpp" />
+    <ClCompile Include="CoreVK\swapchain.cpp" />
+    <ClCompile Include="Core\UUID.cpp" />
+    <ClCompile Include="Core\Utils\VulkanXTools.cpp" />
     <ClCompile Include="XOne.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Scene\app_object.h" />
-    <ClInclude Include="Scene\AvengComponent.h" />
-    <ClInclude Include="aveng_buffer.h" />
-    <ClInclude Include="aveng_frame_content.h" />
-    <ClInclude Include="aveng_imgui.h" />
-    <ClInclude Include="aveng_model.h" />
-    <ClInclude Include="Camera\aveng_camera.h" />
-    <ClInclude Include="EngineDevice.h" />
-    <ClInclude Include="GFXPipeline.h" />
-    <ClInclude Include="aveng_window.h" />
-    <ClInclude Include="Utils\aveng_utils.h" />
+    <ClInclude Include="Core\app_object.h" />
+    <ClInclude Include="Core\AvengComponent.h" />
+    <ClInclude Include="CoreVK\aveng_buffer.h" />
+    <ClInclude Include="Core\aveng_frame_content.h" />
+    <ClInclude Include="GUI\aveng_imgui.h" />
+    <ClInclude Include="Core\aveng_model.h" />
+    <ClInclude Include="Core\Camera\aveng_camera.h" />
+    <ClInclude Include="CoreVK\EngineDevice.h" />
+    <ClInclude Include="CoreVK\GFXPipeline.h" />
+    <ClInclude Include="Core\Peripheral\aveng_window.h" />
+    <ClInclude Include="Core\Utils\aveng_utils.h" />
     <ClInclude Include="GUI\imconfig.h" />
     <ClInclude Include="GUI\imgui.h" />
     <ClInclude Include="GUI\imgui_impl_glfw.h" />
@@ -197,11 +197,11 @@
     <ClInclude Include="GUI\imstb_rectpack.h" />
     <ClInclude Include="GUI\imstb_textedit.h" />
     <ClInclude Include="GUI\imstb_truetype.h" />
-    <ClInclude Include="KeyControl\KeyboardController.h" />
-    <ClInclude Include="Renderer\AvengImageSystem.h" />
-    <ClInclude Include="Renderer\Renderer.h" />
-    <ClInclude Include="Renderer\RenderSystem.h" />
-    <ClInclude Include="aveng_descriptors.h" />
+    <ClInclude Include="Core\Peripheral\KeyboardController.h" />
+    <ClInclude Include="Core\Renderer\AvengImageSystem.h" />
+    <ClInclude Include="Core\Renderer\Renderer.h" />
+    <ClInclude Include="Core\Renderer\RenderSystem.h" />
+    <ClInclude Include="CoreVK\aveng_descriptors.h" />
     <ClInclude Include="stb\stb_connected_components.h" />
     <ClInclude Include="stb\stb_c_lexer.h" />
     <ClInclude Include="stb\stb_divide.h" />
@@ -221,11 +221,11 @@
     <ClInclude Include="stb\stb_tilemap_editor.h" />
     <ClInclude Include="stb\stb_truetype.h" />
     <ClInclude Include="stb\stb_voxel_render.h" />
-    <ClInclude Include="swapchain.h" />
-    <ClInclude Include="threadpool.h" />
-    <ClInclude Include="Utils\data.h" />
-    <ClInclude Include="Utils\UUID.h" />
-    <ClInclude Include="Utils\window_callbacks.h" />
+    <ClInclude Include="CoreVK\swapchain.h" />
+    <ClInclude Include="Core\Utils\threadpool.h" />
+    <ClInclude Include="Core\data.h" />
+    <ClInclude Include="Core\UUID.h" />
+    <ClInclude Include="Core\Utils\window_callbacks.h" />
     <ClInclude Include="XOne.h" />
   </ItemGroup>
   <ItemGroup>
@@ -244,7 +244,11 @@
     <Font Include="__assets\OpenSans.ttf" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="textures\grid.png" />
     <Image Include="textures\theme1.png" />
+    <Image Include="textures\theme2.png" />
+    <Image Include="textures\theme3.png" />
+    <Image Include="textures\theme4.png" />
     <Image Include="textures\tx1p.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

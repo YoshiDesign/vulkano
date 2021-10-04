@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../aveng_model.h"
+#include "aveng_model.h"
 #include "AvengComponent.h"
 
 #include <memory>
@@ -10,13 +10,6 @@ namespace aveng {
 
 	class AvengAppObject 
 	{
-
-		enum textures {
-			THEME_1 = 0,
-			THEME_2,
-			THEME_3,
-			THEME_4
-		};
 
 		// For Physics
 		struct RigidBody2dComponent 
@@ -51,7 +44,9 @@ namespace aveng {
 		glm::vec3 getPosition();
 		glm::vec3 getRotation();
 
+		std::unordered_map<std::string, Component> components;
 		TransformComponent transform{};
+
 	private:
 
 		int texture_id;

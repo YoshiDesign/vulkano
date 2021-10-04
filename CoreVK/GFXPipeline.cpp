@@ -1,5 +1,5 @@
 #include "GFXPipeline.h"
-#include "aveng_model.h"
+#include "../Core/aveng_model.h"
 
 #include <cassert>
 #include <iostream>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EngineDevice.h"
+#include "../CoreVK/EngineDevice.h"
 
 namespace aveng {
 

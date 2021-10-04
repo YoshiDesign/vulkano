@@ -1,13 +1,14 @@
 #pragma once
 
+#include "../app_object.h"
+#include "../Camera/aveng_camera.h"
+#include "../../CoreVK/EngineDevice.h"
+#include "../aveng_frame_content.h"
+#include "../../CoreVK/GFXPipeline.h"
+#include "../data.h"
+
 #include <memory>
 #include <vector>
-#include "../Scene/app_object.h"
-#include "../Camera/aveng_camera.h"
-#include "../EngineDevice.h"
-#include "../aveng_frame_content.h"
-#include "../GFXPipeline.h"
-#include "../Utils/data.h"
 
 namespace aveng {
 

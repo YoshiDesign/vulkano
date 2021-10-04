@@ -3,12 +3,12 @@
 #include <memory>
 #include <vector>
 #include <cassert>
-#include "../aveng_window.h"
-#include "../EngineDevice.h"
-#include "../swapchain.h"
-#include "../GUI/imgui.h"
-#include "../GUI/imgui_impl_glfw.h"
-#include "../GUI/imgui_impl_vulkan.h"
+#include "../Peripheral/aveng_window.h"
+#include "../../CoreVK/EngineDevice.h"
+#include "../../CoreVK/swapchain.h"
+#include "../../GUI/imgui.h"
+#include "../../GUI/imgui_impl_glfw.h"
+#include "../../GUI/imgui_impl_vulkan.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE

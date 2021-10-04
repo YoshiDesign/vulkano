@@ -1,15 +1,15 @@
 #pragma once
 
-#include "EngineDevice.h"
-#include "aveng_window.h"
-#include "Utils/data.h"
-#include "Utils/window_callbacks.h"
+#include "../CoreVK/EngineDevice.h"
+#include "../Core/data.h"
+#include "../Core/Peripheral/aveng_window.h"
+#include "../Core/Utils/window_callbacks.h"
 
 // libs
 #include <glm/glm.hpp>
-#include "GUI/imgui.h"
-#include "GUI/imgui_impl_glfw.h"
-#include "GUI/imgui_impl_vulkan.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_vulkan.h"
 
 // std
 #include <stdexcept>

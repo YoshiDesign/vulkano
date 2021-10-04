@@ -1,13 +1,11 @@
+#include "../CoreVK/EngineDevice.h"
+#include "../Core/Peripheral/aveng_window.h"
+
 #include "aveng_imgui.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_vulkan.h"
 
-#include "EngineDevice.h"
-#include "aveng_window.h"
-// libs
-#include "GUI/imgui.h"
-#include "GUI/imgui_impl_glfw.h"
-#include "GUI/imgui_impl_vulkan.h"
-
-// std
 #include <stdexcept>
 
 namespace aveng {

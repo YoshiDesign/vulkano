@@ -1,11 +1,11 @@
 #include <iostream>
-#include "Camera/aveng_camera.h"
-#include "aveng_imgui.h"
-#include "aveng_buffer.h"
+#include "Core/Camera/aveng_camera.h"
+#include "GUI/aveng_imgui.h"
+#include "CoreVk/aveng_buffer.h"
 #include "XOne.h"
-#include "Utils/window_callbacks.h"
-#include "Utils/aveng_utils.h"
-#include "aveng_frame_content.h"
+#include "Core/Utils/window_callbacks.h"
+#include "Core/Utils/aveng_utils.h"
+#include "Core/aveng_frame_content.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -216,6 +216,7 @@ namespace aveng {
 		/*
 		* TODO Group Objects
 		*		Remove textures arg
+		* 
 		*/ 
 		
 		std::shared_ptr<AvengModel> holyShipModel    = AvengModel::createModelFromFile(engineDevice, "3D/holy_ship.obj");
@@ -224,13 +225,16 @@ namespace aveng {
 		std::shared_ptr<AvengModel> rc = AvengModel::createModelFromFile(engineDevice, "3D/rc.obj");
 		std::shared_ptr<AvengModel> bc = AvengModel::createModelFromFile(engineDevice, "3D/bc.obj");
 
+		auto planeObject = AvengAppObject::createAppObject(0);
+		planeObject.model = plane;
+		planeObject.transform.translation = { 0.f, -.1f, 0.f};
+		appObjects.push_back(std::move(planeObject));
 
-		auto gameObj = AvengAppObject::createAppObject(0);
-		gameObj.model = plane;
-		gameObj.transform.translation = { 0.f, 0.f, 0.f};
-		gameObj.transform.scale = { 1.f,1.f,1.f };
-
-		appObjects.push_back(std::move(gameObj));
+		auto ship = AvengAppObject::createAppObject(3);
+		ship.model = holyShipModel;
+		ship.transform.translation = { 0.f, -2.f, 0.f };
+		ship.transform.scale = { 1.f,1.f,1.f };
+		appObjects.push_back(std::move(ship));
 
 		int t = 0;
 		for (int i = 0; i < 3; i++) 
@@ -239,8 +243,8 @@ namespace aveng {
 					
 					auto gameObj = AvengAppObject::createAppObject(t);
 					gameObj.model = coloredCubeModel;
-					gameObj.transform.translation = { static_cast<float>(i * 4.55f), static_cast<float>(-(j * 1.55f)), static_cast<float>(-(k * 1.55f)) };
-					gameObj.transform.scale = { .04f, 0.04f, 0.04f };
+					gameObj.transform.translation = { static_cast<float>(-1.5 + (i * 1.5f)), static_cast<float>(-7 + -(j * 1.5f)), static_cast<float>(-(k * 1.5f)) };
+					gameObj.transform.scale = { .4f, 0.4f, 0.4f };
 
 					appObjects.push_back(std::move(gameObj));
 					t = (t + 1) % 4;

@@ -7,6 +7,19 @@
 
 namespace aveng {
 
+
+	class Component {
+	public:
+
+		Component() {}
+		~Component() {}
+
+
+	private:
+
+
+	};
+
 	// All kinds of matrix
 	struct TransformComponent
 	{

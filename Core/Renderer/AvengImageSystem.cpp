@@ -61,6 +61,7 @@ namespace aveng {
 
 		if (!pixels || !mipLevel) 
 		{
+			std::cout << filepath << std::endl;
 			throw std::runtime_error("failed to load texture image!");
 		}
 
