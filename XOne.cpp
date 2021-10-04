@@ -54,12 +54,6 @@ namespace aveng {
 	void XOne::run()
 	{
 
-		ImageSystem imageSystem{ engineDevice };
-
-		//auto minOffsetAlignment = std::lcm(
-		//	engineDevice.properties.limits.minUniformBufferOffsetAlignment,
-		//	engineDevice.properties.limits.nonCoherentAtomSize);
-
 		// Create global uniform buffers mapped into device memory
 		std::vector<std::unique_ptr<AvengBuffer>> uboBuffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
 		std::vector<std::unique_ptr<AvengBuffer>> fragBuffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -127,11 +121,6 @@ namespace aveng {
 
 		//camera.setViewTarget(glm::vec3(-1.f, -2.f, -20.f), glm::vec3(0.f, 0.f, 3.5f));
 
-		// Has no model or rendering. Used to store the camera's current state
-		AvengAppObject viewerObject = AvengAppObject::createAppObject(1);
-
-		KeyboardController cameraController{};
-
 		AvengImgui aveng_imgui{
 			aveng_window,
 			engineDevice,
@@ -156,37 +145,26 @@ namespace aveng {
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float dx = 0.0f;
 
-		Data data{ mods, appObjects.size(), 0.0f, 0, 0 };
-
-
 		// Keep the window open until shouldClose is truthy
 		while (!aveng_window.shouldClose()) {
 
 			// Keep this on top. It can block
 			glfwPollEvents();
 
-			// Maintain the aspect ratio
-			float aspect = renderer.getAspectRatio();
-
 			// Calculate time between iterations
 			auto newTime = std::chrono::high_resolution_clock::now();
-			float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+			frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
 			currentTime = newTime;
-
-			// Data
-			data.dt = frameTime;
-			data.cur_pipe = WindowCallbacks::getCurPipeline();
-
 			//frameTime = glm::min(frameTime, MAX_FRAME_TIME);	// Use this to lock to a specific max frame rate
 
-			updateCamera(frameTime, viewerObject, aspect, cameraController, camera);
+			// Data & Debug
+			updateCamera(frameTime, viewerObject, cameraController, camera);
+			updateData();
 
 			auto commandBuffer = renderer.beginFrame();
-
 			if (commandBuffer != nullptr) {
-
 				int frameIndex = renderer.getFrameIndex();
-				FrameContent frame_content{
+				FrameContent frame_content = {
 					frameIndex,
 					frameTime,
 					commandBuffer,
@@ -194,7 +172,7 @@ namespace aveng {
 					globalDescriptorSets[frameIndex],
 					fragDescriptorSets[frameIndex]
 				};
-
+				
 				dx += frameTime;
 				if (dx > 1.0f) {
 					dx = 0.0f;
@@ -202,7 +180,6 @@ namespace aveng {
 				}
 
 				// Update our global uniform buffer
-				GlobalUbo ubo{};
 				ubo.projectionView = camera.getProjection() * camera.getView();
 				uboBuffers[frameIndex]->writeToBuffer(&ubo);
 				uboBuffers[frameIndex]->flush();
@@ -216,7 +193,6 @@ namespace aveng {
 					*fragBuffers[frameIndex]);
 
 				aveng_imgui.newFrame();
-				
 				aveng_imgui.runGUI(data);
 				aveng_imgui.render(commandBuffer);
 
@@ -238,9 +214,17 @@ namespace aveng {
 	{
 		//fib(1000);
 		std::shared_ptr<AvengModel> holyShipModel    = AvengModel::createModelFromFile(engineDevice, "3D/holy_ship.obj");
+		std::shared_ptr<AvengModel> plane    = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
 		std::shared_ptr<AvengModel> coloredCubeModel = AvengModel::createModelFromFile(engineDevice, "3D/colored_cube.obj");
 		std::shared_ptr<AvengModel> rc = AvengModel::createModelFromFile(engineDevice, "3D/rc.obj");
 		std::shared_ptr<AvengModel> bc = AvengModel::createModelFromFile(engineDevice, "3D/bc.obj");
+
+		//auto gameObj = AvengAppObject::createAppObject(1);
+		//gameObj.model = plane;
+		//gameObj.transform.translation = { 0.f, 0.f, 0.f};
+		//gameObj.transform.scale = { 1.f,1.f,1.f };
+
+		//appObjects.push_back(std::move(gameObj));
 
 		int t = 0;
 		for (int i = 0; i < 3; i++) 
@@ -257,38 +241,23 @@ namespace aveng {
 				}
 	}
 
-	/*int XOne::fib(int n, int a, int b)
+	void XOne::updateCamera(float frameTime, AvengAppObject& viewerObject, KeyboardController& cameraController, AvengCamera& camera)
 	{
-		auto gameObj = AvengAppObject::createAppObject();
-
-		gameObj.model = AvengModel;
-		gameObj.transform.translation = {
-			static_cast<float>(static_cast<int>(b) % 250) * .001,
-			static_cast<float>(static_cast<int>(b) % 550) * .005,
-			static_cast<float>(static_cast<int>(b) % 50) * .005f
-		};
-
-		gameObj.transform.scale = { .05f , 0.05f, 0.05f };
-
-		if (n == 0) {
-			avengModelF = nullptr;
-			return a;
-		}
-		if (n == 1) {
-			return b;
-		}
-
-		appObjects.push_back(std::move(gameObj));
-		return fib(n - 1, b, a + b);
-
-	}*/
-
-	void XOne::updateCamera(float frameTime, AvengAppObject& viewerObject, float aspect, KeyboardController& cameraController, AvengCamera& camera)
-	{
+		aspect = renderer.getAspectRatio();
 		// Updates the viewer object transform component based on key input, proportional to the time elapsed since the last frame
 		cameraController.moveInPlaneXZ(aveng_window.getGLFWwindow(), frameTime, viewerObject);
 		camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 		camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
 	}
 
-} // ns aveng
+	void XOne::updateData()
+	{
+		data.num_objs = appObjects.size();
+		data.cur_pipe = WindowCallbacks::getCurPipeline();
+		data.dt			= frameTime;
+		data.cameraView = camera.getCameraView();
+		data.cameraPos = viewerObject.getPosition();
+		data.cameraRot = viewerObject.getRotation();
+	}
+
+}

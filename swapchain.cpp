@@ -429,8 +429,8 @@ namespace aveng {
         // }
 
         std::cout << "Present mode: V-Sync" << std::endl;
-        return VK_PRESENT_MODE_FIFO_KHR;
-        // return VK_PRESENT_MODE_IMMEDIATE_KHR;
+        // return VK_PRESENT_MODE_FIFO_KHR;
+        return VK_PRESENT_MODE_IMMEDIATE_KHR;
 
     }
 

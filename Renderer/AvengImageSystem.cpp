@@ -21,7 +21,7 @@ namespace aveng {
 		//loadTextureFromFile("../textures/theme1.png", "theme1");
 		//loadTextureFromFile("../textures/idk.jpg", "theme1");
 
-		const char* image_paths[4] = { "textures/theme1.png", "textures/theme2.png", "textures/theme3.png", "textures/theme4.png" };
+		const char* image_paths[4] = { "textures/grid.png", "textures/theme1.png", "textures/theme3.png", "textures/theme4.png" };
 		// const char* image_paths[4] = { "textures/sm1.png", "textures/sm2.png", "textures/sm3.png", "textures/sm4.png" };
 		
 		for (size_t i = 0; i < 4; i++)

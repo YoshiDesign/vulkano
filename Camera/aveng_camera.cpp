@@ -85,4 +85,14 @@ namespace aveng {
 		viewMatrix[3][2] = -glm::dot(w, position);
 	}
 
+	const glm::vec4 AvengCamera::getCameraView()
+	{
+		return glm::vec4{
+			viewMatrix[0].x,
+			viewMatrix[1].y,
+			viewMatrix[2].z,
+			viewMatrix[4].w
+		};
+	}
+
 } // ns aveng

@@ -4,12 +4,13 @@
 namespace aveng {
 
 	struct Data {
-
-		glm::vec4	mods;
 		int			num_objs;
 		float		dt;
 		int			cur_pipe;
 		int			sec;
+		glm::vec3	cameraView;
+		glm::vec3	cameraPos;
+		glm::vec3	cameraRot;
 	};
 
 }

@@ -124,7 +124,11 @@ namespace aveng {
             ImGui::Text(
                 "Objects: %d", data.num_objs); 
             ImGui::Text(
-                "X: %lf\nY: %lf\nZ: %lf\nW: %lf\ndt: %lf\n", data.mods.x, data.mods.y, data.mods.z, data.mods.w, data.dt);
+                "Camera View:\t\t(%.03lf, %.03lf, %.03lf)", data.cameraView.x, data.cameraView.y, data.cameraView.z);
+            ImGui::Text(
+                "Camera Rotation:\t(%.03lf, %.03lf, %.03lf)", data.cameraRot.x, data.cameraRot.y, data.cameraRot.z);
+            ImGui::Text(
+                "Camera Position:\t(%.03lf, %.03lf, %.03lf)", data.cameraPos.x, data.cameraPos.y, data.cameraPos.z);
             
             //ImGui::Checkbox("Another Window", &show_another_window);
 

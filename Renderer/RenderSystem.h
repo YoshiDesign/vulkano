@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <vector>
-#include "../app_objects/app_object.h"
+#include "../Scene/app_object.h"
 #include "../Camera/aveng_camera.h"
 #include "../EngineDevice.h"
 #include "../aveng_frame_content.h"

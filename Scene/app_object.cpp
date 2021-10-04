@@ -57,6 +57,17 @@ namespace aveng {
                 invScale.z * (c1 * c2),
             },
         };
+
+    }
+
+    glm::vec3 AvengAppObject::getPosition()
+    {
+        return transform.translation;
+    }
+
+    glm::vec3 AvengAppObject::getRotation()
+    {
+        return transform.rotation;
     }
 
 }  // namespace aveng

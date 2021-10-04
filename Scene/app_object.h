@@ -1,27 +1,12 @@
 #pragma once
 
 #include "../aveng_model.h"
-#include <glm/gtc/matrix_transform.hpp>
+#include "AvengComponent.h"
+
 #include <memory>
 #include <unordered_map>
 
 namespace aveng {
-
-	// All kinds of matrix
-	struct TransformComponent 
-	{
-		glm::vec3 translation{};	// Position offset
-		glm::vec3 scale{ 1.f, 1.f, 1.f };
-		glm::vec3 rotation{};
-
-		// Matrix corresponds to Translate * Ry * Rx * Rz * Scale
-		// Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
-		// https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-		glm::mat4 _mat4();
-
-		glm::mat3 normalMatrix();
-
-	};
 
 	class AvengAppObject 
 	{
@@ -57,20 +42,21 @@ namespace aveng {
 		AvengAppObject& operator=(AvengAppObject&&) = default;
 
 		const id_t getId() { return id; }
+		std::shared_ptr<AvengModel> model{};
 
 		int get_texture() { return texture_id; }
 		void set_texture(int texture) { texture_id = texture; }
 
-		std::shared_ptr<AvengModel> model{};
 		glm::vec3 color{};
+		glm::vec3 getPosition();
+		glm::vec3 getRotation();
+
+
 		TransformComponent transform{};
-		RigidBody2dComponent rigidBody2d;
-
-		int texture_id;
-
 	private:
 
+		int texture_id;
 		id_t id;
-
+		
 	};
 }

@@ -48,9 +48,6 @@
     <ClCompile Include="KeyControl\KeyboardController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="KeyControl\TestController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GUI\imgui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -84,16 +81,16 @@
     <ClCompile Include="aveng_descriptors.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="app_objects\app_object.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Mods\Mods.cpp">
+    <ClCompile Include="Scene\app_object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\AvengImageSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utils\VulkanTools.cpp">
+    <ClCompile Include="Utils\VulkanXTools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\UUID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -116,7 +113,7 @@
     <ClInclude Include="aveng_model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="app_objects\app_object.h">
+    <ClInclude Include="Scene\app_object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Renderer.h">
@@ -132,9 +129,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utils\aveng_utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="KeyControl\TestController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GUI\imgui.h">
@@ -230,9 +224,6 @@
     <ClInclude Include="aveng_descriptors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Mods\Mods.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\AvengImageSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -243,6 +234,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utils\data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\UUID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\AvengComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -261,7 +258,7 @@
     <Text Include=".gitignore" />
   </ItemGroup>
   <ItemGroup>
-    <Font Include="assets\OpenSans.ttf" />
+    <Font Include="__assets\OpenSans.ttf" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\theme1.png">

@@ -9,7 +9,7 @@
 
 #include "RenderSystem.h"
 
-#define LOG(a) std::cout<<a<<std::endl;
+#define DBUG(a) std::cout<<a<<std::endl;
 
 namespace aveng {
 
@@ -129,6 +129,8 @@ namespace aveng {
 			uint32_t dynamicOffset = obj_no * static_cast<uint32_t>(deviceAlignment);
 			SimplePushConstantData push{};
 
+
+
 			// Update our frag uniform buffer
 			FragUbo fubo{ 3 };
 
@@ -137,45 +139,48 @@ namespace aveng {
 
 			fragBuffer.writeToBuffer(&fubo, sizeof(FragUbo), dynamicOffset);
 			fragBuffer.flush();
-			obj_no += 1;
+			
 
 			// 1s tick
 			if (last_sec != data.sec) {
 				last_sec  = data.sec;
 				
 			}
-
-			if (obj.transform.translation.x > 10) {
-				obj.transform.rotation = {
-				static_cast<float>(obj.transform.rotation.x + data.dt),
-				static_cast<float>(obj.transform.rotation.y + data.dt),
-				static_cast<float>(obj.transform.rotation.z + data.dt)
-				};
-			}
-
-			if (obj.transform.translation.x < 10) {
-				obj.transform.rotation = {
-					static_cast<float>(obj.transform.rotation.x - data.dt),
-					static_cast<float>(obj.transform.rotation.y - data.dt),
-					static_cast<float>(obj.transform.rotation.z - data.dt)
-				};
-			}
-
-			if (obj.transform.translation.z < 10) {
-				obj.transform.rotation = {
-					static_cast<float>(obj.transform.rotation.x + data.dt * 1.2),
-					static_cast<float>(obj.transform.rotation.y + data.dt * 1.2),
-					static_cast<float>(obj.transform.rotation.z + data.dt * 1.2)
-				};
-			}
-
-			if (obj.transform.translation.z > 10) {
-				obj.transform.rotation = {
-					static_cast<float>(obj.transform.rotation.x - data.dt),
+			if (obj_no != 0) {
+				if (obj.transform.translation.x > 10) {
+					obj.transform.rotation = {
+					static_cast<float>(obj.transform.rotation.x + data.dt),
 					static_cast<float>(obj.transform.rotation.y + data.dt),
-					static_cast<float>(obj.transform.rotation.z - data.dt * 1.1)
-				};
+					static_cast<float>(obj.transform.rotation.z + data.dt)
+					};
+				}
+
+				if (obj.transform.translation.x < 10) {
+					obj.transform.rotation = {
+						static_cast<float>(obj.transform.rotation.x - data.dt),
+						static_cast<float>(obj.transform.rotation.y - data.dt),
+						static_cast<float>(obj.transform.rotation.z - data.dt)
+					};
+				}
+
+				if (obj.transform.translation.z < 10) {
+					obj.transform.rotation = {
+						static_cast<float>(obj.transform.rotation.x + data.dt * 1.2),
+						static_cast<float>(obj.transform.rotation.y + data.dt * 1.2),
+						static_cast<float>(obj.transform.rotation.z + data.dt * 1.2)
+					};
+				}
+
+				if (obj.transform.translation.z > 10) {
+					obj.transform.rotation = {
+						static_cast<float>(obj.transform.rotation.x - data.dt),
+						static_cast<float>(obj.transform.rotation.y + data.dt),
+						static_cast<float>(obj.transform.rotation.z - data.dt * 1.1)
+					};
+				}
 			}
+
+			obj_no += 1;
 
 			// The matrix describing this model's current orientation
 			push.modelMatrix  = obj.transform._mat4();

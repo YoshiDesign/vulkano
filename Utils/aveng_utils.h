@@ -10,6 +10,8 @@ namespace aveng {
 		(hashCombine(seed, rest), ...);
 	};
 
+
+
 	//size_t pad_uniform_buffer_size(size_t originalSize, VkDeviceSize minUniformBufferOffsetAlignment)
 	//{
 	//	// Calculate required alignment based on minimum device offset alignment
@@ -21,4 +23,4 @@ namespace aveng {
 	//	return alignedSize;
 	//}
 
-}  // namespace lve
+}

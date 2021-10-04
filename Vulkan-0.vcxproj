@@ -150,7 +150,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="app_objects\app_object.cpp" />
+    <ClCompile Include="Scene\app_object.cpp" />
     <ClCompile Include="aveng_buffer.cpp" />
     <ClCompile Include="aveng_imgui.cpp" />
     <ClCompile Include="aveng_model.cpp" />
@@ -166,20 +166,20 @@
     <ClCompile Include="GUI\imgui_tables.cpp" />
     <ClCompile Include="GUI\imgui_widgets.cpp" />
     <ClCompile Include="KeyControl\KeyboardController.cpp" />
-    <ClCompile Include="KeyControl\TestController.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Mods\Mods.cpp" />
     <ClCompile Include="Renderer\AvengImageSystem.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\RenderSystem.cpp" />
     <ClCompile Include="aveng_descriptors.cpp" />
     <ClCompile Include="stb\stb_vorbis.c" />
     <ClCompile Include="swapchain.cpp" />
-    <ClCompile Include="Utils\VulkanTools.cpp" />
+    <ClCompile Include="Utils\UUID.cpp" />
+    <ClCompile Include="Utils\VulkanXTools.cpp" />
     <ClCompile Include="XOne.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="app_objects\app_object.h" />
+    <ClInclude Include="Scene\app_object.h" />
+    <ClInclude Include="Scene\AvengComponent.h" />
     <ClInclude Include="aveng_buffer.h" />
     <ClInclude Include="aveng_frame_content.h" />
     <ClInclude Include="aveng_imgui.h" />
@@ -198,8 +198,6 @@
     <ClInclude Include="GUI\imstb_textedit.h" />
     <ClInclude Include="GUI\imstb_truetype.h" />
     <ClInclude Include="KeyControl\KeyboardController.h" />
-    <ClInclude Include="KeyControl\TestController.h" />
-    <ClInclude Include="Mods\Mods.h" />
     <ClInclude Include="Renderer\AvengImageSystem.h" />
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\RenderSystem.h" />
@@ -226,6 +224,7 @@
     <ClInclude Include="swapchain.h" />
     <ClInclude Include="threadpool.h" />
     <ClInclude Include="Utils\data.h" />
+    <ClInclude Include="Utils\UUID.h" />
     <ClInclude Include="Utils\window_callbacks.h" />
     <ClInclude Include="XOne.h" />
   </ItemGroup>
@@ -242,7 +241,7 @@
     <Text Include=".gitignore" />
   </ItemGroup>
   <ItemGroup>
-    <Font Include="assets\OpenSans.ttf" />
+    <Font Include="__assets\OpenSans.ttf" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\theme1.png" />
