@@ -10,6 +10,7 @@
 #include "RenderSystem.h"
 
 #define DBUG(a) std::cout<<a<<std::endl;
+#define BYPASS_FBO 0
 
 namespace aveng {
 
@@ -129,16 +130,11 @@ namespace aveng {
 			uint32_t dynamicOffset = obj_no * static_cast<uint32_t>(deviceAlignment);
 			SimplePushConstantData push{};
 
-
-
 			// Update our frag uniform buffer
 			FragUbo fubo{ 3 };
 
 			if (obj_no == 3) { fubo.imDex = 1; }
 			else fubo.imDex = 0;
-
-			fragBuffer.writeToBuffer(&fubo, sizeof(FragUbo), dynamicOffset);
-			fragBuffer.flush();
 			
 
 			// 1s tick
@@ -185,16 +181,24 @@ namespace aveng {
 			// The matrix describing this model's current orientation
 			push.modelMatrix  = obj.transform._mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
-			
-			vkCmdBindDescriptorSets(
-				frame_content.commandBuffer,
-				VK_PIPELINE_BIND_POINT_GRAPHICS,
-				pipelineLayout,
-				1,
-				1,
-				&frame_content.fragDescriptorSet,
-				1,
-				&dynamicOffset);
+
+			if (!BYPASS_FBO) {
+
+				if (dynamicOffset > engineDevice.properties.limits.maxUniformBufferRange)
+					throw std::runtime_error("Attempting to allocate buffer beyond device uniform buffer memory limit.");
+
+				fragBuffer.writeToBuffer(&fubo, sizeof(FragUbo), dynamicOffset);
+				fragBuffer.flush();
+				vkCmdBindDescriptorSets(
+					frame_content.commandBuffer,
+					VK_PIPELINE_BIND_POINT_GRAPHICS,
+					pipelineLayout,
+					1,
+					1,
+					&frame_content.fragDescriptorSet,
+					1,
+					&dynamicOffset);
+			}
 
 			vkCmdPushConstants(
 				frame_content.commandBuffer,

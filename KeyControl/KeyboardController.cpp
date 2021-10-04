@@ -71,6 +71,5 @@ namespace aveng{
 			appObject.transform.translation += moveSpeed * dt * glm::normalize(moveDir);
 		}
 
-
 	}
 } // ns aveng

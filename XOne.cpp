@@ -212,19 +212,25 @@ namespace aveng {
 	*/
 	void XOne::loadAppObjects() 
 	{
-		//fib(1000);
+
+		/*
+		* TODO Group Objects
+		*		Remove textures arg
+		*/ 
+		
 		std::shared_ptr<AvengModel> holyShipModel    = AvengModel::createModelFromFile(engineDevice, "3D/holy_ship.obj");
 		std::shared_ptr<AvengModel> plane    = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
 		std::shared_ptr<AvengModel> coloredCubeModel = AvengModel::createModelFromFile(engineDevice, "3D/colored_cube.obj");
 		std::shared_ptr<AvengModel> rc = AvengModel::createModelFromFile(engineDevice, "3D/rc.obj");
 		std::shared_ptr<AvengModel> bc = AvengModel::createModelFromFile(engineDevice, "3D/bc.obj");
 
-		//auto gameObj = AvengAppObject::createAppObject(1);
-		//gameObj.model = plane;
-		//gameObj.transform.translation = { 0.f, 0.f, 0.f};
-		//gameObj.transform.scale = { 1.f,1.f,1.f };
 
-		//appObjects.push_back(std::move(gameObj));
+		auto gameObj = AvengAppObject::createAppObject(0);
+		gameObj.model = plane;
+		gameObj.transform.translation = { 0.f, 0.f, 0.f};
+		gameObj.transform.scale = { 1.f,1.f,1.f };
+
+		appObjects.push_back(std::move(gameObj));
 
 		int t = 0;
 		for (int i = 0; i < 3; i++) 
@@ -232,9 +238,9 @@ namespace aveng {
 				for (int k = 0; k < 3; k++) {
 					
 					auto gameObj = AvengAppObject::createAppObject(t);
-					gameObj.model = bc;
-					gameObj.transform.translation = { static_cast<float>(i * 4.55f), static_cast<float>(j * 1.55f), static_cast<float>(k * 1.55f) };
-					gameObj.transform.scale = { .4f, 0.4f, 0.4f };
+					gameObj.model = coloredCubeModel;
+					gameObj.transform.translation = { static_cast<float>(i * 4.55f), static_cast<float>(-(j * 1.55f)), static_cast<float>(-(k * 1.55f)) };
+					gameObj.transform.scale = { .04f, 0.04f, 0.04f };
 
 					appObjects.push_back(std::move(gameObj));
 					t = (t + 1) % 4;
