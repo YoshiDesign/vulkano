@@ -138,7 +138,7 @@ namespace aveng {
 				last_sec  = data.sec;
 				
 			}
-			if (obj_no != 0 && obj_no != 1) {
+			if (obj_no > 2) {
 				if (obj.transform.translation.x > 10) {
 					obj.transform.rotation = {
 					static_cast<float>(obj.transform.rotation.x + data.dt),

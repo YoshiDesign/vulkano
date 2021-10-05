@@ -18,12 +18,10 @@ namespace aveng {
 
 	ImageSystem::ImageSystem(EngineDevice& device) : engineDevice{ device }
 	{
-		const char* image_paths[4] = { "textures/grid.png", "textures/theme1.png", "textures/theme3.png", "textures/theme4.png" };
-		// const char* image_paths[4] = { "textures/sm4.png", "textures/sm2.png", "textures/sm3.png", "textures/sm4.png" };
 		
-		for (size_t i = 0; i < 4; i++)
+		for (size_t i = 0; i < MAX_TEXTURES; i++)
 		{
-			createTextureImage(image_paths[i], i);
+			createTextureImage(textures[i], i);
 			createTextureImageView(images[i], i);
 		}
 		createTextureSampler();
@@ -46,7 +44,7 @@ namespace aveng {
 
 	void ImageSystem::createTextureImage(const char* filepath, size_t i)
 	{
-
+		std::cout << filepath << std::endl;
 		VkImage image;
 		VkDeviceMemory imageMemory;
 

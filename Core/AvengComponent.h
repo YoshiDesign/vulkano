@@ -7,19 +7,6 @@
 
 namespace aveng {
 
-
-	class Component {
-	public:
-
-		Component() {}
-		~Component() {}
-
-
-	private:
-
-
-	};
-
 	// All kinds of matrix
 	struct TransformComponent
 	{
@@ -48,6 +35,24 @@ namespace aveng {
 				* glm::scale(glm::mat4(1.0f), scale);
 		}
 
+	};
+
+	struct VisualComponent {
+		int tex_id;
+	};
+
+	struct MotionComponent {
+		float speed;
+	};
+
+	struct MetaComponent{
+		int type;
+	};
+	
+	struct RigidBodyComponent
+	{
+		glm::vec2 velocity;
+		float mass{ 1.0f };
 	};
 
 }

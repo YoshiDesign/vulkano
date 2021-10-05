@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Core/Camera/aveng_camera.h"
 #include "GUI/aveng_imgui.h"
-#include "CoreVk/aveng_buffer.h"
+#include "Core/data.h"
 #include "XOne.h"
 #include "Core/Utils/window_callbacks.h"
 #include "Core/Utils/aveng_utils.h"
@@ -21,13 +21,13 @@
 #define INFO(ln, why) std::cout << "XOne.cpp::" << ln << ":\n" << why << std::endl;
 #define DBUG(x) std::cout << x << std::endl;
 
-
 namespace aveng {
 
 	int WindowCallbacks::current_pipeline{ 1 };
 
 	XOne::XOne() 
 	{
+
 		// Set callback functions for keys bound to the window
 		glfwSetKeyCallback(aveng_window.getGLFWwindow(), WindowCallbacks::testKeyCallback);
 
@@ -35,7 +35,7 @@ namespace aveng {
 		* Call the pool builder to setup our pool for construction.
 		*/
 		globalPool = AvengDescriptorPool::Builder(engineDevice)
-			.setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT * 24)
+			.setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT * 4)
 						 // Type							// Max no. of descriptor sets
 			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT * 8)
 			.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT * 16)
@@ -100,7 +100,7 @@ namespace aveng {
 
 			AvengDescriptorSetWriter(*globalDescriptorSetLayout, *globalPool)
 				.writeBuffer(0, &bufferInfo)
-				.writeImage(1, imageInfo.data(), imageSystem.nImages)
+				.writeImage(1, imageInfo.data(), imageSystem.MAX_TEXTURES)
 				.build(globalDescriptorSets[i]);
 
 			// Write second set
@@ -132,7 +132,7 @@ namespace aveng {
 			Things to keep in mind:
 			Object Space - Objects initially exist at the origin of object space
 			World Space  - The model matrix created by the AppObject's transform component coordinates objects with World Space
-			Camera Space - The view transformation, applied to our objects, moves objects from World Space into Camera Space;
+			Camera Space - The view transformation, applied to our objects, moves objects from World Space into the camera's perspective,
 						   where the camera is at the origin and all object's coord's are relative to their position and orientation
 
 					* The camera does not actually exist, we're just transforming objects AS IF the camera were there
@@ -225,23 +225,46 @@ namespace aveng {
 		std::shared_ptr<AvengModel> rc = AvengModel::createModelFromFile(engineDevice, "3D/rc.obj");
 		std::shared_ptr<AvengModel> bc = AvengModel::createModelFromFile(engineDevice, "3D/bc.obj");
 
-		auto planeObject = AvengAppObject::createAppObject(0);
-		planeObject.model = plane;
-		planeObject.transform.translation = { 0.f, -.1f, 0.f};
-		appObjects.push_back(std::move(planeObject));
+		auto centerPlane = AvengAppObject::createAppObject(0);
+		centerPlane.model = plane;
+		centerPlane.transform.translation = { 0.f, -.1f, 0.f};
+		appObjects.push_back(std::move(centerPlane));
+		
+		auto forwardPlane = AvengAppObject::createAppObject(0);
+		forwardPlane.model = plane;
+		forwardPlane.transform.translation = { 0.f, -.1f, 136.f};
+		appObjects.push_back(std::move(forwardPlane));
 
-		auto ship = AvengAppObject::createAppObject(3);
-		ship.model = holyShipModel;
-		ship.transform.translation = { 0.f, -2.f, 0.f };
-		ship.transform.scale = { 1.f,1.f,1.f };
-		appObjects.push_back(std::move(ship));
+		//auto ship = AvengAppObject::createAppObject(1);
+		//ship.model = holyShipModel;
+		//ship.transform.translation = { 0.f, -2.f, 0.f };
+		//ship.transform.scale = { 1.f,1.f,1.f };
+		//appObjects.push_back(std::move(ship));
+
+		//auto ship2 = AvengAppObject::createAppObject(2);
+		//ship2.model = holyShipModel;
+		//ship2.transform.translation = { -10.5f, -1.5f, 15.f };
+		//ship2.transform.scale = { 0.5f, 0.5f, 0.5f };
+		//appObjects.push_back(std::move(ship2));
+		//
+		//auto ship3 = AvengAppObject::createAppObject(3);
+		//ship3.model = holyShipModel;
+		//ship3.transform.translation = { 5.5f, -0.5f, 26.f };
+		//ship3.transform.scale = { 0.2f, 0.2f, 0.2f };
+		//appObjects.push_back(std::move(ship3));
+
+		auto ship4 = AvengAppObject::createAppObject(4);
+		ship4.model = holyShipModel;
+		ship4.transform.translation = { 5.5f, -0.5f, 20.f };
+		ship4.transform.scale = { 0.05f, 0.05f, 0.05f };
+		appObjects.push_back(std::move(ship4));
 
 		int t = 0;
 		for (int i = 0; i < 3; i++) 
 			for (int j = 0; j < 3; j++) 
 				for (int k = 0; k < 3; k++) {
 					
-					auto gameObj = AvengAppObject::createAppObject(t);
+					auto gameObj = AvengAppObject::createAppObject(1000);
 					gameObj.model = coloredCubeModel;
 					gameObj.transform.translation = { static_cast<float>(-1.5 + (i * 1.5f)), static_cast<float>(-7 + -(j * 1.5f)), static_cast<float>(-(k * 1.5f)) };
 					gameObj.transform.scale = { .4f, 0.4f, 0.4f };

@@ -68,7 +68,6 @@ namespace aveng {
 		uint32_t vertexCount;
 		bool hasIndexBuffer = false;
 		uint32_t indexCount;
-		VkImage textureImage;
 
 		/*VkBuffer vertexBuffer;		OLD
 		VkDeviceMemory vertexBufferMemory;*/

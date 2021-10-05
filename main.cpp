@@ -1,15 +1,12 @@
-#include <cstdlib>
-#include <iostream>
-#include <stdexcept>
-
 #include "XOne.h"
+#include "avpch.h"
 // #include "Apps/Gravity.h"
 
 #define LOG(a) std::cout << a << std::endl
 
 int main(void)
 {
-
+	std::vector<int> int_vec;
 	aveng::XOne app{};
 
 	try {

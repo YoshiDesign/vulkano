@@ -1,15 +1,11 @@
 #pragma once
 #include "../../CoreVK/EngineDevice.h"
 #include "Renderer.h"
-
 #include "../../stb/stb_image.h"
 
 #include <iostream>
 #include <unordered_map>
 #include <vector>
-
-#define INFO(ln, sep) std::cout << "AvengImageSystem.cpp::" << ln << ":\n" << sep;
-#define DBUG(x) std::cout << x << std::endl;
 
 /*
 	All of the helper functions that submit commands so far have been set up to execute synchronously
@@ -21,18 +17,16 @@
 */
 namespace aveng {
 
-	struct Texture {
-
-		stbi_uc* pixels;
-		int texWidth;
-		int texHeight;
-		int texChannels;
-
-	};
-
 	class ImageSystem {
 
+		const char* textures[8] = {
+			"textures/grid2.png", "textures/theme1.png", "textures/theme3.png", "textures/theme4.png",
+			"textures/theme2.png", "textures/sm2.png", "textures/sm3.png", "textures/sm4.png"
+		};
+
 	public:
+
+		const int MAX_TEXTURES{ 8 };
 
 		ImageSystem(EngineDevice& device);
 		~ImageSystem();
@@ -51,7 +45,6 @@ namespace aveng {
 			return imageInfosArray; 
 		}
 
-		int nImages = 4;
 	private:
 
 		// mipLevels is one dependency keeping us from merging some of these functions with SwapChain's impelmentations of them
@@ -66,7 +59,8 @@ namespace aveng {
 		
 		std::vector<VkImageView> textureImageViews;
 		std::vector<VkImage> images;
-		std::unordered_map<std::string, Texture> textures;
+		//std::unordered_map<std::string, Texture> textures;
+
 	};
 
 }

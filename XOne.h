@@ -9,9 +9,9 @@
 #include "Core/app_object.h"
 #include "Core/Peripheral/aveng_window.h"
 #include "CoreVK/EngineDevice.h"
+#include "CoreVk/aveng_buffer.h"
 #include "Core/Renderer/Renderer.h"
 #include "Core/Peripheral/KeyboardController.h"
-#include "Core/data.h"
 
 namespace aveng {
 

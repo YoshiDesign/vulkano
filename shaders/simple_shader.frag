@@ -13,8 +13,13 @@ layout(set = 1, binding = 0) uniform FragUbo {
 
 void main() {
 
+    vec4 result = vec4(fragColor, 1.0);
+
+    if (fubo.info != 1000) {
+        result = texture(texSampler[fubo.info], fragTexCoord);
+    }
+
     // Gamma correction
-    vec4 result = texture(texSampler[fubo.info], fragTexCoord);
     float gamma = 1.1;
     result.rgb = pow(result.rgb, vec3(1.0 / gamma));
 

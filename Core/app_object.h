@@ -11,13 +11,6 @@ namespace aveng {
 	class AvengAppObject 
 	{
 
-		// For Physics
-		struct RigidBody2dComponent 
-		{
-			glm::vec2 velocity;
-			float mass{1.0f};
-		};
-
 	public:
 		using id_t = unsigned int;
 
@@ -44,8 +37,10 @@ namespace aveng {
 		glm::vec3 getPosition();
 		glm::vec3 getRotation();
 
-		std::unordered_map<std::string, Component> components;
+		MetaComponent meta{};
 		TransformComponent transform{};
+		VisualComponent texture{};
+		MotionComponent motion{};
 
 	private:
 
