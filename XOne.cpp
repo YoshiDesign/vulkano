@@ -1,29 +1,23 @@
-#include <iostream>
-#include "Core/Camera/aveng_camera.h"
-#include "GUI/aveng_imgui.h"
-#include "Core/data.h"
+#include "avpch.h"
 #include "XOne.h"
-#include "Core/Utils/window_callbacks.h"
+#include "Core/data.h"
+#include "GUI/aveng_imgui.h"
 #include "Core/Utils/aveng_utils.h"
 #include "Core/aveng_frame_content.h"
-
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/constants.hpp>
-#include <stdexcept>
-#include <array>
-#include <numeric>
-#include <chrono>
-#include <memory>
+#include "Core/Camera/aveng_camera.h"
+#include "Core/Utils/window_callbacks.h"
 
 #define INFO(ln, why) std::cout << "XOne.cpp::" << ln << ":\n" << why << std::endl;
 #define DBUG(x) std::cout << x << std::endl;
 
 namespace aveng {
 
+	// Dynamic Helpers on window callback keys
 	int WindowCallbacks::current_pipeline{ 1 };
+	glm::vec3 WindowCallbacks::modRot{ 0.0f, 0.0f, 0.0f };
+	glm::vec3 WindowCallbacks::modTrans{ 0.0f, 0.0f, 0.0f };
+	int WindowCallbacks::posNeg = 1;
+	float WindowCallbacks::modPI = 0.0f;
 
 	XOne::XOne() 
 	{
@@ -114,6 +108,7 @@ namespace aveng {
 		// Note that the renderSystem is initialized with a pointer to the Render Pass
 		RenderSystem renderSystem{ 
 			engineDevice,
+			viewerObject,
 			renderer.getSwapChainRenderPass(), 
 			globalDescriptorSetLayout->getDescriptorSetLayout(),
 			fragDescriptorSetLayout->getDescriptorSetLayout()
@@ -179,6 +174,10 @@ namespace aveng {
 					data.sec = (data.sec + 1) % 10000;
 				}
 
+				data.modRot = WindowCallbacks::modRot;
+				data.modPos = WindowCallbacks::modTrans;
+				data.pn = WindowCallbacks::posNeg;
+
 				// Update our global uniform buffer
 				ubo.projectionView = camera.getProjection() * camera.getView();
 				uboBuffers[frameIndex]->writeToBuffer(&ubo);
@@ -212,13 +211,10 @@ namespace aveng {
 	*/
 	void XOne::loadAppObjects() 
 	{
-
 		/*
 		* TODO Group Objects
 		*		Remove textures arg
-		* 
 		*/ 
-		
 		std::shared_ptr<AvengModel> holyShipModel    = AvengModel::createModelFromFile(engineDevice, "3D/holy_ship.obj");
 		std::shared_ptr<AvengModel> plane    = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
 		std::shared_ptr<AvengModel> coloredCubeModel = AvengModel::createModelFromFile(engineDevice, "3D/colored_cube.obj");
@@ -253,10 +249,12 @@ namespace aveng {
 		//ship3.transform.scale = { 0.2f, 0.2f, 0.2f };
 		//appObjects.push_back(std::move(ship3));
 
-		auto ship4 = AvengAppObject::createAppObject(4);
+		auto ship4 = AvengAppObject::createAppObject(5);
 		ship4.model = holyShipModel;
-		ship4.transform.translation = { 5.5f, -0.5f, 20.f };
+		ship4.transform.translation = { 0.0f, 0.0f, 0.0f };
 		ship4.transform.scale = { 0.05f, 0.05f, 0.05f };
+		ship4.transform.rotation = { 0.0f, PI, 0.0f };
+		ship4.meta.type = PLAYER;
 		appObjects.push_back(std::move(ship4));
 
 		int t = 0;
@@ -279,18 +277,22 @@ namespace aveng {
 		aspect = renderer.getAspectRatio();
 		// Updates the viewer object transform component based on key input, proportional to the time elapsed since the last frame
 		cameraController.moveInPlaneXZ(aveng_window.getGLFWwindow(), frameTime, viewerObject);
-		camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+		camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation + glm::vec3());
 		camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
 	}
 
 	void XOne::updateData()
 	{
+
 		data.num_objs = appObjects.size();
 		data.cur_pipe = WindowCallbacks::getCurPipeline();
 		data.dt			= frameTime;
 		data.cameraView = camera.getCameraView();
 		data.cameraPos = viewerObject.getPosition();
 		data.cameraRot = viewerObject.getRotation();
+		data.playerPos = appObjects[2].transform.translation;
+		data.playerRot = appObjects[2].transform.rotation;
+
 	}
 
 }

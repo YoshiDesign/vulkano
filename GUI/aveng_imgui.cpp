@@ -1,11 +1,10 @@
 #include "../CoreVK/EngineDevice.h"
 #include "../Core/Peripheral/aveng_window.h"
 #include "aveng_imgui.h"
+#include "../avpch.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
-
-#include <stdexcept>
 
 namespace aveng {
 
@@ -105,7 +104,7 @@ namespace aveng {
         ImGui_ImplVulkan_RenderDrawData(drawdata, commandBuffer);
     }
 
-    void AvengImgui::runGUI(Data data) {
+    void AvengImgui::runGUI(Data& data) {
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can
         // browse its code to learn more about Dear ImGui!).
         if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
@@ -113,7 +112,9 @@ namespace aveng {
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named
         // window.
         {
-            static float slider = 0.0f;
+            //static float slider = 0.0f;
+            static float value = 0.0f;
+            static bool hasChanged = false;
             static int counter = 0;
 
             ImGui::Begin("Debug you fool!"); 
@@ -125,16 +126,28 @@ namespace aveng {
             ImGui::Text(
                 "Camera Rotation:\t(%.03lf, %.03lf, %.03lf)", data.cameraRot.x, data.cameraRot.y, data.cameraRot.z);
             ImGui::Text(
-                "Camera Position:\t(%.03lf, %.03lf, %.03lf)", data.cameraPos.x, data.cameraPos.y, data.cameraPos.z);
+                "Camera Position:\t(%.03lf, %.03lf, %.03lf)", data.cameraPos.x, data.cameraPos.y, data.cameraPos.z); 
+            ImGui::Text(
+                "Player Rotation:\t(%.03lf, %.03lf, %.03lf)", data. playerRot.x, data. playerRot.y, data. playerRot.z);
+            ImGui::Text(
+                "Player Position:\t(%.03lf, %.03lf, %.03lf)", data.playerPos.x, data.playerPos.y, data.playerPos.z);
+            ImGui::Text(
+                "Mod Rotation:\t(%.03lf, %.03lf, %.03lf)", data.modRot.x, data.modRot.y, data.modRot.z);
+            ImGui::Text(
+                "Mod Position:\t(%.03lf, %.03lf, %.03lf)", data.modPos.x, data.modPos.y, data.modPos.z);
+            ImGui::Text(
+                "P/N:\t%d", data.pn);
             
             //ImGui::Checkbox("Another Window", &show_another_window);
 
-            ImGui::SliderFloat("float", &slider, 0.0f, 1.0f);  // Edit 1 float using a slider from 0.0f to 1.0f
+            value, hasChanged = ImGui::SliderFloat("float", &value, 0.0f, 2*PI);  // Edit 1 float using a slider from 0.0f to 1.0f
+            data.modPI = value;
             //ImGui::ColorEdit3("clear color",
                 //(float*)&clear_color);  // Edit 3 floats representing a color
             
             if (ImGui::Button("GFX"))
                 WindowCallbacks::updatePipeline();
+
             ImGui::SameLine();
             ImGui::Text("GFX-Pipe:\t%d", data.cur_pipe);
            

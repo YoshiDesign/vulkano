@@ -1,4 +1,5 @@
-#include <iostream>
+#include "RenderSystem.h"
+#include "../Math/aveng_math.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -6,8 +7,8 @@
 #include <glm/gtc/constants.hpp>
 #include <stdexcept>
 #include <array>
+#include <iostream>
 
-#include "RenderSystem.h"
 
 #define DBUG(a) std::cout<<a<<std::endl;
 #define BYPASS_FBO 0
@@ -22,9 +23,10 @@ namespace aveng {
 
 	RenderSystem::RenderSystem(
 		EngineDevice& device, 
+		AvengAppObject& viewer,
 		VkRenderPass renderPass, 
 		VkDescriptorSetLayout globalDescriptorSetLayouts,
-		VkDescriptorSetLayout fragDescriptorSetLayouts) : engineDevice{ device }
+		VkDescriptorSetLayout fragDescriptorSetLayouts) : engineDevice{ device }, viewerObject {viewer}
 	{
 
 		VkDescriptorSetLayout descriptorSetLayouts[2] = { globalDescriptorSetLayouts , fragDescriptorSetLayouts };
@@ -98,7 +100,7 @@ namespace aveng {
 		);
 	}
 
-	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, Data data, AvengBuffer& fragBuffer)
+	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, Data& data, AvengBuffer& fragBuffer)
 	{
 		int obj_no = 0;
 
@@ -129,6 +131,18 @@ namespace aveng {
 			// This object's dynamic offset in any per-object uniform buffers (currently: FragUbo)
 			uint32_t dynamicOffset = obj_no * static_cast<uint32_t>(deviceAlignment);
 			SimplePushConstantData push{};
+
+			if (obj.meta.type == PLAYER) { 
+
+				// Manually override - For debug when we want to tweak the initial position
+				//obj.transform.translation = data.modPos + glm::vec3{ 0.0f, 0.1f, 1.5f };;
+				//obj.transform.rotation = data.modRot + glm::vec3{ 0.0f, PI, 0.0f };
+
+				// 
+				obj.transform.translation = glm::vec3(unitCircleTransform_vec3(viewerObject.transform.rotation.y, viewerObject.transform.translation, viewRadius, data.modPI));
+				obj.transform.rotation = (viewerObject.transform.rotation + glm::vec3{0.0f, PI, 0.0f});
+
+			}
 
 			// Update our frag uniform buffer
 			FragUbo fubo{obj.get_texture()};

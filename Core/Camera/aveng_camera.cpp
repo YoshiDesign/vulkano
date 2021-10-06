@@ -1,6 +1,4 @@
 #include "aveng_camera.h"
-#include <cassert>
-#include <limits>
 
 namespace aveng {
 
@@ -91,8 +89,8 @@ namespace aveng {
 			viewMatrix[0].x,
 			viewMatrix[1].y,
 			viewMatrix[2].z,
-			viewMatrix[4].w
+			viewMatrix[3].w
 		};
 	}
 
-} // ns aveng
+}

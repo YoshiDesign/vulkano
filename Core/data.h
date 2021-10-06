@@ -4,12 +4,13 @@
 namespace aveng {
 
 	const int NO_TEXTURE = 1000;
+	const int PI = 3.14159265f; // 3589793238462643383279502884197969399375105820974944592 check yo'self
 
 	enum texture_map {
 		SURFACE_GRID_1 = 0,
 		THEME_1,
 		THEME_2,
-		THEME_3,
+		THEME_3, 
 		THEME_4,
 		RAND_1,
 		RAND_2,
@@ -31,9 +32,15 @@ namespace aveng {
 		float		dt;
 		int			cur_pipe;
 		int			sec;
+		int			pn;	// PosNeg modifier
 		glm::vec3	cameraView;
 		glm::vec3	cameraPos;
 		glm::vec3	cameraRot;
+		glm::vec3	playerPos;
+		glm::vec3	playerRot;
+		glm::vec3	modRot;
+		glm::vec3	modPos;
+		float		modPI;
 	};
 
 }

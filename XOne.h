@@ -53,19 +53,18 @@ namespace aveng {
 		AvengCamera camera{};
 		GlobalUbo ubo{};
 
-		AvengAppObject viewerObject = AvengAppObject::createAppObject(1);
+		AvengAppObject viewerObject = AvengAppObject::createAppObject(1000);
 
 		// 
 		float aspect;
 		float frameTime;
 		Data data;
 
-
 		// This declaration must occur after the renderer initializes
 		std::unique_ptr<AvengDescriptorPool> globalPool{};
 		std::vector<AvengAppObject> appObjects;
 
-		// Band-aid
+		// Band-aid when all seems lost
 		//auto minOffsetAlignment = std::lcm(
 		//	engineDevice.properties.limits.minUniformBufferOffsetAlignment,
 		//	engineDevice.properties.limits.nonCoherentAtomSize);
