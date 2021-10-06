@@ -172,15 +172,15 @@ namespace aveng {
 				};
 				
 				dx += frameTime;
-				if (dx > 1.0f) {
+				if (dx > 1.0f) {	// TODO: every 2 or 8 seconds change how much the ship dips
 					dx = 0.0f;
 					data.sec = (data.sec + 1) % 10000;
 				}
 
 				// For Calibration 
 				data.modRot = WindowCallbacks::modRot;
-				data.modPos = WindowCallbacks::modTrans;
-				data.pn = WindowCallbacks::posNeg;
+				data.modPos = WindowCallbacks::modTrans;	
+				data.pn = WindowCallbacks::posNeg;			// Inverts mod incrementation
 
 				// Update our global uniform buffer
 				ubo.projectionView = camera.getProjection() * camera.getView();
