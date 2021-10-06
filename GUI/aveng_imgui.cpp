@@ -113,7 +113,7 @@ namespace aveng {
         // window.
         {
             //static float slider = 0.0f;
-            static float value = 0.0f;
+            static float value = 3.1415926f;
             static bool hasChanged = false;
             static int counter = 0;
 

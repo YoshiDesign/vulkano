@@ -17,7 +17,7 @@ namespace aveng {
 	glm::vec3 WindowCallbacks::modRot{ 0.0f, 0.0f, 0.0f };
 	glm::vec3 WindowCallbacks::modTrans{ 0.0f, 0.0f, 0.0f };
 	int WindowCallbacks::posNeg = 1;
-	float WindowCallbacks::modPI = 0.0f;
+	float WindowCallbacks::modPI = PI;
 
 	XOne::XOne() 
 	{
@@ -140,6 +140,9 @@ namespace aveng {
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float dx = 0.0f;
 
+		// When IMGui gets disabled this will be responsible for the initial PI
+		data.modPI = PI;
+
 		// Keep the window open until shouldClose is truthy
 		while (!aveng_window.shouldClose()) {
 
@@ -174,6 +177,7 @@ namespace aveng {
 					data.sec = (data.sec + 1) % 10000;
 				}
 
+				// For Calibration 
 				data.modRot = WindowCallbacks::modRot;
 				data.modPos = WindowCallbacks::modTrans;
 				data.pn = WindowCallbacks::posNeg;
@@ -252,8 +256,8 @@ namespace aveng {
 		auto ship4 = AvengAppObject::createAppObject(5);
 		ship4.model = holyShipModel;
 		ship4.transform.translation = { 0.0f, 0.0f, 0.0f };
-		ship4.transform.scale = { 0.05f, 0.05f, 0.05f };
-		ship4.transform.rotation = { 0.0f, PI, 0.0f };
+		ship4.transform.scale = { 0.01f, 0.01f, 0.01f };
+		ship4.transform.rotation = { 0.0f, 0.0f, 0.0f };
 		ship4.meta.type = PLAYER;
 		appObjects.push_back(std::move(ship4));
 
@@ -277,7 +281,7 @@ namespace aveng {
 		aspect = renderer.getAspectRatio();
 		// Updates the viewer object transform component based on key input, proportional to the time elapsed since the last frame
 		cameraController.moveInPlaneXZ(aveng_window.getGLFWwindow(), frameTime, viewerObject);
-		camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation + glm::vec3());
+		camera.setViewYXZ(viewerObject.transform.translation + glm::vec3(0.f, 0.f, -1.0f), viewerObject.transform.rotation + glm::vec3());
 		camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
 	}
 

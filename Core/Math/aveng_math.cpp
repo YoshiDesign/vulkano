@@ -7,7 +7,7 @@ namespace aveng {
 	*/
 	glm::vec3 unitCircleTransform_vec3(float theta, glm::vec3 viewerTranslation, float radius, float modPI)
 	{
-		float degreesXZ = -theta + ((modPI + 0.05) / 2);	// Yaw
+		float degreesXZ = -theta + ((modPI) / 2);	// Yaw
 		return glm::vec3{ (viewerTranslation.x + glm::cos(degreesXZ) * radius), viewerTranslation.y, (viewerTranslation.z + glm::sin(degreesXZ) * radius )};
 	}
 

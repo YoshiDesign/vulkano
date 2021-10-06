@@ -135,12 +135,12 @@ namespace aveng {
 			if (obj.meta.type == PLAYER) { 
 
 				// Manually override - For debug when we want to tweak the initial position
-				//obj.transform.translation = data.modPos + glm::vec3{ 0.0f, 0.1f, 1.5f };;
-				//obj.transform.rotation = data.modRot + glm::vec3{ 0.0f, PI, 0.0f };
-
-				// 
-				obj.transform.translation = glm::vec3(unitCircleTransform_vec3(viewerObject.transform.rotation.y, viewerObject.transform.translation, viewRadius, data.modPI));
-				obj.transform.rotation = (viewerObject.transform.rotation + glm::vec3{0.0f, PI, 0.0f});
+				// obj.transform.translation = glm::vec3(0.04f, (glm::cos(obj.transform.translation.z / 3) * .009) + .420, 0.0f) +  data.modPos + glm::vec3(unitCircleTransform_vec3(viewerObject.transform.rotation.y, viewerObject.transform.translation, viewRadius, data.modPI));
+				// obj.transform.rotation = glm::vec3{ 0.0f, PI + .142,    -0.002f } + data.modRot + viewerObject.transform.rotation + glm::vec3{ 0.0f, PI, 0.0f };
+				std::cout << glm::cos(obj.transform.translation.z) * 5 << std::endl;
+				//									  Adjustments
+				obj.transform.translation = glm::vec3(0.0f, (glm::cos(obj.transform.translation.z / 3) * .009) + .1f, -1.0f)  + glm::vec3(unitCircleTransform_vec3(viewerObject.transform.rotation.y, viewerObject.transform.translation, viewRadius, data.modPI));
+				obj.transform.rotation	  = glm::vec3{ 0.0f, PI + .142,    -0.002f } + viewerObject.transform.rotation;
 
 			}
 
