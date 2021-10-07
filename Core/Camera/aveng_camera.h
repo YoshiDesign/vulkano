@@ -19,7 +19,7 @@ namespace aveng {
 		const glm::mat4& getProjection() const { return projectionMatrix; }
 		const glm::mat4& getView() const { return viewMatrix; }
 		const glm::vec4 getCameraView();
-
+			
 	private:
 		glm::mat4 projectionMatrix{ 1.f };
 		glm::mat4 viewMatrix{ 1.f };

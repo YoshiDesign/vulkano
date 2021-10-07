@@ -8,12 +8,13 @@
 
 namespace aveng {
 
+    AvengImgui::AvengImgui(EngineDevice& _device) : device{_device} {}
+
     // ok this just initializes imgui using the provided integration files. So in our case we need to
     // initialize the vulkan and glfw imgui implementations, since that's what our engine is built
     // using.
-    AvengImgui::AvengImgui(
-        AvengWindow& window, EngineDevice& device, VkRenderPass renderPass, uint32_t imageCount)
-        : engineDevice{ device } {
+    void AvengImgui::init(AvengWindow& window, VkRenderPass renderPass, uint32_t imageCount)
+    {
         // set up a descriptor pool stored on this instance, see header for more comments on this.
         VkDescriptorPoolSize pool_sizes[] = {
             {VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
@@ -83,7 +84,7 @@ namespace aveng {
     }
 
     AvengImgui::~AvengImgui() {
-        vkDestroyDescriptorPool(engineDevice.device(), descriptorPool, nullptr);
+        vkDestroyDescriptorPool(device.device(), descriptorPool, nullptr);
         ImGui_ImplVulkan_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
@@ -128,7 +129,7 @@ namespace aveng {
             ImGui::Text(
                 "Camera Position:\t(%.03lf, %.03lf, %.03lf)", data.cameraPos.x, data.cameraPos.y, data.cameraPos.z); 
             ImGui::Text(
-                "Player Rotation:\t(%.03lf, %.03lf, %.03lf)", data. playerRot.x, data. playerRot.y, data. playerRot.z);
+                "Player Rotation:\t(%.03lf, %.03lf, %.03lf)", data.playerRot.x, data.playerRot.y, data.playerRot.z);
             ImGui::Text(
                 "Player Position:\t(%.03lf, %.03lf, %.03lf)", data.playerPos.x, data.playerPos.y, data.playerPos.z);
             ImGui::Text(

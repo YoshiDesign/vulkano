@@ -1,7 +1,7 @@
 #include "avpch.h"
 #include "XOne.h"
+#include "Core/Math/aveng_math.h"
 #include "Core/data.h"
-#include "GUI/aveng_imgui.h"
 #include "Core/Utils/aveng_utils.h"
 #include "Core/aveng_frame_content.h"
 #include "Core/Camera/aveng_camera.h"
@@ -105,23 +105,26 @@ namespace aveng {
 				.build(fragDescriptorSets[i]);
 		}
 
+		viewerObject.transform.translation = glm::vec3{ 0.0f, -8.f, 0.0f };
+		KeyboardController keyboardController;
 		// Note that the renderSystem is initialized with a pointer to the Render Pass
-		RenderSystem renderSystem{ 
+		RenderSystem renderSystem{
 			engineDevice,
 			viewerObject,
-			renderer.getSwapChainRenderPass(), 
+			aveng_window,
+			renderer.getSwapChainRenderPass(),
+			keyboardController,
 			globalDescriptorSetLayout->getDescriptorSetLayout(),
 			fragDescriptorSetLayout->getDescriptorSetLayout()
 		};
 
 		//camera.setViewTarget(glm::vec3(-1.f, -2.f, -20.f), glm::vec3(0.f, 0.f, 3.5f));
 
-		AvengImgui aveng_imgui{
+		aveng_imgui.init (
 			aveng_window,
-			engineDevice,
 			renderer.getSwapChainRenderPass(),
 			renderer.getImageCount() 
-		};
+		);
 
 		/*
 			Things to keep in mind:
@@ -156,7 +159,7 @@ namespace aveng {
 			//frameTime = glm::min(frameTime, MAX_FRAME_TIME);	// Use this to lock to a specific max frame rate
 
 			// Data & Debug
-			updateCamera(frameTime, viewerObject, cameraController, camera);
+			updateCamera(frameTime, viewerObject, keyboardController, camera);
 			updateData();
 
 			auto commandBuffer = renderer.beginFrame();
@@ -225,41 +228,24 @@ namespace aveng {
 		std::shared_ptr<AvengModel> rc = AvengModel::createModelFromFile(engineDevice, "3D/rc.obj");
 		std::shared_ptr<AvengModel> bc = AvengModel::createModelFromFile(engineDevice, "3D/bc.obj");
 
-		auto centerPlane = AvengAppObject::createAppObject(0);
+		playerObject.model = holyShipModel;
+		playerObject.meta.type = PLAYER;
+		playerObject.transform.translation = { 0.0f, -8.0f, 0.0f };
+		playerObject.transform.scale = { 0.01f, 0.01f, 0.01f };
+		playerObject.transform.rotation = { 0.0f, 0.0f, 0.0f };
+		appObjects.push_back(std::move(playerObject));
+
+		auto centerPlane = AvengAppObject::createAppObject(SURFACE_GRID_1);
+		centerPlane.meta.type = GROUND;
 		centerPlane.model = plane;
 		centerPlane.transform.translation = { 0.f, -.1f, 0.f};
 		appObjects.push_back(std::move(centerPlane));
 		
-		auto forwardPlane = AvengAppObject::createAppObject(0);
+		auto forwardPlane = AvengAppObject::createAppObject(SURFACE_GRID_1);
+		forwardPlane.meta.type = GROUND;
 		forwardPlane.model = plane;
 		forwardPlane.transform.translation = { 0.f, -.1f, 136.f};
 		appObjects.push_back(std::move(forwardPlane));
-
-		//auto ship = AvengAppObject::createAppObject(1);
-		//ship.model = holyShipModel;
-		//ship.transform.translation = { 0.f, -2.f, 0.f };
-		//ship.transform.scale = { 1.f,1.f,1.f };
-		//appObjects.push_back(std::move(ship));
-
-		//auto ship2 = AvengAppObject::createAppObject(2);
-		//ship2.model = holyShipModel;
-		//ship2.transform.translation = { -10.5f, -1.5f, 15.f };
-		//ship2.transform.scale = { 0.5f, 0.5f, 0.5f };
-		//appObjects.push_back(std::move(ship2));
-		//
-		//auto ship3 = AvengAppObject::createAppObject(3);
-		//ship3.model = holyShipModel;
-		//ship3.transform.translation = { 5.5f, -0.5f, 26.f };
-		//ship3.transform.scale = { 0.2f, 0.2f, 0.2f };
-		//appObjects.push_back(std::move(ship3));
-
-		auto ship4 = AvengAppObject::createAppObject(5);
-		ship4.model = holyShipModel;
-		ship4.transform.translation = { 0.0f, 0.0f, 0.0f };
-		ship4.transform.scale = { 0.01f, 0.01f, 0.01f };
-		ship4.transform.rotation = { 0.0f, 0.0f, 0.0f };
-		ship4.meta.type = PLAYER;
-		appObjects.push_back(std::move(ship4));
 
 		int t = 0;
 		for (int i = 0; i < 3; i++) 
@@ -287,16 +273,9 @@ namespace aveng {
 
 	void XOne::updateData()
 	{
-
-		data.num_objs = appObjects.size();
-		data.cur_pipe = WindowCallbacks::getCurPipeline();
-		data.dt			= frameTime;
 		data.cameraView = camera.getCameraView();
 		data.cameraPos = viewerObject.getPosition();
 		data.cameraRot = viewerObject.getRotation();
-		data.playerPos = appObjects[2].transform.translation;
-		data.playerRot = appObjects[2].transform.rotation;
-
 	}
 
 }

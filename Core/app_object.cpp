@@ -2,7 +2,8 @@
 
 namespace aveng {
 
-    glm::mat4 TransformComponent::_mat4() {
+    glm::mat4 TransformComponent::_mat4() 
+    {
         const float c3 = glm::cos(rotation.z);
         const float s3 = glm::sin(rotation.z);
         const float c2 = glm::cos(rotation.x);
@@ -31,7 +32,8 @@ namespace aveng {
             {translation.x, translation.y, translation.z, 1.0f} };
     }
 
-    glm::mat3 TransformComponent::normalMatrix() {
+    glm::mat3 TransformComponent::normalMatrix() 
+    {
         const float c3 = glm::cos(rotation.z);
         const float s3 = glm::sin(rotation.z);
         const float c2 = glm::cos(rotation.x);
@@ -70,4 +72,14 @@ namespace aveng {
         return transform.rotation;
     }
 
-}  // namespace aveng
+    void AvengAppObject::spinLeft(float dt)
+    {
+        transform.rotation.z -= 2.0f * dt;
+    }
+
+    void AvengAppObject::spinRight(float dt)
+    {
+        transform.rotation.z += 2.0f * dt;
+    }
+
+} 

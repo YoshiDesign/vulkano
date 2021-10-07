@@ -8,7 +8,7 @@ namespace aveng {
 	glm::vec3 unitCircleTransform_vec3(float theta, glm::vec3 viewerTranslation, float radius, float modPI)
 	{
 		float degreesXZ = -theta + ((modPI) / 2);	// Yaw
-		return glm::vec3{ (viewerTranslation.x + glm::cos(degreesXZ) * radius), viewerTranslation.y, (viewerTranslation.z + glm::sin(degreesXZ) * radius )};
+		return glm::vec3{ (viewerTranslation.x + cos(degreesXZ) * radius), viewerTranslation.y, (viewerTranslation.z + sin(degreesXZ) * radius )};
 	}
 
 	/*
@@ -19,7 +19,7 @@ namespace aveng {
 		float degreexYX = glm::degrees<float>(alpha);	// Roll - Unused so far
 		float degreesYZ = glm::degrees<float>(omega);	// Pitch
 		float degreesXZ = glm::degrees<float>(theta);	// Yaw
-		return glm::vec3{ glm::cos(degreesXZ), glm::sin(degreesXZ), glm::tan(degreesYZ) };
+		return glm::vec3{ cos(degreesXZ), sin(degreesXZ), sin(degreesYZ) };
 	}
 
 }

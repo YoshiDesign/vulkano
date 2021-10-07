@@ -13,6 +13,7 @@ namespace aveng {
 		glm::vec3 translation = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 rotation = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 scale = { 1.f, 1.f, 1.f };
+		float modPI = 3.14159;
 
 		// Matrix corresponds to Translate * Ry * Rx * Rz * Scale
 		// Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)

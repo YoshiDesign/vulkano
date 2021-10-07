@@ -7,6 +7,7 @@
 #include "CoreVK/aveng_descriptors.h"
 #include "Core/Renderer/AvengImageSystem.h"
 #include "Core/app_object.h"
+#include "GUI/aveng_imgui.h"
 #include "Core/Peripheral/aveng_window.h"
 #include "CoreVK/EngineDevice.h"
 #include "CoreVk/aveng_buffer.h"
@@ -34,31 +35,32 @@ namespace aveng {
 		// int fib(int n, int a = 0, int b = 1);
 		
 		void run();
-		void updateData();
 
 	private:
 
 		void loadAppObjects();
 		void updateCamera(float frameTime, AvengAppObject& viewerObject, KeyboardController& cameraController, AvengCamera& camera);
+		void updateData();
 
 		// The window API - Stack allocated
 		AvengWindow aveng_window{ WIDTH, HEIGHT, "Vulkan 0" };
 		glm::vec3 clear_color = { 0.0f, 0.0f, 0.0f };
 
 		// !! Order of initialization matters !!
+		Data data;
 		EngineDevice engineDevice{ aveng_window };
 		ImageSystem imageSystem{ engineDevice };
 		Renderer renderer{ aveng_window, engineDevice };
-		KeyboardController cameraController{};
+		AvengImgui aveng_imgui{ engineDevice };
 		AvengCamera camera{};
 		GlobalUbo ubo{};
 
-		AvengAppObject viewerObject = AvengAppObject::createAppObject(1000);
+		AvengAppObject viewerObject{ AvengAppObject::createAppObject(1000) };
+		AvengAppObject playerObject{ AvengAppObject::createAppObject(THEME_3) };
 
 		// 
 		float aspect;
 		float frameTime;
-		Data data;
 
 		// This declaration must occur after the renderer initializes
 		std::unique_ptr<AvengDescriptorPool> globalPool{};

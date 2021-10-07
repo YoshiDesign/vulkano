@@ -11,6 +11,7 @@ namespace aveng {
 		AvengCamera& camera;
 		VkDescriptorSet globalDescriptorSet;
 		VkDescriptorSet fragDescriptorSet;
+		float aspect;
 
 	};
 }

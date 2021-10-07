@@ -23,7 +23,7 @@ namespace aveng {
 		AvengAppObject(id_t objId, int texture_id) : id{ objId }, texture_id{ texture_id } {}
 
 		AvengAppObject(const AvengAppObject&) = delete;
-		AvengAppObject &operator=(const AvengAppObject&) = delete;
+		AvengAppObject& operator=(const AvengAppObject&) = delete;
 		AvengAppObject(AvengAppObject&&) = default;
 		AvengAppObject& operator=(AvengAppObject&&) = default;
 
@@ -36,6 +36,9 @@ namespace aveng {
 		glm::vec3 color{};
 		glm::vec3 getPosition();
 		glm::vec3 getRotation();
+
+		void spinLeft(float dt);
+		void spinRight(float dt);
 
 		MetaComponent meta{};
 		TransformComponent transform{};

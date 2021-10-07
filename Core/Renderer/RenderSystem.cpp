@@ -1,14 +1,6 @@
 #include "RenderSystem.h"
 #include "../Math/aveng_math.h"
-
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
-#include <stdexcept>
-#include <array>
-#include <iostream>
-
+#include "../Utils/window_callbacks.h"
 
 #define DBUG(a) std::cout<<a<<std::endl;
 #define BYPASS_FBO 0
@@ -22,17 +14,20 @@ namespace aveng {
 	};
 
 	RenderSystem::RenderSystem(
-		EngineDevice& device, 
+		EngineDevice& device,
 		AvengAppObject& viewer,
+		AvengWindow& _aveng_window,
 		VkRenderPass renderPass, 
+		KeyboardController& _keyboardController,
 		VkDescriptorSetLayout globalDescriptorSetLayouts,
-		VkDescriptorSetLayout fragDescriptorSetLayouts) : engineDevice{ device }, viewerObject {viewer}
+		VkDescriptorSetLayout fragDescriptorSetLayouts) : engineDevice{ device }, aveng_window{ _aveng_window }, viewerObject{ viewer }, keyboard_controller{_keyboardController}
 	{
 
 		VkDescriptorSetLayout descriptorSetLayouts[2] = { globalDescriptorSetLayouts , fragDescriptorSetLayouts };
 
 		createPipelineLayout(descriptorSetLayouts);
 		createPipeline(renderPass);
+
 	}
 
 	RenderSystem::~RenderSystem()
@@ -137,10 +132,9 @@ namespace aveng {
 				// Manually override - For debug when we want to tweak the initial position
 				// obj.transform.translation = glm::vec3(0.04f, (glm::cos(obj.transform.translation.z / 3) * .009) + .420, 0.0f) +  data.modPos + glm::vec3(unitCircleTransform_vec3(viewerObject.transform.rotation.y, viewerObject.transform.translation, viewRadius, data.modPI));
 				// obj.transform.rotation = glm::vec3{ 0.0f, PI + .142,    -0.002f } + data.modRot + viewerObject.transform.rotation + glm::vec3{ 0.0f, PI, 0.0f };
-				std::cout << glm::cos(obj.transform.translation.z) * 5 << std::endl;
-				//									  Adjustments
-				obj.transform.translation = glm::vec3(0.0f, (glm::cos(obj.transform.translation.z / 3) * .009) + .1f, -1.0f)  + glm::vec3(unitCircleTransform_vec3(viewerObject.transform.rotation.y, viewerObject.transform.translation, viewRadius, data.modPI));
-				obj.transform.rotation	  = glm::vec3{ 0.0f, PI + .142,    -0.002f } + viewerObject.transform.rotation;
+				
+				updateData(appObjects.size(), frame_content.frameTime, data, obj);
+				updatePlayer(frame_content.frameTime, keyboard_controller, obj);
 
 			}
 
@@ -222,6 +216,31 @@ namespace aveng {
 			obj.model->draw(frame_content.commandBuffer);
 
 		}
+	}
+
+	void RenderSystem::updatePlayer(float frameTime, KeyboardController& keyboardController, AvengAppObject& playerObject)
+	{
+		playerObject.transform.translation = glm::vec3(0.0f, (glm::cos(playerObject.transform.translation.z / 3) * .009) + .1f, -1.0f) + glm::vec3(unitCircleTransform_vec3(viewerObject.transform.rotation.y, viewerObject.transform.translation, viewRadius, playerObject.transform.modPI));
+		playerObject.transform.rotation.x = 0.0 + viewerObject.transform.rotation.x;
+		playerObject.transform.rotation.y = PI  + .142 + viewerObject.transform.rotation.y;
+
+		keyboardController.updatePlayer(aveng_window.getGLFWwindow(), playerObject, frameTime);
+
+		// Debug
+		//data.player_modPI = playerObject.transform.modPI;
+
+	}
+
+	void RenderSystem::updateData(size_t size, float frameTime, Data& data, const AvengAppObject& playerObject)
+	{
+
+		data.num_objs = size;
+		data.cur_pipe = WindowCallbacks::getCurPipeline();
+		data.dt = frameTime;
+		data.playerPos = playerObject.transform.translation;
+		data.playerRot = playerObject.transform.rotation;
+		data.player_modPI = playerObject.transform.modPI;
+
 	}
 
 } //

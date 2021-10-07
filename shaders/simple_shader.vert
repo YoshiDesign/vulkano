@@ -1,5 +1,4 @@
 #version 450
-#extension GL_ARB_separate_shader_objects : enable
 
 // Input from the vertex buffer
 layout(location = 0) in vec3 position;

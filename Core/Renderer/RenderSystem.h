@@ -1,14 +1,15 @@
 #pragma once
 
 #include "../app_object.h"
-#include "../Camera/aveng_camera.h"
-#include "../../CoreVK/EngineDevice.h"
 #include "../aveng_frame_content.h"
+#include "../Camera/aveng_camera.h"
+#include "../Peripheral/aveng_window.h"
+#include "../Peripheral/KeyboardController.h"
+#include "../../CoreVK/EngineDevice.h"
 #include "../../CoreVK/GFXPipeline.h"
 #include "../data.h"
 
-#include <memory>
-#include <vector>
+#include "../../avpch.h"
 
 namespace aveng {
 
@@ -20,22 +21,26 @@ namespace aveng {
 			alignas(sizeof(int)) int imDex;
 		};
 
-		RenderSystem(EngineDevice &device, AvengAppObject& viewer, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout, VkDescriptorSetLayout fragDescriptorSetLayouts);
+		RenderSystem(EngineDevice &device, AvengAppObject& viewer, AvengWindow& aveng_window, VkRenderPass renderPass, KeyboardController& keyboard_controller, VkDescriptorSetLayout globalDescriptorSetLayout, VkDescriptorSetLayout fragDescriptorSetLayouts);
 		~RenderSystem();
 
 		RenderSystem(const RenderSystem&) = delete;
 		RenderSystem& operator=(const RenderSystem&) = delete;
 		void renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject> &appObjects, Data& data, AvengBuffer& fragBuffer);
+		void updatePlayer(float frameTime, KeyboardController& entityController, AvengAppObject& entity);
 		VkPipelineLayout getPipelineLayout() { return pipelineLayout; }
 
 	private:
 
 		void createPipelineLayout(VkDescriptorSetLayout* descriptorSetLayouts);
+		void updateData(size_t size, float frameTime, Data& data, const AvengAppObject& playerObject);
 		void createPipeline(VkRenderPass renderPass);
 
 		int last_sec;
 		EngineDevice &engineDevice;
 		AvengAppObject& viewerObject;
+		AvengWindow& aveng_window;
+		KeyboardController& keyboard_controller;
 
 		size_t deviceAlignment = engineDevice.properties.limits.minUniformBufferOffsetAlignment;
 
