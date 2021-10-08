@@ -120,6 +120,8 @@ namespace aveng {
 
             ImGui::Begin("Debug you fool!"); 
 
+            ImGui::Checkbox("Player Debug", &show_player_controller_window);
+
             ImGui::Text(
                 "Objects: %d", data.num_objs); 
             ImGui::Text(
@@ -138,11 +140,10 @@ namespace aveng {
                 "Mod Position:\t(%.03lf, %.03lf, %.03lf)", data.modPos.x, data.modPos.y, data.modPos.z);
             ImGui::Text(
                 "P/N:\t%d", data.pn);
-            
-            //ImGui::Checkbox("Another Window", &show_another_window);
 
-            value, hasChanged = ImGui::SliderFloat("float", &value, 0.0f, 2*PI);  // Edit 1 float using a slider from 0.0f to 1.0f
-            data.modPI = value;
+            ImGui::SliderFloat("float", &data.player_modPI, 0.0f, 2*PI);
+            ImGui::SliderFloat("float", &data.camera_modPI, 0.0f, 2*PI);
+
             //ImGui::ColorEdit3("clear color",
                 //(float*)&clear_color);  // Edit 3 floats representing a color
             
@@ -161,13 +162,13 @@ namespace aveng {
         }
 
         // 3. Show another simple window.
-        if (show_another_window) {
-            ImGui::Begin(
-                "Another Window",
-                &show_another_window);  // Pass a pointer to our bool variable (the window will have a
-                                        // closing button that will clear the bool when clicked)
-            ImGui::Text("Hello from another window!");
-            if (ImGui::Button("Close Me")) show_another_window = false;
+        if (show_player_controller_window) {
+            ImGui::Begin("Player Debug", &show_player_controller_window);
+
+            ImGui::Text("Barrel Roll:\t%d", data.barrelRolling);
+            ImGui::Text("Cooldown:\t%d", data.barrelCooldown);
+
+            //if (ImGui::Button("Close")) show_player_controller_window = false;
             ImGui::End();
         }
     }

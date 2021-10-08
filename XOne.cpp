@@ -6,6 +6,7 @@
 #include "Core/aveng_frame_content.h"
 #include "Core/Camera/aveng_camera.h"
 #include "Core/Utils/window_callbacks.h"
+#include "Core/GameplayFunctions.h"
 
 #define INFO(ln, why) std::cout << "XOne.cpp::" << ln << ":\n" << why << std::endl;
 #define DBUG(x) std::cout << x << std::endl;
@@ -105,8 +106,8 @@ namespace aveng {
 				.build(fragDescriptorSets[i]);
 		}
 
-		viewerObject.transform.translation = glm::vec3{ 0.0f, -8.f, 0.0f };
-		KeyboardController keyboardController;
+		viewerObject.transform.translation = GameplayFunctions::player_spawn_point();
+		KeyboardController keyboardController{viewerObject};
 		// Note that the renderSystem is initialized with a pointer to the Render Pass
 		RenderSystem renderSystem{
 			engineDevice,
@@ -228,9 +229,9 @@ namespace aveng {
 		std::shared_ptr<AvengModel> rc = AvengModel::createModelFromFile(engineDevice, "3D/rc.obj");
 		std::shared_ptr<AvengModel> bc = AvengModel::createModelFromFile(engineDevice, "3D/bc.obj");
 
+		// Note: Translation is determined by the viewerObject. The ship locks itself to it.
 		playerObject.model = holyShipModel;
 		playerObject.meta.type = PLAYER;
-		playerObject.transform.translation = { 0.0f, -8.0f, 0.0f };
 		playerObject.transform.scale = { 0.01f, 0.01f, 0.01f };
 		playerObject.transform.rotation = { 0.0f, 0.0f, 0.0f };
 		appObjects.push_back(std::move(playerObject));
@@ -262,11 +263,11 @@ namespace aveng {
 				}
 	}
 
-	void XOne::updateCamera(float frameTime, AvengAppObject& viewerObject, KeyboardController& cameraController, AvengCamera& camera)
+	void XOne::updateCamera(float frameTime, AvengAppObject& viewerObject, KeyboardController& keyboardController, AvengCamera& camera)
 	{
 		aspect = renderer.getAspectRatio();
 		// Updates the viewer object transform component based on key input, proportional to the time elapsed since the last frame
-		cameraController.moveInPlaneXZ(aveng_window.getGLFWwindow(), frameTime, viewerObject);
+		keyboardController.moveCameraXZ(aveng_window.getGLFWwindow(), frameTime);
 		camera.setViewYXZ(viewerObject.transform.translation + glm::vec3(0.f, 0.f, -1.0f), viewerObject.transform.rotation + glm::vec3());
 		camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
 	}

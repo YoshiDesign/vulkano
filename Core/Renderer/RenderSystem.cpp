@@ -1,6 +1,9 @@
 #include "RenderSystem.h"
 #include "../Math/aveng_math.h"
 #include "../Utils/window_callbacks.h"
+#include "../GameplayFunctions.h"
+
+#define exe GameplayFunctions
 
 #define DBUG(a) std::cout<<a<<std::endl;
 #define BYPASS_FBO 0
@@ -127,14 +130,12 @@ namespace aveng {
 			uint32_t dynamicOffset = obj_no * static_cast<uint32_t>(deviceAlignment);
 			SimplePushConstantData push{};
 
-			if (obj.meta.type == PLAYER) { 
+			if (obj.meta.type == PLAYER) 
+			{ 
 
-				// Manually override - For debug when we want to tweak the initial position
-				// obj.transform.translation = glm::vec3(0.04f, (glm::cos(obj.transform.translation.z / 3) * .009) + .420, 0.0f) +  data.modPos + glm::vec3(unitCircleTransform_vec3(viewerObject.transform.rotation.y, viewerObject.transform.translation, viewRadius, data.modPI));
-				// obj.transform.rotation = glm::vec3{ 0.0f, PI + .142,    -0.002f } + data.modRot + viewerObject.transform.rotation + glm::vec3{ 0.0f, PI, 0.0f };
-				
 				updateData(appObjects.size(), frame_content.frameTime, data, obj);
-				updatePlayer(frame_content.frameTime, keyboard_controller, obj);
+				keyboard_controller.updatePlayer(aveng_window.getGLFWwindow(), obj, frame_content.frameTime);
+				keyboard_controller.updateData(data);
 
 			}
 
@@ -218,25 +219,13 @@ namespace aveng {
 		}
 	}
 
-	void RenderSystem::updatePlayer(float frameTime, KeyboardController& keyboardController, AvengAppObject& playerObject)
-	{
-		playerObject.transform.translation = glm::vec3(0.0f, (glm::cos(playerObject.transform.translation.z / 3) * .009) + .1f, -1.0f) + glm::vec3(unitCircleTransform_vec3(viewerObject.transform.rotation.y, viewerObject.transform.translation, viewRadius, playerObject.transform.modPI));
-		playerObject.transform.rotation.x = 0.0 + viewerObject.transform.rotation.x;
-		playerObject.transform.rotation.y = PI  + .142 + viewerObject.transform.rotation.y;
-
-		keyboardController.updatePlayer(aveng_window.getGLFWwindow(), playerObject, frameTime);
-
-		// Debug
-		//data.player_modPI = playerObject.transform.modPI;
-
-	}
-
 	void RenderSystem::updateData(size_t size, float frameTime, Data& data, const AvengAppObject& playerObject)
 	{
 
 		data.num_objs = size;
 		data.cur_pipe = WindowCallbacks::getCurPipeline();
 		data.dt = frameTime;
+		data.camera_modPI = viewerObject.transform.modPI;
 		data.playerPos = playerObject.transform.translation;
 		data.playerRot = playerObject.transform.rotation;
 		data.player_modPI = playerObject.transform.modPI;

@@ -22,16 +22,28 @@ namespace aveng {
             int right = GLFW_KEY_RIGHT;
             int lookDown = GLFW_KEY_DOWN;
         };
-        KeyboardController() {};
-        void moveInPlaneXZ(GLFWwindow* window, float dt, AvengAppObject& appObject);
+
+        KeyboardController(AvengAppObject& _viewerObject);
+
+        void updateData(Data& data)
+        {
+            data.barrelCooldown = barrelCooldown;
+            data.barrelRolling = barrelRolling;
+        }
+
+        void moveCameraXZ(GLFWwindow* window, float dt);
         void updatePlayer(GLFWwindow* window, AvengAppObject& appObject, float dt);
 
         KeyMappings keys{};
-        float moveSpeed{ 10.f };
+        float moveSpeed{ 50.f };
         float lookSpeed{ 2.0f };
-        float rollSpeed{ 3.0f };
+        float rollSpeed{ 8.0f };
+
+        int barrelCooldown{ 100 };
+        bool barrelRolling = false;
 
     private:
+        AvengAppObject& viewerObject;
 
 	};
 }

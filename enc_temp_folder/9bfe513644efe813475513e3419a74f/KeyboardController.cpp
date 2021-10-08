@@ -108,9 +108,9 @@ namespace aveng{
 			if (!A && !D) 
 			{
 				// Correct the players offset from the center of the camera's view
-				if (playerObject.transform.modPI > 3.14) playerObject.transform.modPI -= dt * .5;
-				if (playerObject.transform.modPI < 3.14) playerObject.transform.modPI += dt * .5;
-				// Synchronize ModPI - Unused as of right now
+				//if (playerObject.transform.modPI > 3.14) playerObject.transform.modPI -= dt * .5;
+				//if (playerObject.transform.modPI < 3.14) playerObject.transform.modPI += dt * .5;
+				
 				if (viewerObject.transform.modPI > playerObject.transform.modPI) viewerObject.transform.modPI -= dt * .1;
 				if (viewerObject.transform.modPI < playerObject.transform.modPI) viewerObject.transform.modPI += dt * .1;
 			}

@@ -27,7 +27,6 @@ namespace aveng {
 		RenderSystem(const RenderSystem&) = delete;
 		RenderSystem& operator=(const RenderSystem&) = delete;
 		void renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject> &appObjects, Data& data, AvengBuffer& fragBuffer);
-		void updatePlayer(float frameTime, KeyboardController& entityController, AvengAppObject& entity);
 		VkPipelineLayout getPipelineLayout() { return pipelineLayout; }
 
 	private:

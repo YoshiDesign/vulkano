@@ -5,7 +5,7 @@ namespace aveng {
 
 	const int NO_TEXTURE = 1000;
 	const int PI = 3.14159265f; // 3589793238462643383279502884197969399375105820974944592 check yo'self
-	const float PLAYER_ROLL_SPEED = 2.5f;
+	const float viewRadius{ .5f };	// Radius of the invisible sphere for which our viewer is at the origin
 
 	enum texture {
 		SURFACE_GRID_1 = 0,
@@ -43,6 +43,11 @@ namespace aveng {
 		glm::vec3	modPos;
 		float		modPI;
 		float		player_modPI;
+		float		camera_modPI;
+
+		// From Keyboard Controller
+		bool		barrelRolling;
+		int			barrelCooldown;
 	};
 
 }

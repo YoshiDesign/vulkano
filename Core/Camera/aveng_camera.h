@@ -3,8 +3,6 @@
 
 namespace aveng {
 
-	const float viewRadius{ .5f };	// Radius of the invisible sphere for which our viewer is at the origin
-
 	class AvengCamera {
 	
 	public:

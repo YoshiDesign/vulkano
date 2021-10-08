@@ -5,10 +5,13 @@ namespace aveng {
 	/*
 	* Trace a radius around a circle
 	*/
-	glm::vec3 unitCircleTransform_vec3(float theta, glm::vec3 viewerTranslation, float radius, float modPI)
+	glm::vec3 unitCircleTransform_vec3(float theta, glm::vec3 viewerTranslation, float radius, float modPI, glm::vec3 playerTranslation)
 	{
 		float degreesXZ = -theta + ((modPI) / 2);	// Yaw
-		return glm::vec3{ (viewerTranslation.x + cos(degreesXZ) * radius), viewerTranslation.y, (viewerTranslation.z + sin(degreesXZ) * radius )};
+		// if (abs(viewerTranslation.x - playerTranslation.x) > 0.01f)
+			// return glm::vec3{ 0.0f, viewerTranslation.y, (viewerTranslation.z + sin(degreesXZ) * radius) };
+		// else
+			return glm::vec3{ (viewerTranslation.x + cos(degreesXZ) * radius), viewerTranslation.y, (viewerTranslation.z + sin(degreesXZ) * radius )};
 	}
 
 	/*

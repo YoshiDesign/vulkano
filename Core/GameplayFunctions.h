@@ -18,9 +18,13 @@ namespace aveng {
 		};
 
 		GameplayFunctions()  = delete;
-		static void doBarrelRoll(AvengAppObject& appObject, float dt, int dir);
+
+		static bool doBarrelRoll(AvengAppObject& appObject, float dt, int dir);
 		static float counterTorque(float dt, float torque);
+		//static float centerCorrection(float dt, float x, float vx);
+		static float recenterObject(float dt, float x, float vx);
 		static float clamp_roll();
+		static glm::vec3 player_spawn_point();
 
 	private:
 
