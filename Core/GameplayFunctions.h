@@ -9,8 +9,9 @@ namespace aveng {
 	public:
 
 		static float torque;
-		static float deltaX;
+		static float deltaPI;
 		static float deltaZ;
+		static float deltaRoll;
 		static float e_out;
 		static float clamp_speed;
 		static bool  clamped;
@@ -29,8 +30,8 @@ namespace aveng {
 		//static float centerCorrection(float dt, float x, float vx);
 		static float recenterObject(float dt, float x, float vx);
 		static float nudge(int direction, float dt);
-		static float dx_high(float dt, float rate);
-		static float dx_low(float dt, float rate);
+		static float dpi_high(float dt, float rate);
+		static float dpi_low(float dt, float rate);
 		static float camera_dx_high(float dt, float rate);
 		static float camera_dx_low(float dt, float rate);
 		static float dz_high(float dt);

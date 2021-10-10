@@ -5,6 +5,14 @@
 
 #define exe GameplayFunctions
 
+/*
+* Note: The ship's rotation is controlled in 2 separate fashions.
+* 1. On the fly - directly modifying the Roll value
+* 2. Cumulatively in a vector and added to the player's roll vector before the function returns
+* 
+* This isn't for any particular reason other than each are modified by different pairs of buttons. (A & D) (L & R)
+*/
+
 #define LOG(x, y) std::cout << x << "\t" << y << std::endl
 namespace aveng{
 
@@ -68,20 +76,20 @@ namespace aveng{
 		//{
 		//	moveDir += rightDir;
 		//}
-		//if (glfwGetKey(window, keys.q) == GLFW_PRESS)
-		//{
-		//	moveDir -= upDir;
-		//}
-		//if (glfwGetKey(window, keys.e) == GLFW_PRESS)
-		//{
-		//	moveDir += upDir;
-		//}
+		if (glfwGetKey(window, keys.q) == GLFW_PRESS)
+		{
+			moveDir -= upDir;
+		}
+		if (glfwGetKey(window, keys.e) == GLFW_PRESS)
+		{
+			moveDir += upDir;
+		}
 
 		// This if statement effectively makes sure that rotate (matrix) is non-zero
-		//if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon()) {
-		//	// Update according to Delta Time. Normalize keeps multiple rotaions in sync so one direction doesn't rotate faster than another
-		//	viewerObject.transform.translation += moveSpeed * dt * glm::normalize(moveDir);
-		//}
+		if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon()) {
+			// Update according to Delta Time. Normalize keeps multiple rotaions in sync so one direction doesn't rotate faster than another
+			viewerObject.transform.translation += moveSpeed * dt * glm::normalize(moveDir);
+		}
 
 	}
 
@@ -162,23 +170,24 @@ namespace aveng{
 
 				if (A)
 				{
+					c_affine.x += -5.0f;
+					// Roll the craft according to the direction it is steering
 					if (playerObject.transform.rotation.z < 1.0f) {
-						LOG("ROTATE MAKES NO SENSE", playerObject.transform.rotation.z);
-						playerObject.transform.rotation.z += 0.1;
+						playerObject.transform.rotation.z += 0.07;
 					}
 					else if (playerObject.transform.rotation.z < 1.2f) {
-						LOG("ROTATE MAKES NO SENSE", playerObject.transform.rotation.z);
 						playerObject.transform.rotation.z += 0.01;
 					}
 					
+					// Shift the craft to one side
 					if (playerObject.transform.modPI > 2.7) 
 					{
-						// Decrease delta
-						playerObject.transform.modPI += exe::dx_low(dt, abs(playerObject.transform.modPI - 2.7));
+						// Decrease PI delta
+						playerObject.transform.modPI += exe::dpi_low(dt, abs(playerObject.transform.modPI - 2.7));
 					}
 					else {
 
-						playerObject.transform.modPI += exe::dx_high(dt, 0.2f);
+						playerObject.transform.modPI += exe::dpi_high(dt, 0.2f);
 					}
 
 					// 3D rotation is allowed --
@@ -194,22 +203,23 @@ namespace aveng{
 				}
 				if (D)
 				{
+					c_affine.x += 5.0f;
+					// Roll the craft according to the direction it is steering
 					if (playerObject.transform.rotation.z > -1.0f) {
-						LOG("ROTATE MAKES NO SENSE", playerObject.transform.rotation.z);
-						playerObject.transform.rotation.z -= 0.1;
+						playerObject.transform.rotation.z -= 0.07;
 					}
 					else if (playerObject.transform.rotation.z > -1.2f) {
-						LOG("ROTATE MAKES NO SENSE", playerObject.transform.rotation.z);
 						playerObject.transform.rotation.z -= 0.01;
 					}
 
+					// Shift the craft to one side
 					if (playerObject.transform.modPI < 3.6)
 					{
-						// Increase Delta
-						playerObject.transform.modPI += exe::dx_high(dt, abs(playerObject.transform.modPI - 3.6));
+						// Increase PI Delta
+						playerObject.transform.modPI += exe::dpi_high(dt, abs(playerObject.transform.modPI - 3.6));
 					}
 					else {
-						playerObject.transform.modPI += exe::dx_low(dt, 0.2f);
+						playerObject.transform.modPI += exe::dpi_low(dt, 0.2f);
 					}
 
 					// 3D rotation is allowed --
@@ -226,41 +236,31 @@ namespace aveng{
 				}
 			
 			}
-
-			// Only pressing L or R. There is no strafing
 			
 			else {
 
 				if (playerObject.transform.rotation.z != 0.0f && (!A && !D) && (!L && !R)) 
 				{
 					// Gradually return the player to level flight
-					//p_rotate.z += exe::counterTorque(dt, playerObject.transform.rotation.z);
+					p_rotate.z += exe::counterTorque(dt, playerObject.transform.rotation.z);
 				}
 
 			}
 
 		}
 
-		//if (W == GLFW_PRESS)
-		//{
-		//	c_affine.z += 1.0f;
-		//}
-		//if (S == GLFW_PRESS)
-		//{
-		//	c_affine.z -= 1.0f;
-		//}
+		if (W == GLFW_PRESS)
+		{
+			c_affine.z += 2.0f;
+		}
+		if (S == GLFW_PRESS)
+		{
+			c_affine.z += -2.0f;
+		}
 
 		// Regenerate Barrel Roll
-		if (!L && !R && exe::deltaZ < 100.0f)
-			exe::deltaZ += 1.0f;
-
-		// Data updates
-		{
-			data.DX = exe::deltaX;
-			data.DZ = exe::deltaZ;
-			data.player_z_rot = playerObject.transform.rotation.z;
-			data.cameraDX = exe::camera_deltaX;
-		}
+		if (!L && !R && exe::deltaRoll < 100.0f)
+			exe::deltaRoll += 1.0f;
 
 		// Floating point modulator for rotation
 		if (playerObject.transform.rotation.z >= 6.28 || playerObject.transform.rotation.z <= -6.28) 
@@ -280,6 +280,14 @@ namespace aveng{
 
 		// update the camera's rotation components. This really only ever happens in 3D (fly_free_mode)
 		viewerObject.transform.rotation += c_rotate * dt;
+
+		// Data updates
+		{
+			data.DPI = exe::deltaPI;
+			data.DeltaRoll = exe::deltaRoll;
+			data.player_z_rot = playerObject.transform.rotation.z;
+			data.cameraDX = exe::camera_deltaX;
+		}
 
 	}
 

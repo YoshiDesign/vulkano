@@ -6,8 +6,8 @@
 namespace aveng {
 	
 	float GameplayFunctions::torque  = 1.f;
-	float GameplayFunctions::deltaX  = 0.f;
-	float GameplayFunctions::deltaZ  = 100.f;
+	float GameplayFunctions::deltaPI  = 0.f;
+	float GameplayFunctions::deltaRoll  = 100.f;
 	float GameplayFunctions::e_out   = 1.f;
 	float GameplayFunctions::_nudge  = 0.5f;
 	float GameplayFunctions::camera_deltaX = 0.0;
@@ -17,7 +17,7 @@ namespace aveng {
 	/**/
 	glm::vec3 GameplayFunctions::player_spawn_point()
 	{
-		return { 0.0f, -0.45f, 0.0f };
+		return { 0.0f, -0.45f, -100.0f };
 	}
 
 	/**/
@@ -27,44 +27,44 @@ namespace aveng {
 	}
 
 	// Delta X vectoring
-	float GameplayFunctions::dx_high(float dt, float rate)
+	float GameplayFunctions::dpi_high(float dt, float rate)
 	{
-		deltaX += 0.1f;
-		if (deltaX > 1.0f) deltaX = 1.0f;
-		return (rate + 0.1 * .01) * deltaX * dt;
+		deltaPI += 0.1f;
+		if (deltaPI > 1.0f) deltaPI = 1.0f;
+		return (rate + 0.1 * .01) * deltaPI * dt;
 	}
-	float GameplayFunctions::dx_low(float dt, float rate)
+	float GameplayFunctions::dpi_low(float dt, float rate)
 	{
-		deltaX -= 0.1;
-		if (deltaX < -1.0f) deltaX = -1.0f;
-		return (rate + 0.1 * .01) * deltaX * dt;
+		deltaPI -= 0.1;
+		if (deltaPI < -1.0f) deltaPI = -1.0f;
+		return (rate + 0.1 * .01) * deltaPI * dt;
 	}
 
 	// Camera delta X vectoring
 	float GameplayFunctions::camera_dx_high(float dt, float rate)
 	{
 		camera_deltaX += 0.1f;
-		if (deltaX > 1.0f) deltaX = 1.0f;
-		return deltaX * dt * rate;
+		if (deltaPI > 1.0f) deltaPI = 1.0f;
+		return deltaPI * dt * rate;
 	}
 	float GameplayFunctions::camera_dx_low(float dt, float rate)
 	{
 		camera_deltaX -= 0.1;
-		if (deltaX < -1.0f) deltaX = -1.0f;
-		return deltaX * dt * rate;
+		if (deltaPI < -1.0f) deltaPI = -1.0f;
+		return deltaPI * dt * rate;
 	}
 
 	// Delta Z vectoring
 	float GameplayFunctions::dz_high(float dt)
 	{
 		// Not sure I'll need this
-		if (deltaZ >=  100.0f)  return  100.0f;
-		return ++deltaZ * dt;
+		if (deltaRoll >=  100.0f)  return  100.0f;
+		return ++deltaRoll * dt;
 	}
 	float GameplayFunctions::dz_low(float dt)
 	{
-		if (deltaZ <= 0.0f)  return 0.0f;
-		return --deltaZ * dt;
+		if (deltaRoll <= 0.0f)  return 0.0f;
+		return --deltaRoll * dt;
 	}
 
 	/**/

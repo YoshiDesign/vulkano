@@ -106,7 +106,6 @@ namespace aveng {
 				.build(fragDescriptorSets[i]);
 		}
 
-		viewerObject.transform.translation = GameplayFunctions::player_spawn_point();
 		KeyboardController keyboardController{viewerObject, data};
 		// Note that the renderSystem is initialized with a pointer to the Render Pass
 		RenderSystem renderSystem{
@@ -232,6 +231,7 @@ namespace aveng {
 		// Note: Translation is determined by the viewerObject. The ship locks itself to it.
 		playerObject.model = holyShipModel;
 		playerObject.meta.type = PLAYER;
+		viewerObject.transform.translation = GameplayFunctions::player_spawn_point();
 		playerObject.transform.scale = { 0.01f, 0.01f, 0.01f };
 		playerObject.transform.rotation = { 0.0f, 0.0f, 0.0f };
 		appObjects.push_back(std::move(playerObject));
@@ -267,7 +267,7 @@ namespace aveng {
 	{
 		aspect = renderer.getAspectRatio();
 		// Updates the viewer object transform component based on key input, proportional to the time elapsed since the last frame
-		//keyboardController.moveCameraXZ(aveng_window.getGLFWwindow(), frameTime);
+		keyboardController.moveCameraXZ(aveng_window.getGLFWwindow(), frameTime);
 		camera.setViewYXZ(viewerObject.transform.translation + glm::vec3(0.f, 0.f, -1.0f), viewerObject.transform.rotation + glm::vec3());
 		camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
 	}

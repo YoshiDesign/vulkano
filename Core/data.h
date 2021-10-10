@@ -49,10 +49,12 @@ namespace aveng {
 
 		// From Keyboard Controller
 		bool		fly_free_mode = false;
-		float		DX;
-		float		DZ;
+		float		DPI;
+		float		DeltaRoll;
 		float		player_z_rot;
 		float		cameraDX;
+		glm::vec3	c_affine;
+
 	};
 
 }
