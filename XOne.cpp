@@ -107,7 +107,7 @@ namespace aveng {
 		}
 
 		viewerObject.transform.translation = GameplayFunctions::player_spawn_point();
-		KeyboardController keyboardController{viewerObject};
+		KeyboardController keyboardController{viewerObject, data};
 		// Note that the renderSystem is initialized with a pointer to the Render Pass
 		RenderSystem renderSystem{
 			engineDevice,
@@ -267,7 +267,7 @@ namespace aveng {
 	{
 		aspect = renderer.getAspectRatio();
 		// Updates the viewer object transform component based on key input, proportional to the time elapsed since the last frame
-		keyboardController.moveCameraXZ(aveng_window.getGLFWwindow(), frameTime);
+		//keyboardController.moveCameraXZ(aveng_window.getGLFWwindow(), frameTime);
 		camera.setViewYXZ(viewerObject.transform.translation + glm::vec3(0.f, 0.f, -1.0f), viewerObject.transform.rotation + glm::vec3());
 		camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
 	}

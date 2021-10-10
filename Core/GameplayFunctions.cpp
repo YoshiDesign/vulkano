@@ -5,9 +5,14 @@
 
 namespace aveng {
 	
-	float GameplayFunctions::torque = 1.f;
-	float GameplayFunctions::ease = 1.5;
-	bool GameplayFunctions::clamped = false;
+	float GameplayFunctions::torque  = 1.f;
+	float GameplayFunctions::deltaX  = 0.f;
+	float GameplayFunctions::deltaZ  = 100.f;
+	float GameplayFunctions::e_out   = 1.f;
+	float GameplayFunctions::_nudge  = 0.5f;
+	float GameplayFunctions::camera_deltaX = 0.0;
+	bool  GameplayFunctions::clamped = false;
+
 
 	/**/
 	glm::vec3 GameplayFunctions::player_spawn_point()
@@ -19,6 +24,47 @@ namespace aveng {
 	bool GameplayFunctions::doBarrelRoll(AvengAppObject& appObject, float dt, int dir)
 	{
 		
+	}
+
+	// Delta X vectoring
+	float GameplayFunctions::dx_high(float dt, float rate)
+	{
+		deltaX += 0.1f;
+		if (deltaX > 1.0f) deltaX = 1.0f;
+		return (rate + 0.1 * .01) * deltaX * dt;
+	}
+	float GameplayFunctions::dx_low(float dt, float rate)
+	{
+		deltaX -= 0.1;
+		if (deltaX < -1.0f) deltaX = -1.0f;
+		return (rate + 0.1 * .01) * deltaX * dt;
+	}
+
+	// Camera delta X vectoring
+	float GameplayFunctions::camera_dx_high(float dt, float rate)
+	{
+		camera_deltaX += 0.1f;
+		if (deltaX > 1.0f) deltaX = 1.0f;
+		return deltaX * dt * rate;
+	}
+	float GameplayFunctions::camera_dx_low(float dt, float rate)
+	{
+		camera_deltaX -= 0.1;
+		if (deltaX < -1.0f) deltaX = -1.0f;
+		return deltaX * dt * rate;
+	}
+
+	// Delta Z vectoring
+	float GameplayFunctions::dz_high(float dt)
+	{
+		// Not sure I'll need this
+		if (deltaZ >=  100.0f)  return  100.0f;
+		return ++deltaZ * dt;
+	}
+	float GameplayFunctions::dz_low(float dt)
+	{
+		if (deltaZ <= 0.0f)  return 0.0f;
+		return --deltaZ * dt;
 	}
 
 	/**/
@@ -34,15 +80,13 @@ namespace aveng {
 		}
 
 		if (abs(z) < .003f) return 0.0f;
-		return (.7 * torque) * dt;
+		return (1.9 * torque) * dt;
 	}
 
-	/**/
-	float GameplayFunctions::clamp_roll()
+	float GameplayFunctions::nudge(int direction, float dt)
 	{
-		--ease;
-		if (abs(ease) < 0.01f) ease = 0.0f;
-		return ease * torque;
+		_nudge -= 0.1f;
+		return _nudge * dt;
 	}
 
 	float GameplayFunctions::recenterObject(float dt, float x, float vx)

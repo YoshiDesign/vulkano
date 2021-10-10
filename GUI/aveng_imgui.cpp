@@ -164,9 +164,11 @@ namespace aveng {
         // 3. Show another simple window.
         if (show_player_controller_window) {
             ImGui::Begin("Player Debug", &show_player_controller_window);
-
-            ImGui::Text("Barrel Roll:\t%d", data.barrelRolling);
-            ImGui::Text("Cooldown:\t%d", data.barrelCooldown);
+            ImGui::Text("Delta X:\t%f", data.DX);
+            ImGui::Text("Delta Z:\t%f", data.player_z_rot);
+            ImGui::Text("Z Cooldown:\t%f", data.DZ);
+            ImGui::Text("Camera DX:\t%f", data.cameraDX);
+            ImGui::Text("Camera DX:\t%f", data.cameraDX);
 
             //if (ImGui::Button("Close")) show_player_controller_window = false;
             ImGui::End();

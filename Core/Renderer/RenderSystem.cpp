@@ -131,12 +131,18 @@ namespace aveng {
 			SimplePushConstantData push{};
 
 			if (obj.meta.type == PLAYER) 
-			{ 
-
+			{
+				// State and debug. This will be refactored as a component per object.
+				// This particular data object is tied to the App class. This doesn't exactly
+				// need to change in terms of the player's data, but for other objects it will vital
+				// for them to each have their own data struct.
 				updateData(appObjects.size(), frame_content.frameTime, data, obj);
-				keyboard_controller.updatePlayer(aveng_window.getGLFWwindow(), obj, frame_content.frameTime);
-				keyboard_controller.updateData(data);
 
+				// Update the player AND the camera. 
+				// These two objects are very loosely coupled in keyboard_controller, 
+				// but player is computationally dependent on the camera object.
+				// Also camera updates are split up in 2 different functions, both in KeyboardController.cpp
+				keyboard_controller.updatePlayer(aveng_window.getGLFWwindow(), obj, frame_content.frameTime);
 			}
 
 			// Update our frag uniform buffer
