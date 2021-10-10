@@ -281,10 +281,6 @@ namespace aveng {
 					appObjects.push_back(std::move(gameObj));
 					t = (t + 1) % 4;
 				}
-
-
-		pendulum(engineDevice);
-
 	}
 
 	void XOne::updateCamera(float frameTime, AvengAppObject& viewerObject, KeyboardController& keyboardController, AvengCamera& camera)
@@ -302,12 +298,6 @@ namespace aveng {
 		data.cameraPos  = viewerObject.getPosition();
 		data.cameraRot  = viewerObject.getRotation();
 		data.fly_mode   = WindowCallbacks::flightMode;
-	}
-
-	void pendulum(EngineDevice& engineDevice)
-	{
-		std::shared_ptr<AvengModel> coloredCubeModel = AvengModel::createModelFromFile(engineDevice, "3D/colored_cube.obj");
-		for (size_t i; i < )
 	}
 
 }

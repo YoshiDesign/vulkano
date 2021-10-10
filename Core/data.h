@@ -35,7 +35,7 @@ namespace aveng {
 		float		dt;
 		int			cur_pipe;
 		int			sec;
-		int			pn;	// PosNeg modifier
+		int			pn;
 		glm::vec3	cameraView;
 		glm::vec3	cameraPos;
 		glm::vec3	cameraRot;
@@ -48,7 +48,7 @@ namespace aveng {
 		float		camera_modPI;
 
 		// From Keyboard Controller
-		bool		fly_free_mode = false;
+		bool		fly_mode = false;
 		float		DPI;
 		float		DeltaRoll;
 		float		player_z_rot;

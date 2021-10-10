@@ -153,38 +153,14 @@ namespace aveng {
 				last_sec  = data.sec;
 				
 			}
-			if (obj_no > 2) {
-				if (obj.transform.translation.x > 10) {
-					obj.transform.rotation = {
-					static_cast<float>(obj.transform.rotation.x + data.dt),
-					static_cast<float>(obj.transform.rotation.y + data.dt),
-					static_cast<float>(obj.transform.rotation.z + data.dt)
-					};
-				}
+			if (obj_no > 4) {
 
-				if (obj.transform.translation.x < 10) {
-					obj.transform.rotation = {
-						static_cast<float>(obj.transform.rotation.x - data.dt),
-						static_cast<float>(obj.transform.rotation.y - data.dt),
-						static_cast<float>(obj.transform.rotation.z - data.dt)
-					};
-				}
+				obj.transform.rotation = {
+				static_cast<float>(obj.transform.rotation.x + 5.0f * data.dt),
+				static_cast<float>(obj.transform.rotation.y + 5.0f * data.dt),
+				static_cast<float>(obj.transform.rotation.z + 5.0f * data.dt)
+				};											  
 
-				if (obj.transform.translation.z < 10) {
-					obj.transform.rotation = {
-						static_cast<float>(obj.transform.rotation.x + data.dt * 1.2),
-						static_cast<float>(obj.transform.rotation.y + data.dt * 1.2),
-						static_cast<float>(obj.transform.rotation.z + data.dt * 1.2)
-					};
-				}
-
-				if (obj.transform.translation.z > 10) {
-					obj.transform.rotation = {
-						static_cast<float>(obj.transform.rotation.x - data.dt),
-						static_cast<float>(obj.transform.rotation.y + data.dt),
-						static_cast<float>(obj.transform.rotation.z - data.dt * 1.1)
-					};
-				}
 			}
 
 			obj_no += 1;

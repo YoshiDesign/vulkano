@@ -169,7 +169,7 @@ namespace aveng {
             ImGui::Text("Player roll radians:\t%f", data.player_z_rot);
             ImGui::Text("Roll Cooldown:\t%f", data.DeltaRoll);
             ImGui::Text("Velocity:\t%.02f, %.02f, %.02f", data.velocity.x, data.velocity.y, data.velocity.z);
-            ImGui::Text("Torque Direction:\t%d", data.pn);
+            ImGui::Text("Torque:\t%d", data.pn);
             //if (ImGui::Button("Close")) show_player_controller_window = false;
             ImGui::End();
         }

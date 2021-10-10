@@ -121,16 +121,11 @@ namespace aveng{
 
 		{
 
-			//if (W == GLFW_PRESS && data.fly_free_mode)
-			//{
-			//	c_affine += forwardDir;
-			//}
-
 			if (!A && !D) 
 			{
 				// Correct the players offset from the center of the camera's view
-				if (playerObject.transform.modPI > 3.14) playerObject.transform.modPI -= dt * .5; // TODO Easing
-				if (playerObject.transform.modPI < 3.14) playerObject.transform.modPI += dt * .5; // TODO Easing
+				if (playerObject.transform.modPI > 3.14) playerObject.transform.modPI -= dt * abs(playerObject.transform.modPI - PI); // TODO Easing
+				if (playerObject.transform.modPI < 3.14) playerObject.transform.modPI += dt * abs(playerObject.transform.modPI - PI);; // TODO Easing
 				// Synchronize ModPI - Unused as of right now
 				if (viewerObject.transform.modPI > playerObject.transform.modPI) viewerObject.transform.modPI -= dt * .1;
 				if (viewerObject.transform.modPI < playerObject.transform.modPI) viewerObject.transform.modPI += dt * .1;
@@ -192,13 +187,13 @@ namespace aveng{
 					}
 
 					// 3D rotation is allowed --
-					if (data.fly_free_mode) {
-						if (playerObject.transform.modPI <= 3.0f)
-						{
-							// The player's model will be rotated due to the camera.
-							// Rotate the camera
-							c_rotate.y -= 0.5f;						// ... THIS
-						}
+					if (data.fly_mode) {
+
+				
+						// The player's model will be rotated due to the camera.
+						// Rotate the camera
+						c_rotate.y -= 0.5f;						// ... THIS
+		
 					}
 
 				}
@@ -225,14 +220,12 @@ namespace aveng{
 					}
 
 					// 3D rotation is allowed --
-					if (data.fly_free_mode) {
-						if (playerObject.transform.modPI >= 3.5)
-						{
-							// The player's model will be rotated due to the camera.
-							// Rotate the camera
-							c_rotate.y += 0.5f;						// ... THIS, when 3D
-						}
+					if (data.fly_mode) {
 
+						// The player's model will be rotated due to the camera.
+						// Rotate the camera
+						c_rotate.y += 0.5f;						// ... THIS, when 3D
+						
 					}
 
 				}
@@ -255,10 +248,13 @@ namespace aveng{
 		{
 			c_affine.z = 1.0f;
 			velocity.z += 0.1;
+			if (data.fly_mode)
+			{
+				c_affine += forwardDir;
+			}
 		}
 		if (S == GLFW_PRESS)
 		{
-			c_affine.z = -1.0f;
 			velocity.z -= 0.1;
 		}
 
@@ -289,6 +285,7 @@ namespace aveng{
 
 		// Data updates
 		{
+			data.pn = exe::torque;
 			data.DPI = exe::deltaPI;
 			data.DeltaRoll = exe::deltaRoll;
 			data.player_z_rot = playerObject.transform.rotation.z;
