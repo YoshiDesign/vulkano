@@ -88,7 +88,7 @@ namespace aveng{
 		// This if statement effectively makes sure that rotate (matrix) is non-zero
 		if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon()) {
 			// Update according to Delta Time. Normalize keeps multiple rotaions in sync so one direction doesn't rotate faster than another
-			viewerObject.transform.translation += moveSpeed * dt * glm::normalize(moveDir);
+			viewerObject.transform.translation += climbSpeed * dt * glm::normalize(moveDir);
 		}
 
 	}
@@ -170,7 +170,8 @@ namespace aveng{
 
 				if (A)
 				{
-					c_affine.x += -5.0f;
+					velocity.x -= .5f;
+					c_affine.x = 1.0f;
 					// Roll the craft according to the direction it is steering
 					if (playerObject.transform.rotation.z < 1.0f) {
 						playerObject.transform.rotation.z += 0.07;
@@ -203,7 +204,8 @@ namespace aveng{
 				}
 				if (D)
 				{
-					c_affine.x += 5.0f;
+					velocity.x += .5f;
+					c_affine.x = 1.0f;
 					// Roll the craft according to the direction it is steering
 					if (playerObject.transform.rotation.z > -1.0f) {
 						playerObject.transform.rotation.z -= 0.07;
@@ -251,12 +253,16 @@ namespace aveng{
 
 		if (W == GLFW_PRESS)
 		{
-			c_affine.z += 2.0f;
+			c_affine.z = 1.0f;
+			velocity.z += 0.1;
 		}
 		if (S == GLFW_PRESS)
 		{
-			c_affine.z += -2.0f;
+			c_affine.z = -1.0f;
+			velocity.z -= 0.1;
 		}
+
+		//c_affine.x += velocity.x;
 
 		// Regenerate Barrel Roll
 		if (!L && !R && exe::deltaRoll < 100.0f)
@@ -273,7 +279,7 @@ namespace aveng{
 
 		// Update camera affine transform.
 		if (glm::dot(c_affine, c_affine) > std::numeric_limits<float>::epsilon()) {
-			viewerObject.transform.translation += moveSpeed * glm::normalize(c_affine) * dt;
+			viewerObject.transform.translation += velocity * glm::normalize(c_affine) * dt;
 		}
 
 		playerObject.transform.rotation.z += rollSpeed * dt * p_rotate.z;
@@ -287,6 +293,7 @@ namespace aveng{
 			data.DeltaRoll = exe::deltaRoll;
 			data.player_z_rot = playerObject.transform.rotation.z;
 			data.cameraDX = exe::camera_deltaX;
+			data.velocity = velocity;
 		}
 
 	}

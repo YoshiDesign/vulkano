@@ -164,10 +164,11 @@ namespace aveng {
         // 3. Show another simple window.
         if (show_player_controller_window) {
             ImGui::Begin("Player Debug", &show_player_controller_window);
+            ImGui::Text("Speed:\t%f", data.speed);
             ImGui::Text("Player center delta:\t%f", data.DPI);
             ImGui::Text("Player roll radians:\t%f", data.player_z_rot);
             ImGui::Text("Roll Cooldown:\t%f", data.DeltaRoll);
-            //ImGui::Text("Velocity:\t%.02f, %.02f, %.02f", data.c_affine.x, data.c_affine.y, data.c_affine.z);
+            ImGui::Text("Velocity:\t%.02f, %.02f, %.02f", data.velocity.x, data.velocity.y, data.velocity.z);
 
             //if (ImGui::Button("Close")) show_player_controller_window = false;
             ImGui::End();

@@ -53,7 +53,8 @@ namespace aveng {
 		float		DeltaRoll;
 		float		player_z_rot;
 		float		cameraDX;
-		glm::vec3	c_affine;
+		float		speed;
+		glm::vec3	velocity;
 
 	};
 

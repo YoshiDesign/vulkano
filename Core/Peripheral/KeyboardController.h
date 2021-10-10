@@ -29,7 +29,8 @@ namespace aveng {
         void updatePlayer(GLFWwindow* window, AvengAppObject& appObject, float dt);
 
         KeyMappings keys{};
-        float moveSpeed{ 8.f };
+        glm::vec3 velocity{ 8.f };
+        float climbSpeed{ 6.5f };
         float lookSpeed{ 2.0f };
         float rollSpeed{ 8.0f };
         glm::vec3 forwardDir;
