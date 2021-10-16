@@ -23,7 +23,7 @@ namespace aveng {
 			glm::vec3 position{};	// Position of the vertex
 			glm::vec3 color{};	// color at this vertex
 			glm::vec3 normal{}; // surface norms
-			glm::vec2 uv{};		// 2d texture coordinates
+			glm::vec2 texCoord{};		// 2d texture coordinates
 
 			/*
 			* Required to communicate with the vertex shader.
@@ -35,7 +35,7 @@ namespace aveng {
 			// This is used with our hashing function to generate keys in our ordered map of vertices
 			bool operator==(const Vertex& other) const 
 			{
-				return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
+				return position == other.position && color == other.color && normal == other.normal && texCoord == other.texCoord;
 			}
 
 		};

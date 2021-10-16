@@ -7,15 +7,15 @@ layout(location = 1) in vec2 fragTexCoord;
 layout(location = 0) out vec4 outColor;
 
 layout(set = 1, binding = 0) uniform FragUbo {
-    uint info;
+    uint imDex;
 } fubo;
 
 void main() {
 
     vec4 result = vec4(fragColor, 1.0);
 
-    if (fubo.info != 1000) {
-        result = texture(texSampler[fubo.info], fragTexCoord);
+    if (fubo.imDex != 1000) {
+        result = texture(texSampler[fubo.imDex], fragTexCoord);
     }
 
     // Gamma correction

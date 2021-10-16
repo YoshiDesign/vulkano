@@ -225,9 +225,9 @@ namespace aveng {
 		*/ 
 		std::shared_ptr<AvengModel> holyShipModel    = AvengModel::createModelFromFile(engineDevice, "3D/holy_ship.obj");
 		std::shared_ptr<AvengModel> plane    = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
-		std::shared_ptr<AvengModel> coloredCubeModel = AvengModel::createModelFromFile(engineDevice, "3D/colored_cube.obj");
-		std::shared_ptr<AvengModel> rc = AvengModel::createModelFromFile(engineDevice, "3D/rc.obj");
-		std::shared_ptr<AvengModel> bc = AvengModel::createModelFromFile(engineDevice, "3D/bc.obj");
+		//std::shared_ptr<AvengModel> coloredCubeModel = AvengModel::createModelFromFile(engineDevice, "3D/colored_cube.obj");
+		//std::shared_ptr<AvengModel> rc = AvengModel::createModelFromFile(engineDevice, "3D/rc.obj");
+		//std::shared_ptr<AvengModel> bc = AvengModel::createModelFromFile(engineDevice, "3D/bc.obj");
 
 		// Note: Translation is determined by the viewerObject. The ship locks itself to it.
 		playerObject.model = holyShipModel;
@@ -268,22 +268,23 @@ namespace aveng {
 		forwardPlane4.transform.translation = { 0.f, -.1f, 408.f };
 		appObjects.push_back(std::move(forwardPlane4));
 
-		int t = 0;
-		for (int i = 0; i < 3; i++) 
-			for (int j = 0; j < 3; j++) 
-				for (int k = 0; k < 3; k++) {
-					
-					auto gameObj = AvengAppObject::createAppObject(1000);
-					gameObj.model = coloredCubeModel;
-					gameObj.transform.translation = { static_cast<float>(-1.5 + (i * 1.5f)), static_cast<float>(-7 + -(j * 1.5f)), static_cast<float>(-(k * 1.5f)) };
-					gameObj.transform.scale = { .4f, 0.4f, 0.4f };
+		//int t = 0;
+		//for (int i = 0; i < 3; i++) 
+		//	for (int j = 0; j < 3; j++) 
+		//		for (int k = 0; k < 3; k++) {
+		//			
+		//			auto gameObj = AvengAppObject::createAppObject(1000);
+		//			gameObj.model = coloredCubeModel;
+		//			gameObj.meta.type = SCENE;
+		//			gameObj.transform.translation = { static_cast<float>(-1.5 + (i * 1.5f)), static_cast<float>(-7 + -(j * 1.5f)), static_cast<float>(-(k * 1.5f)) };
+		//			gameObj.transform.scale = { .4f, 0.4f, 0.4f };
 
-					appObjects.push_back(std::move(gameObj));
-					t = (t + 1) % 4;
-				}
+		//			appObjects.push_back(std::move(gameObj));
+		//			t = (t + 1) % 4;
+		//		}
 
 
-		pendulum(engineDevice);
+		pendulum(engineDevice, 50);
 
 	}
 
@@ -292,7 +293,7 @@ namespace aveng {
 		aspect = renderer.getAspectRatio();
 		// Updates the viewer object transform component based on key input, proportional to the time elapsed since the last frame
 		keyboardController.moveCameraXZ(aveng_window.getGLFWwindow(), frameTime);
-		camera.setViewYXZ(viewerObject.transform.translation + glm::vec3(0.f, 0.f, -1.0f), viewerObject.transform.rotation + glm::vec3());
+		camera.setViewYXZ(viewerObject.transform.translation + glm::vec3(0.f, 0.f, -.80f), viewerObject.transform.rotation + glm::vec3());
 		camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
 	}
 
@@ -304,10 +305,47 @@ namespace aveng {
 		data.fly_mode   = WindowCallbacks::flightMode;
 	}
 
-	void pendulum(EngineDevice& engineDevice)
+	void XOne::pendulum(EngineDevice& engineDevice, int _max_rows)
 	{
+
+		std::vector<float> factors;
+		float length;
+		float time = 7.0f;
+		float gravity = 3.45f;
+		float k = 7.0f;
+		int max_rows = _max_rows;
+		int row_modifier = 0;
+
 		std::shared_ptr<AvengModel> coloredCubeModel = AvengModel::createModelFromFile(engineDevice, "3D/colored_cube.obj");
-		for (size_t i; i < )
+
+		for (size_t i = 0; i < max_rows; i++)
+		{
+			//row_modifier = row_modifier % static_cast<int>(ceil(max_rows / 2) + 1);
+			for (size_t j = 0; j < 1; j++) {
+				auto gameObj = AvengAppObject::createAppObject(1000);
+				gameObj.model = coloredCubeModel;
+				gameObj.meta.type = SCENE;
+
+				if (i >= std::floor(max_rows / 2))
+					gameObj.visual.pendulum_row = max_rows - row_modifier;
+				else
+					gameObj.visual.pendulum_row = row_modifier;
+
+				length = gravity * glm::pow((time / (2 * glm::pi<float>()) * (k + gameObj.visual.pendulum_row + 1)), 2);
+				length = length * .003;
+
+				gameObj.visual.pendulum_delta = 0.0f;
+				// To make this an actual pendulum, make the extent constant across all objects
+				gameObj.visual.pendulum_extent = 70;
+				gameObj.transform.velocity.x = length;
+				gameObj.transform.translation = { 0.0f, static_cast<float>((i * -1.0f)), 0.0f };
+				gameObj.transform.scale = { .4f, 0.4f, 0.4f };
+
+				appObjects.push_back(std::move(gameObj));
+			}
+			row_modifier++;
+		}
+
 	}
 
 }

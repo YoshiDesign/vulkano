@@ -18,7 +18,6 @@ namespace aveng {
 
 	ImageSystem::ImageSystem(EngineDevice& device) : engineDevice{ device }
 	{
-		
 		for (size_t i = 0; i < MAX_TEXTURES; i++)
 		{
 			createTextureImage(textures[i], i);
@@ -30,16 +29,13 @@ namespace aveng {
 
 	ImageSystem::~ImageSystem() 
 	{
-		
 		for (int i=0; i < images.size(); i++) 
 		{
 			vkDestroyImage(engineDevice.device(), images[i], nullptr);
 			vkDestroyImageView(engineDevice.device(), textureImageViews[i], nullptr);
 			vkFreeMemory(engineDevice.device(), allImageMemory[i], nullptr);
 		}
-
 		vkDestroySampler(engineDevice.device(), textureSampler, nullptr);
-
 	}
 
 	void ImageSystem::createTextureImage(const char* filepath, size_t i)

@@ -17,7 +17,7 @@ namespace aveng {
 	/**/
 	glm::vec3 GameplayFunctions::player_spawn_point()
 	{
-		return { 0.0f, -0.45f, -100.0f };
+		return { 0.0f, -0.75f, -100.0f };
 	}
 
 	/**/
@@ -81,12 +81,6 @@ namespace aveng {
 
 		if (abs(z) < .003f) return 0.0f;
 		return (1.9 * torque) * dt;
-	}
-
-	float GameplayFunctions::nudge(int direction, float dt)
-	{
-		_nudge -= 0.1f;
-		return _nudge * dt;
 	}
 
 	float GameplayFunctions::recenterObject(float dt, float x, float vx)

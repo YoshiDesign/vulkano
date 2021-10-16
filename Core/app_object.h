@@ -42,7 +42,7 @@ namespace aveng {
 
 		MetaComponent meta{};
 		TransformComponent transform{};
-		VisualComponent texture{};
+		VisualComponent visual{};
 		MotionComponent motion{};
 
 	private:

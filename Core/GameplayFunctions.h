@@ -29,7 +29,6 @@ namespace aveng {
 		static float counterTorque(float dt, float torque);
 		//static float centerCorrection(float dt, float x, float vx);
 		static float recenterObject(float dt, float x, float vx);
-		static float nudge(int direction, float dt);
 		static float dpi_high(float dt, float rate);
 		static float dpi_low(float dt, float rate);
 		static float camera_dx_high(float dt, float rate);

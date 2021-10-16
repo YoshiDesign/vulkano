@@ -19,7 +19,7 @@ namespace std {
 	
 			// for final hash value
 			size_t seed = 0;
-			aveng::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+			aveng::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.texCoord);
 			return seed;
 	
 		}
@@ -206,7 +206,7 @@ namespace aveng {
 		attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position) });		// Vertex Positions
 		attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) });			// Vertex colors
 		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) });		// Defines a surface's normal (the non-culled side)
-		attributeDescriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) });				// Texture coordinates
+		attributeDescriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT,	offsetof(Vertex, texCoord) });		// Texture coordinates
 
 		return attributeDescriptions;
 

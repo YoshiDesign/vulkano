@@ -5,7 +5,7 @@
 
 #define exe GameplayFunctions
 
-#define DBUG(a) std::cout<<a<<std::endl;
+#define LOG(x, y) std::cout << x << "\t" << y << std::endl
 #define BYPASS_FBO 0
 
 namespace aveng {
@@ -101,6 +101,7 @@ namespace aveng {
 	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, Data& data, AvengBuffer& fragBuffer)
 	{
 		int obj_no = 0;
+		int direction = 1;
 
 		// Bind our current pipeline configuration
 		switch (data.cur_pipe)
@@ -126,8 +127,12 @@ namespace aveng {
 		*/
 		for (auto& obj : appObjects) 
 		{
-			// This object's dynamic offset in any per-object uniform buffers (currently: FragUbo)
+			// This object's dynamic offset in relation to the Dynamic UBO
 			uint32_t dynamicOffset = obj_no * static_cast<uint32_t>(deviceAlignment);
+			obj_no += 1;
+
+			FragUbo fubo{ obj.get_texture() };	// Texture information -- within our dynamic UBO (FragUbo is a bad name for this, but that's its only usecase right now)
+
 			SimplePushConstantData push{};
 
 			if (obj.meta.type == PLAYER) 
@@ -140,30 +145,35 @@ namespace aveng {
 
 				// Update the player AND the camera. 
 				// These two objects are very loosely coupled in keyboard_controller, 
-				// but player is computationally dependent on the camera object.
+				// but for now the player is computationally dependent on the camera object.
 				// Also camera updates are split up in 2 different functions, both in KeyboardController.cpp
 				keyboard_controller.updatePlayer(aveng_window.getGLFWwindow(), obj, frame_content.frameTime);
 			}
 
-			// Update our frag uniform buffer
-			FragUbo fubo{obj.get_texture()};
-			
 			// 1s tick
 			if (last_sec != data.sec) {
 				last_sec  = data.sec;
-				
 			}
-			if (obj_no > 4) {
+			if (obj.meta.type == SCENE) {
 
-				obj.transform.rotation = {
-				static_cast<float>(obj.transform.rotation.x + 5.0f * data.dt),
-				static_cast<float>(obj.transform.rotation.y + 5.0f * data.dt),
-				static_cast<float>(obj.transform.rotation.z + 5.0f * data.dt)
-				};											  
+				if (obj.transform.translation.x >= obj.visual.pendulum_extent || obj.transform.translation.x <= 0.0f)
+				{
+					if (obj.transform.translation.x >= obj.visual.pendulum_extent) direction = -1.0f;
+					else direction = 1.0f;
+
+					obj.transform.velocity.x *= -1;
+					obj.transform.translation.x += obj.transform.velocity.x / 12; // Avoid clipping
+				}
+
+				obj.transform.translation.x += (obj.transform.velocity.x) * frame_content.frameTime;
+
+				 obj.transform.rotation = {
+					static_cast<float>(obj.transform.rotation.x + obj.transform.translation.x / 5 * frame_content.frameTime),
+					0.0f,
+					0.0f
+				}; 									  
 
 			}
-
-			obj_no += 1;
 
 			// The matrix describing this model's current orientation
 			push.modelMatrix  = obj.transform._mat4();

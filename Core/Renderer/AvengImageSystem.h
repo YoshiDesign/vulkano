@@ -51,14 +51,13 @@ namespace aveng {
 
 		EngineDevice& engineDevice;
 
-		std::vector<uint32_t> mipLevels;
-		std::vector<VkDescriptorImageInfo> imageInfosArray;
-
-		std::vector<VkDeviceMemory> allImageMemory;
 		VkSampler textureSampler;
-		
-		std::vector<VkImageView> textureImageViews;
 		std::vector<VkImage> images;
+		std::vector<uint32_t> mipLevels;
+		std::vector<VkImageView> textureImageViews;
+		std::vector<VkDeviceMemory> allImageMemory;
+		std::vector<VkDescriptorImageInfo> imageInfosArray;
+		
 		//std::unordered_map<std::string, Texture> textures;
 
 	};

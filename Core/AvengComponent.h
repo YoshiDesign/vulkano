@@ -19,8 +19,10 @@ namespace aveng {
 		// Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
 		// https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
 		glm::mat4 _mat4();
-
 		glm::mat3 normalMatrix();
+
+		glm::vec3 deltas = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 velocity = { 0.0f, 0.0f, 0.0f };
 
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
@@ -40,6 +42,9 @@ namespace aveng {
 
 	struct VisualComponent {
 		int tex_id;
+		int pendulum_row;
+		float pendulum_delta;
+		float pendulum_extent;
 	};
 
 	struct MotionComponent {

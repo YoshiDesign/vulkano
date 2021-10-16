@@ -15,4 +15,5 @@
 #include <memory>
 #include <cassert>
 #include <limits>
+#include <cmath>
 

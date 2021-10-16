@@ -36,6 +36,8 @@ namespace aveng {
 		
 		void run();
 
+		void pendulum(EngineDevice& engineDevice, int _max_rows);
+
 	private:
 
 		void loadAppObjects();

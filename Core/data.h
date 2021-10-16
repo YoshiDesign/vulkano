@@ -25,6 +25,7 @@ namespace aveng {
 		GROUND = 0,
 		PLAYER,
 		ENEMY,
+		SCENE,
 		STATIC,
 		DYNAMIC
 	};
