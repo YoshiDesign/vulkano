@@ -265,7 +265,7 @@ namespace aveng {
 				if (index.texcoord_index >= 0) 
 				{
 					
-					vertex.uv = {
+					vertex.texCoord = {
 						attrib.texcoords[2 * index.texcoord_index + 0],
 						attrib.texcoords[2 * index.texcoord_index + 1],
 					};

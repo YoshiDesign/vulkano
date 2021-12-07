@@ -37,7 +37,6 @@ namespace aveng {
         glm::vec3 c_affine{ 1.f };
         glm::vec3 c_rotate{ 0.f, 0.f, 0.f };
         float camera_deltaX{ 0.f };
-
         float modPI = 0.f;
 
         int barrelCooldown{ 100 };

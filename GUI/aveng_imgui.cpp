@@ -140,7 +140,8 @@ namespace aveng {
                 "Mod Rotation:\t(%.03lf, %.03lf, %.03lf)", data.modRot.x, data.modRot.y, data.modRot.z);
             ImGui::Text(
                 "Mod Position:\t(%.03lf, %.03lf, %.03lf)", data.modPos.x, data.modPos.y, data.modPos.z);
-
+            ImGui::Text(
+                "Forward Direction:\t(%.03lf, %.03lf, %.03lf)", data.forwardDir.x, data.forwardDir.y, data.forwardDir.z);
             ImGui::SliderFloat("float", &data.player_modPI, 0.0f, 2*PI);
             ImGui::SliderFloat("float", &data.camera_modPI, 0.0f, 2*PI);
 

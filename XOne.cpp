@@ -223,7 +223,7 @@ namespace aveng {
 		* TODO Group Objects
 		*		Remove textures arg
 		*/ 
-		std::shared_ptr<AvengModel> holyShipModel    = AvengModel::createModelFromFile(engineDevice, "3D/holy_ship.obj");
+		std::shared_ptr<AvengModel> holyShipModel    = AvengModel::createModelFromFile(engineDevice, "3D/ship_demo.obj");
 		std::shared_ptr<AvengModel> plane    = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
 		//std::shared_ptr<AvengModel> coloredCubeModel = AvengModel::createModelFromFile(engineDevice, "3D/colored_cube.obj");
 		//std::shared_ptr<AvengModel> rc = AvengModel::createModelFromFile(engineDevice, "3D/rc.obj");

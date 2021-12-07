@@ -42,6 +42,7 @@ namespace aveng {
 		glm::vec3	cameraRot;
 		glm::vec3	playerPos;
 		glm::vec3	playerRot;
+		glm::vec3	forwardDir;
 		glm::vec3	modRot;
 		glm::vec3	modPos;
 		float		modPI;

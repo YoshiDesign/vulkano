@@ -102,7 +102,8 @@ namespace aveng{
 		// Anchor to the camera in all degrees of motion, hopping up and down dependent on the z-translation.  cos(z / f) * a
 		playerObject.transform.translation =
 			glm::vec3(0.0f, (glm::cos(playerObject.transform.translation.z / 8) * .004) + .1f, -1.0f)
-			+ glm::vec3(unitCircleTransform_vec3(viewerObject.transform.rotation.y, viewerObject.transform.translation, viewRadius, playerObject.transform.modPI, playerObject.transform.translation));
+			+ glm::vec3(
+				unitCircleTransform_vec3(viewerObject.transform.rotation.y, viewerObject.transform.translation, viewRadius, playerObject.transform.modPI, playerObject.transform.translation));
 
 		playerObject.transform.rotation.x = 0.0 + viewerObject.transform.rotation.x;
 		playerObject.transform.rotation.y = PI + .142 + viewerObject.transform.rotation.y;
@@ -192,7 +193,7 @@ namespace aveng{
 				
 						// The player's model will be rotated due to the camera.
 						// Rotate the camera
-						c_rotate.y -= 0.5f;						// ... THIS
+						c_rotate.y -= 0.05f;						// ... THIS
 		
 					}
 
@@ -224,7 +225,7 @@ namespace aveng{
 
 						// The player's model will be rotated due to the camera.
 						// Rotate the camera
-						c_rotate.y += 0.5f;						// ... THIS, when 3D
+						c_rotate.y += 0.05f;						// ... THIS, when 3D
 						
 					}
 
@@ -246,16 +247,25 @@ namespace aveng{
 
 		if (W == GLFW_PRESS)
 		{
-			c_affine.z = 1.0f;
-			velocity.z += 0.1;
+			//c_affine.z = 1.0f;
+			
 			if (data.fly_mode)
 			{
-				c_affine += forwardDir;
+				velocity += forwardDir * dt;
+			} 
+			else {
+				velocity.z += 0.1;
 			}
 		}
 		if (S == GLFW_PRESS)
 		{
-			velocity.z -= 0.1;
+			if (data.fly_mode)
+			{
+				velocity -= forwardDir * dt;
+			}
+			else {
+				velocity.z -= 0.1;
+			}
 		}
 
 		//c_affine.x += velocity.x;
@@ -291,6 +301,7 @@ namespace aveng{
 			data.player_z_rot = playerObject.transform.rotation.z;
 			data.cameraDX = exe::camera_deltaX;
 			data.velocity = velocity;
+			data.forwardDir = forwardDir;
 		}
 
 	}
