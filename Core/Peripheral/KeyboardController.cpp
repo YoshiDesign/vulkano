@@ -87,7 +87,7 @@ namespace aveng{
 
 		// This if statement effectively makes sure that rotate (matrix) is non-zero
 		if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon()) {
-			// Update according to Delta Time. Normalize keeps multiple rotaions in sync so one direction doesn't rotate faster than another
+			// Update according to Delta Time. Normalize keeps multiple rotations in sync so one direction doesn't rotate faster than another
 			viewerObject.transform.translation += climbSpeed * dt * glm::normalize(moveDir);
 		}
 
@@ -118,18 +118,24 @@ namespace aveng{
 		int R = glfwGetKey(window, keys.right);
 		int L = glfwGetKey(window, keys.left);
 		int D = glfwGetKey(window, keys.d);
+
 		forwardDir = { sin(viewerObject.transform.rotation.y), 0.f, cos(viewerObject.transform.rotation.y) };
 
 		{
 
 			if (!A && !D) 
 			{
+
+				/*
+					Note: What if viewerobj mod pi = playerobj mod pi
+				*/
+
 				// Correct the players offset from the center of the camera's view
 				if (playerObject.transform.modPI > 3.14) playerObject.transform.modPI -= dt * abs(playerObject.transform.modPI - PI); // TODO Easing
 				if (playerObject.transform.modPI < 3.14) playerObject.transform.modPI += dt * abs(playerObject.transform.modPI - PI);; // TODO Easing
 				// Synchronize ModPI - Unused as of right now
-				if (viewerObject.transform.modPI > playerObject.transform.modPI) viewerObject.transform.modPI -= dt * .1;
-				if (viewerObject.transform.modPI < playerObject.transform.modPI) viewerObject.transform.modPI += dt * .1;
+				//if (viewerObject.transform.modPI > playerObject.transform.modPI) viewerObject.transform.modPI -= dt * .1;
+				//if (viewerObject.transform.modPI < playerObject.transform.modPI) viewerObject.transform.modPI += dt * .1;
 
 			}
 
@@ -180,7 +186,7 @@ namespace aveng{
 					if (playerObject.transform.modPI > 2.7) 
 					{
 						// Decrease PI delta
-						playerObject.transform.modPI += exe::dpi_low(dt, abs(playerObject.transform.modPI - 2.7));
+						playerObject.transform.modPI += exe::dpi_low(dt, abs(playerObject.transform.modPI - 2.7f));
 					}
 					else {
 
@@ -193,7 +199,7 @@ namespace aveng{
 				
 						// The player's model will be rotated due to the camera.
 						// Rotate the camera
-						c_rotate.y -= 0.05f;						// ... THIS
+						c_rotate.y -= 5.f * dt;						// ... THIS
 		
 					}
 
@@ -214,7 +220,7 @@ namespace aveng{
 					if (playerObject.transform.modPI < 3.6)
 					{
 						// Increase PI Delta
-						playerObject.transform.modPI += exe::dpi_high(dt, abs(playerObject.transform.modPI - 3.6));
+						playerObject.transform.modPI += exe::dpi_high(dt, abs(playerObject.transform.modPI - 3.6f));
 					}
 					else {
 						playerObject.transform.modPI += exe::dpi_low(dt, 0.2f);
@@ -225,7 +231,7 @@ namespace aveng{
 
 						// The player's model will be rotated due to the camera.
 						// Rotate the camera
-						c_rotate.y += 0.05f;						// ... THIS, when 3D
+						c_rotate.y += 5.f * dt;						// ... THIS, when 3D
 						
 					}
 
@@ -292,6 +298,7 @@ namespace aveng{
 
 		// update the camera's rotation components. This really only ever happens in 3D (fly_free_mode)
 		viewerObject.transform.rotation += c_rotate * dt;
+		//viewerObject.transform.modPI = playerObject.transform.modPI;
 
 		// Data updates
 		{

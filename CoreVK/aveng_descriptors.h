@@ -104,7 +104,7 @@ namespace aveng {
         AvengDescriptorPool(const AvengDescriptorPool&) = delete;
         AvengDescriptorPool& operator=(const AvengDescriptorPool&) = delete;
 
-        bool allocateDescriptor(
+        bool allocateDescriptors(
             const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const;
 
         void freeDescriptors(std::vector<VkDescriptorSet>& descriptors) const;

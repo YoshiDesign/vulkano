@@ -41,7 +41,7 @@ namespace aveng {
     }
 
     /*
-    * Create a unique pointer to a Descriptor Set Layout using the
+    * Create a unique pointer to a Descriptor Set Layout using the Builder
     */
     std::unique_ptr<AvengDescriptorSetLayout> AvengDescriptorSetLayout::Builder::build() const 
     {
@@ -155,7 +155,7 @@ namespace aveng {
         vkDestroyDescriptorPool(engineDevice.device(), descriptorPool, nullptr);
     }
 
-    bool AvengDescriptorPool::allocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const 
+    bool AvengDescriptorPool::allocateDescriptors(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const 
     {
 
         VkDescriptorSetAllocateInfo allocInfo{};
@@ -244,7 +244,7 @@ namespace aveng {
     bool AvengDescriptorSetWriter::build(VkDescriptorSet& set) 
     {
 
-        bool success = pool.allocateDescriptor(setLayout.getDescriptorSetLayout(), set);
+        bool success = pool.allocateDescriptors(setLayout.getDescriptorSetLayout(), set);
         if (!success) 
         {
             return false;

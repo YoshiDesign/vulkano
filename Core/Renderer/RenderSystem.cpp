@@ -110,7 +110,7 @@ namespace aveng {
 			case 99: gfxPipeline2->bind(frame_content.commandBuffer); break;
 			default:
 				gfxPipeline->bind(frame_content.commandBuffer); // 0
-		 }
+		}
 		
 		vkCmdBindDescriptorSets(
 			frame_content.commandBuffer,
@@ -167,7 +167,7 @@ namespace aveng {
 
 				obj.transform.translation.x += (obj.transform.velocity.x) * frame_content.frameTime;
 
-				 obj.transform.rotation = {
+				obj.transform.rotation = {
 					static_cast<float>(obj.transform.rotation.x + obj.transform.translation.x / 5 * frame_content.frameTime),
 					0.0f,
 					0.0f
