@@ -59,16 +59,15 @@ namespace aveng {
 		return std::make_unique<AvengModel>(device, builder.vertices, builder.indices);
 	}
 
-	std::unique_ptr<AvengModel> AvengModel::drawTriangle(EngineDevice& device)
+	std::unique_ptr<AvengModel> AvengModel::drawTriangle(EngineDevice& device, glm::vec3 pos)
 	{
 		std::vector<AvengModel::Vertex> vertices { // vector
-			{ { 0.0f, -50.f, 0.0f }, {1.0f, 0.0f, 0.0f }, {0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-			{ { 0.f,  -25.f, 15.0f }, {0.0f, 1.0f, 0.0f }, {0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-			{ { 0.0f, 0.0f, 0.0f }, {0.0f, 0.0f, 1.0f }, {0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } }
+			{ { pos.x, pos.y, pos.z }, {1.0f, 1.0f, 1.0f }, {1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } },
+			{ { pos.x + 0.5f,  pos.y + 0.5f, pos.z }, {1.0f, 1.0f, 1.0f }, {1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } },
+			{ { pos.x - 0.5f,  pos.y + 0.5f, pos.z }, {1.0f, 1.0f, 1.0f }, {1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } }
 		};
 
 		std::vector<uint32_t> indices = { 0,1,2 };
-
 		return std::make_unique<AvengModel>(device, vertices, indices);
 	}
 
@@ -279,7 +278,7 @@ namespace aveng {
 
 				if (index.normal_index >= 0) 
 				{
-					std::cout << "{" << attrib.normals[3 * index.normal_index + 0] << ", " << attrib.normals[3 * index.normal_index + 1] << ", " << attrib.normals[3 * index.normal_index + 2] << std::endl;
+
 					vertex.normal = {
 						attrib.normals[3 * index.normal_index + 0],
 						attrib.normals[3 * index.normal_index + 1],

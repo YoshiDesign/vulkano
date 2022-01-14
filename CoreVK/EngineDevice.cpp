@@ -724,6 +724,9 @@ namespace aveng {
         endSingleTimeCommands(commandBuffer);
     }
 
+    /*
+    * Reserve memory based on provided property(ies)
+    */
     void EngineDevice::createImageWithInfo(
         const VkImageCreateInfo &imageInfo,
         VkMemoryPropertyFlags properties,

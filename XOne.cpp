@@ -35,7 +35,7 @@ namespace aveng {
 						 // Type							// Max no. of descriptor sets
 			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT * 8)
 			.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT * 16)
-			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, SwapChain::MAX_FRAMES_IN_FLIGHT * 8)
+			//.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, SwapChain::MAX_FRAMES_IN_FLIGHT * 8)
 			.build();
 
 		loadAppObjects();
@@ -73,8 +73,8 @@ namespace aveng {
 		// Descriptor Layout 0 -- Global
 		std::unique_ptr<AvengDescriptorSetLayout> globalDescriptorSetLayout =							
 			AvengDescriptorSetLayout::Builder(engineDevice)
-				.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)			
-				.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 4)
+				.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)			
+				.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 8)
 				//.addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
 				.build();	// Initialize the Descriptor Set Layout
 
@@ -90,18 +90,16 @@ namespace aveng {
 
 		for (int i = 0; i < SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 		{
-			// Write first set
-			auto imageInfo	= imageSystem.descriptorInfoForAllImages();
+			// Write first set - Uniform Buffer containing our UBO and our Imager Sampler
 			auto bufferInfo	= uboBuffers[i]->descriptorInfo();
-
+			auto imageInfo	= imageSystem.descriptorInfoForAllImages();
 			AvengDescriptorSetWriter(*globalDescriptorSetLayout, *globalPool)
-				.writeBuffer(0, &bufferInfo)
-				.writeImage(1, imageInfo.data(), imageSystem.MAX_TEXTURES)
+				.writeBuffer(0, &bufferInfo)	// First Binding
+				.writeImage(1, imageInfo.data(), imageSystem.texture_paths.size()) // Second Binding
 				.build(globalDescriptorSets[i]);
 
-			// Write second set
+			// Write second set - Also a uniform buffer
 			auto fragBufferInfo = fragBuffers[i]->descriptorInfo(sizeof(RenderSystem::FragUbo), 0);
-
 			AvengDescriptorSetWriter(*fragDescriptorSetLayout, *globalPool)
 				.writeBuffer(0, &fragBufferInfo)
 				.build(fragDescriptorSets[i]);
@@ -142,13 +140,12 @@ namespace aveng {
 		*/
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
-		float dx = 0.0f;
 
 		// When IMGui gets disabled this will be responsible for the initial PI
 		data.modPI = PI;
 
 		// Position the camera
-		viewerObject.transform.translation = { 0.0f, -0.75f, -67.0f };
+		viewerObject.transform.translation.z = -2.5f;
 
 		// Keep the window open until shouldClose is truthy
 		while (!aveng_window.shouldClose()) {
@@ -177,17 +174,6 @@ namespace aveng {
 					globalDescriptorSets[frameIndex],
 					fragDescriptorSets[frameIndex]
 				};
-				
-				dx += frameTime;
-				if (dx > 1.0f) {	// TODO: every 2 or 8 seconds change how much the ship dips
-					dx = 0.0f;
-					data.sec = (data.sec + 1) % 10000;
-				}
-
-				// For Calibration 
-				data.modRot = WindowCallbacks::modRot;
-				data.modPos = WindowCallbacks::modTrans;	
-				data.pn = WindowCallbacks::posNeg;			// Inverts mod incrementation
 
 				// Update our global uniform buffer
 				ubo.projectionView = camera.getProjection() * camera.getView();
@@ -223,34 +209,65 @@ namespace aveng {
 	void XOne::loadAppObjects() 
 	{
 
-		auto triangle = AvengAppObject::createAppObject(1000);
-		triangle.meta.type = SCENE;
-		triangle.model = AvengModel::drawTriangle(engineDevice);
-		appObjects.push_back(std::move(triangle));
+		//auto triangle = AvengAppObject::createAppObject(THEME_1);
+		//triangle.meta.type = SCENE;
+		//triangle.model = AvengModel::drawTriangle(engineDevice);
+		//appObjects.push_back(std::move(triangle));
 
-		auto centerPlane = AvengAppObject::createAppObject(SURFACE_GRID_1);
-		centerPlane.meta.type = GROUND;
-		centerPlane.model = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
-		centerPlane.transform.translation = { 0.f, -.1f, 0.f};
-		appObjects.push_back(std::move(centerPlane));
-		
-		auto forwardPlane2 = AvengAppObject::createAppObject(SURFACE_GRID_1);
-		forwardPlane2.meta.type = GROUND;
-		forwardPlane2.model = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
-		forwardPlane2.transform.translation = { 0.f, -.1f, 136.f };
-		appObjects.push_back(std::move(forwardPlane2));
+		for (size_t i = 0; i < 1; i++)
+		{
 
-		auto forwardPlane3 = AvengAppObject::createAppObject(SURFACE_GRID_1);
-		forwardPlane3.meta.type = GROUND;
-		forwardPlane3.model = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
-		forwardPlane3.transform.translation = { 0.f, -.1f, 272.f };
-		appObjects.push_back(std::move(forwardPlane3));
+			for (size_t j = 0; j < 1; j++)
+			{
 
-		auto forwardPlane4 = AvengAppObject::createAppObject(SURFACE_GRID_1);
-		forwardPlane4.meta.type = GROUND;
-		forwardPlane4.model = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
-		forwardPlane4.transform.translation = { 0.f, -.1f, 408.f };
-		appObjects.push_back(std::move(forwardPlane4));
+				auto grid = AvengAppObject::createAppObject(THEME_2);
+				grid.meta.type = GROUND;
+				grid.model = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
+				grid.transform.translation = { 136.0f * i, -.1f, 0.0f};
+				appObjects.push_back(std::move(grid));
+
+				auto grid2 = AvengAppObject::createAppObject(THEME_1);
+				grid2.meta.type = GROUND;
+				grid2.model = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
+				grid2.transform.translation = { 150.0f, -.1f, 170.0f };
+				appObjects.push_back(std::move(grid2));
+
+			}
+
+		}
+
+		//for (size_t i = 0; i < 10; i++) {
+		//	for (size_t j = 0; j < 15; j++) {
+		//		for (size_t k = 0; k < 5; k++) {
+
+		//			auto triangle = AvengAppObject::createAppObject(NO_TEXTURE);
+		//			triangle.meta.type = SCENE;
+		//			triangle.model = AvengModel::drawTriangle(engineDevice, {static_cast<float>(i), static_cast<float>(j) * -1.0f, static_cast<float>(k) });
+		//			appObjects.push_back(std::move(triangle));
+
+		//		}
+		//	}
+		//}
+
+		for (size_t i = 0; i < 10; i++)
+		{
+
+			for (size_t j = 0; j < 10; j++) 
+			{
+
+				for (size_t k = 0; k < 4; k++) {
+					auto sphere = AvengAppObject::createAppObject(NO_TEXTURE);
+					sphere.meta.type = SCENE;
+					sphere.model = AvengModel::createModelFromFile(engineDevice, "3D/sphere.obj");
+					sphere.transform.translation = { static_cast<float>(i) * 1.5f, static_cast<float>(j) * -1.0f, static_cast<float>(k) * 2.0f };
+					sphere.transform.scale = {0.1f, 0.1f, 0.1f};
+					appObjects.push_back(std::move(sphere));
+				
+				}
+			
+			}
+
+		}
 
 		//int t = 0;
 		//for (int i = 0; i < 3; i++) 
@@ -267,8 +284,7 @@ namespace aveng {
 		//			t = (t + 1) % 4;
 		//		}
 
-
-		pendulum(engineDevice, 50);
+		// pendulum(engineDevice, 50);
 
 	}
 
@@ -278,7 +294,7 @@ namespace aveng {
 		// Updates the viewer object transform component based on key input, proportional to the time elapsed since the last frame
 		keyboardController.moveCameraXZ(aveng_window.getGLFWwindow(), frameTime);
 		camera.setViewYXZ(viewerObject.transform.translation + glm::vec3(0.f, 0.f, -.80f), viewerObject.transform.rotation + glm::vec3());
-		camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
+		camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
 	}
 
 	void XOne::updateData()

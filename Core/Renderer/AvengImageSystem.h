@@ -20,13 +20,11 @@ namespace aveng {
 	class ImageSystem {
 
 		const char* textures[8] = {
-			"textures/grid2.png", "textures/theme1.png", "textures/theme3.png", "textures/theme4.png",
-			"textures/theme2.png", "textures/sm2.png", "textures/sm3.png", "textures/sm4.png"
+			"textures/grid2.png", "textures/theme1.png", "textures/theme2.png", "textures/theme3.png",
+			"textures/theme4.png", "textures/sm2.png", "textures/sm3.png", "textures/sm4.png"
 		};
 
 	public:
-
-		const int MAX_TEXTURES{ 8 };
 
 		ImageSystem(EngineDevice& device);
 		~ImageSystem();
@@ -37,13 +35,12 @@ namespace aveng {
 		void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels);
 		void createTextureSampler();
-
 		void createImageDescriptors(std::vector<VkImageView> views);
-		VkDescriptorImageInfo getImageInfoAtIndex(int index) { return imageInfosArray[index]; };
-		std::vector<VkDescriptorImageInfo> descriptorInfoForAllImages()
-		{ 
-			return imageInfosArray; 
-		}
+
+		VkDescriptorImageInfo getImageInfoAtIndex(int index)    { return imageInfosArray[index]; }
+		std::vector<VkDescriptorImageInfo> descriptorInfoForAllImages(){ return imageInfosArray; }
+
+		std::vector<const char*> texture_paths;
 
 	private:
 

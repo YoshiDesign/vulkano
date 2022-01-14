@@ -57,7 +57,7 @@ namespace aveng {
 		AvengModel& operator=(const AvengModel&) = delete;
 
 		static std::unique_ptr<AvengModel> createModelFromFile(EngineDevice& device, const std::string& filepath);
-		static std::unique_ptr<AvengModel> drawTriangle(EngineDevice& device);
+		static std::unique_ptr<AvengModel> drawTriangle(EngineDevice& device, glm::vec3 pos);
 		
 		void bind(VkCommandBuffer commandBuffer);
 		void draw(VkCommandBuffer commandBuffer);

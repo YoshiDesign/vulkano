@@ -226,7 +226,6 @@ namespace aveng {
             bindingDescription.descriptorCount == 1 &&
             "Binding single descriptor info, but binding expects multiple");
 
-        INFO(226, "\t")
         std::cout << "[] Images:\t" << nImages << std::endl;
         VkWriteDescriptorSet write{};
         write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;       // The type of this structure.

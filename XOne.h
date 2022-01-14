@@ -24,9 +24,9 @@ namespace aveng {
 
 		struct GlobalUbo {
 			glm::mat4 projectionView{ 1.f };
-			glm::vec4 ambientLightColor{1.f, 1.f, 1.f, .02f};
-			glm::vec3 lightPosition{ -1.f };
-			alignas(16) glm::vec4 lightColor{ 1.f };
+			glm::vec4 ambientLightColor{0.f, 0.f, 1.f, .04f};
+			glm::vec3 lightPosition{ 5.0f, -1.0f, 2.8f };
+			alignas(16) glm::vec4 lightColor{ 1.f, 1.f, 1.f, 1.f };
 			//alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3{ -1.f, -3.f, 1.f });
 		};
 
@@ -61,7 +61,7 @@ namespace aveng {
 		GlobalUbo ubo{};
 
 		AvengAppObject viewerObject{ AvengAppObject::createAppObject(1000) };
-		AvengAppObject playerObject{ AvengAppObject::createAppObject(THEME_3) };
+		// AvengAppObject playerObject{ AvengAppObject::createAppObject(THEME_3) };
 
 		// 
 		float aspect;

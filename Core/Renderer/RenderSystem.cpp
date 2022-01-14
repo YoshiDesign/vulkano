@@ -23,14 +23,12 @@ namespace aveng {
 		VkRenderPass renderPass, 
 		KeyboardController& _keyboardController,
 		VkDescriptorSetLayout globalDescriptorSetLayouts,
-		VkDescriptorSetLayout fragDescriptorSetLayouts) : engineDevice{ device }, aveng_window{ _aveng_window }, viewerObject{ viewer }, keyboard_controller{_keyboardController}
+		VkDescriptorSetLayout fragDescriptorSetLayouts) 
+			: engineDevice{ device }, aveng_window{ _aveng_window }, viewerObject{ viewer }, keyboard_controller{_keyboardController}
 	{
-
 		VkDescriptorSetLayout descriptorSetLayouts[2] = { globalDescriptorSetLayouts , fragDescriptorSetLayouts };
-
 		createPipelineLayout(descriptorSetLayouts);
 		createPipeline(renderPass);
-
 	}
 
 	RenderSystem::~RenderSystem()
@@ -130,37 +128,16 @@ namespace aveng {
 		for (auto& obj : appObjects) 
 		{
 			// This object's dynamic offset in relation to the Dynamic UBO
-			uint32_t dynamicOffset = obj_no * static_cast<uint32_t>(deviceAlignment);
+			uint32_t dynamicOffset = obj.get_texture() * static_cast<uint32_t>(deviceAlignment);
 			obj_no += 1;
 
 			FragUbo fubo{ obj.get_texture() };	// Texture information -- within our dynamic UBO (FragUbo is a bad name for this, but that's its only usecase right now)
 
 			SimplePushConstantData push{};
-
 			
 			// 1s tick
 			if (last_sec != data.sec) {
 				last_sec  = data.sec;
-			}
-			if (obj.meta.type == SCENE) {
-
-				if (obj.transform.translation.x >= obj.visual.pendulum_extent || obj.transform.translation.x <= 0.0f)
-				{
-					if (obj.transform.translation.x >= obj.visual.pendulum_extent) direction = -1.0f;
-					else direction = 1.0f;
-
-					obj.transform.velocity.x *= -1;
-					obj.transform.translation.x += obj.transform.velocity.x / 12; // Avoid clipping
-				}
-
-				obj.transform.translation.x += (obj.transform.velocity.x) * frame_content.frameTime;
-
-				obj.transform.rotation = {
-					static_cast<float>(obj.transform.rotation.x + obj.transform.translation.x / 5 * frame_content.frameTime),
-					0.0f,
-					0.0f
-				}; 									  
-
 			}
 
 			// The matrix describing this model's current orientation
@@ -169,8 +146,10 @@ namespace aveng {
 
 			if (!BYPASS_FBO) {
 
-				if (dynamicOffset > engineDevice.properties.limits.maxUniformBufferRange)
+				if (dynamicOffset > engineDevice.properties.limits.maxUniformBufferRange) {
+					std::cout << "Range: " << engineDevice.properties.limits.maxUniformBufferRange << std::endl;
 					throw std::runtime_error("Attempting to allocate buffer beyond device uniform buffer memory limit.");
+				}
 
 				fragBuffer.writeToBuffer(&fubo, sizeof(FragUbo), dynamicOffset);
 				fragBuffer.flush();

@@ -18,7 +18,13 @@ namespace aveng {
 
 	ImageSystem::ImageSystem(EngineDevice& device) : engineDevice{ device }
 	{
-		for (size_t i = 0; i < MAX_TEXTURES; i++)
+
+		for (auto text : textures) {
+			std::cout << "Loading Texture: " << text << std::endl;
+			texture_paths.push_back(text);
+		}
+
+		for (size_t i = 0; i < texture_paths.size(); i++)
 		{
 			createTextureImage(textures[i], i);
 			createTextureImageView(images[i], i);
@@ -40,7 +46,6 @@ namespace aveng {
 
 	void ImageSystem::createTextureImage(const char* filepath, size_t i)
 	{
-		std::cout << filepath << std::endl;
 		VkImage image;
 		VkDeviceMemory imageMemory;
 
@@ -56,7 +61,7 @@ namespace aveng {
 		if (!pixels || !mipLevel) 
 		{
 			std::cout << filepath << std::endl;
-			throw std::runtime_error("failed to load texture image!");
+			throw std::runtime_error("Error: failed to load texture image!");
 		}
 
 		// Move the pixels into a staging buffer
@@ -69,9 +74,11 @@ namespace aveng {
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 		};
 
+		// Staging allocation of pixel data
 		stagingBuffer.map();
 		stagingBuffer.writeToBuffer(pixels, imageSize);
 
+		// We no longer need the local pixel data
 		stbi_image_free(pixels);
 
 		// Image
@@ -86,7 +93,7 @@ namespace aveng {
 		imageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;	// Being sure to utilize the same image format for the texels as the pixels in the buffer, or the copy op will fail
 		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;	// Specifying an implementation defined ordering of the data, instead of something like row major order
 		// Note: If you want to access individual texels of the image data, you need to use VK_IMAGE_TILING_LINEAR instead, this is a suboptimal tiling format
-		// as it does not allow the underlying hardware to map the image into memory as it pleases.
+		// as it does not allow the underlying hardware to map the image into memory by its own conventions.
 		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; // No need to preserve texel data during the first transition to the image memory from the staging buffer
 		// e.g. You're using an image as a transfer source
 		imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;	// Destination for the buffer copy- Also a source (for mipmapping due to vkCmdBlitImage). VK_IMAGE_USAGE_SAMPLED_BIT means we'd like to be able to access the image from our shaders
@@ -260,15 +267,15 @@ namespace aveng {
 			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		}
 		else {
-			throw std::invalid_argument("unsupported layout transition!");
+			throw std::invalid_argument("Error: unsupported layout transition!");
 		}
 
 		// Record the command to submit pipeline barriers
 		vkCmdPipelineBarrier(
 			commandBuffer,
-			sourceStage,		// The pipeline stage which the operations occur that should happen before the barrier
-			destinationStage,	// The pipeline stage in which operations will wait on the barrier
-			0,					//  either 0 or VK_DEPENDENCY_BY_REGION_BIT. The latter turns the barrier into a per-region condition. That means that the implementation is allowed to already begin reading from the parts of a resource that were written so far, for example
+			sourceStage,		// The pipeline stage in which the operations occur that should happen BEFORE the barrier
+			destinationStage,	// The pipeline stage in which operations will wait on the barrier to complete before proceeding
+			0,					//  either 0 or VK_DEPENDENCY_BY_REGION_BIT. The latter turns the barrier into a per-region condition. That means that the implementation is allowed to already begin reading from the parts of a resource that were written to, thus far.
 			0, nullptr,
 			0, nullptr,
 			1, &barrier
