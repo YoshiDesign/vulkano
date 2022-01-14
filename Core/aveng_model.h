@@ -20,9 +20,9 @@ namespace aveng {
 
 		struct Vertex {
 			// These 4 items get packed into our vertex buffers
-			glm::vec3 position{};	// Position of the vertex
-			glm::vec3 color{};	// color at this vertex
-			glm::vec3 normal{}; // surface norms
+			glm::vec3 position{};		// Position of the vertex
+			glm::vec3 color{};			// color at this vertex
+			glm::vec3 normal{};			// surface norms
 			glm::vec2 texCoord{};		// 2d texture coordinates
 
 			/*
@@ -46,15 +46,18 @@ namespace aveng {
 			std::vector<uint32_t> indices{};
 
 			void loadModel(const std::string& filepath);
+			void make2DTriangle();
 		};
 
-		AvengModel(EngineDevice& device, const AvengModel::Builder& builder);
+		//AvengModel(EngineDevice& device, const AvengModel::Builder& builder);
+		AvengModel(EngineDevice& device, std::vector<AvengModel::Vertex> vertices, std::vector<uint32_t> indices);
 		~AvengModel();
 
 		AvengModel(const AvengModel&) = delete;
 		AvengModel& operator=(const AvengModel&) = delete;
 
 		static std::unique_ptr<AvengModel> createModelFromFile(EngineDevice& device, const std::string& filepath);
+		static std::unique_ptr<AvengModel> drawTriangle(EngineDevice& device);
 		
 		void bind(VkCommandBuffer commandBuffer);
 		void draw(VkCommandBuffer commandBuffer);

@@ -72,14 +72,4 @@ namespace aveng {
         return transform.rotation;
     }
 
-    void AvengAppObject::spinLeft(float dt)
-    {
-        transform.rotation.z -= 2.0f * dt;
-    }
-
-    void AvengAppObject::spinRight(float dt)
-    {
-        transform.rotation.z += 2.0f * dt;
-    }
-
 } 

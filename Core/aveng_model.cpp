@@ -34,13 +34,18 @@ namespace aveng {
 		std::vector<tinyobj::material_t> materials;
 	};
 
-	AvengModel::AvengModel(EngineDevice& device, const AvengModel::Builder& builder) 
+	//AvengModel::AvengModel(EngineDevice& device, const AvengModel::Builder& builder) 
+	//	: engineDevice{ device }
+	//{
+	//	createVertexBuffers(builder.vertices);		
+	//	createIndexBuffers(builder.indices);
+	//}
+
+	AvengModel::AvengModel(EngineDevice& device, std::vector<AvengModel::Vertex> vertices, std::vector<uint32_t> indices)
 		: engineDevice{ device }
 	{
-		/*loadModelFromFile("../3D/ship_demo.obj", "holy_ship");
-		loadModelFromFile("../3D/colored_cube.obj", "colored_cube");*/
-		createVertexBuffers(builder.vertices);		// The vertex shader takes input from a vertex buffer from `layout(location = n) in vec3 vertexAttribute`. The vertexAttribute is defined by the vertex Buffer
-		createIndexBuffers(builder.indices);
+		createVertexBuffers(vertices); // The vertex shader takes input from a vertex buffer from `layout(location = n) in vec3 vertexAttribute`. The vertexAttribute is defined by the vertex Buffer
+		createIndexBuffers(indices);
 	}
 
 	AvengModel::~AvengModel() 
@@ -51,11 +56,24 @@ namespace aveng {
 	{
 		Builder builder{};
 		builder.loadModel(filepath);
-		return std::make_unique<AvengModel>(device, builder);
+		return std::make_unique<AvengModel>(device, builder.vertices, builder.indices);
+	}
+
+	std::unique_ptr<AvengModel> AvengModel::drawTriangle(EngineDevice& device)
+	{
+		std::vector<AvengModel::Vertex> vertices { // vector
+			{ { 0.0f, -50.f, 0.0f }, {1.0f, 0.0f, 0.0f }, {0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
+			{ { 0.f,  -25.f, 15.0f }, {0.0f, 1.0f, 0.0f }, {0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
+			{ { 0.0f, 0.0f, 0.0f }, {0.0f, 0.0f, 1.0f }, {0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } }
+		};
+
+		std::vector<uint32_t> indices = { 0,1,2 };
+
+		return std::make_unique<AvengModel>(device, vertices, indices);
 	}
 
 	/*
-	* @function createVertexBuffers
+		@function createVertexBuffers
 		Create a vertex buffer in our device memory
 		These buffers are used to write information to device memory
 		- vkMapMemory maps a buffer on the host to a buffer on the device
@@ -212,6 +230,12 @@ namespace aveng {
 
 	}
 
+	void AvengModel::Builder::make2DTriangle() 
+	{
+		vertices.clear();
+		indices.clear();
+	}
+
 	void AvengModel::Builder::loadModel(const std::string& filepath)
 	{
 		tinyobj::attrib_t attrib;				// This stores the position, color, normal and texture coord
@@ -255,6 +279,7 @@ namespace aveng {
 
 				if (index.normal_index >= 0) 
 				{
+					std::cout << "{" << attrib.normals[3 * index.normal_index + 0] << ", " << attrib.normals[3 * index.normal_index + 1] << ", " << attrib.normals[3 * index.normal_index + 2] << std::endl;
 					vertex.normal = {
 						attrib.normals[3 * index.normal_index + 0],
 						attrib.normals[3 * index.normal_index + 1],

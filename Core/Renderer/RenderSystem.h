@@ -32,7 +32,7 @@ namespace aveng {
 	private:
 
 		void createPipelineLayout(VkDescriptorSetLayout* descriptorSetLayouts);
-		void updateData(size_t size, float frameTime, Data& data, const AvengAppObject& playerObject);
+		void updateData(size_t size, float frameTime, Data& data);
 		void createPipeline(VkRenderPass renderPass);
 
 		int last_sec;

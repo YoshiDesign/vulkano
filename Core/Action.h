@@ -4,21 +4,21 @@
 
 namespace aveng {
 
-	class SpinLeftCommand : public Command
-	{
-	public:
-		SpinLeftCommand() {}
-		virtual void execute(AvengAppObject& entity, float fTime) { entity.spinLeft(fTime); }
+	//class SpinLeftCommand : public Command
+	//{
+	//public:
+	//	SpinLeftCommand() {}
+	//	virtual void execute(AvengAppObject& entity, float fTime) { entity.spinLeft(fTime); }
 
-	};
+	//};
 
-	class SpinRightCommand : public Command
-	{
-	public:
-		SpinRightCommand() {}
-		virtual void execute(AvengAppObject& entity, float fTime) { entity.spinRight(fTime); }
+	//class SpinRightCommand : public Command
+	//{
+	//public:
+	//	SpinRightCommand() {}
+	//	virtual void execute(AvengAppObject& entity, float fTime) { entity.spinRight(fTime); }
 
-	};
+	//};
 
 	//class ThrottleUpCommand : public Command
 	//{

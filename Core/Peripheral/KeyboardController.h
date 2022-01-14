@@ -26,11 +26,10 @@ namespace aveng {
         KeyboardController(AvengAppObject& _viewerObject, Data& data);
 
         void moveCameraXZ(GLFWwindow* window, float dt);
-        void updatePlayer(GLFWwindow* window, AvengAppObject& appObject, float dt);
 
         KeyMappings keys{};
         glm::vec3 velocity{ 0.0f, 0.0f, 8.0f };
-        float climbSpeed{ 6.5f };
+        float climbSpeed{ 126.5f };
         float lookSpeed{ 2.0f };
         float rollSpeed{ 8.0f };
         glm::vec3 forwardDir;

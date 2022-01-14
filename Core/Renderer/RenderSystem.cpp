@@ -122,6 +122,8 @@ namespace aveng {
 			0,
 			nullptr);
 
+		updateData(appObjects.size(), frame_content.frameTime, data);
+
 		/*
 		* Thread object bind/draw calls here
 		*/
@@ -135,21 +137,7 @@ namespace aveng {
 
 			SimplePushConstantData push{};
 
-			if (obj.meta.type == PLAYER) 
-			{
-				// State and debug. This will be refactored as a component per object.
-				// This particular data object is tied to the App class. This doesn't exactly
-				// need to change in terms of the player's data, but for other objects it will vital
-				// for them to each have their own data struct.
-				updateData(appObjects.size(), frame_content.frameTime, data, obj);
-
-				// Update the player AND the camera. 
-				// These two objects are very loosely coupled in keyboard_controller, 
-				// but for now the player is computationally dependent on the camera object.
-				// Also camera updates are split up in 2 different functions, both in KeyboardController.cpp
-				keyboard_controller.updatePlayer(aveng_window.getGLFWwindow(), obj, frame_content.frameTime);
-			}
-
+			
 			// 1s tick
 			if (last_sec != data.sec) {
 				last_sec  = data.sec;
@@ -211,16 +199,13 @@ namespace aveng {
 		}
 	}
 
-	void RenderSystem::updateData(size_t size, float frameTime, Data& data, const AvengAppObject& playerObject)
+	void RenderSystem::updateData(size_t size, float frameTime, Data& data)
 	{
 
 		data.num_objs = size;
 		data.cur_pipe = WindowCallbacks::getCurPipeline();
 		data.dt = frameTime;
 		data.camera_modPI = viewerObject.transform.modPI;
-		data.playerPos = playerObject.transform.translation;
-		data.playerRot = playerObject.transform.rotation;
-		data.player_modPI = playerObject.transform.modPI;
 
 	}
 

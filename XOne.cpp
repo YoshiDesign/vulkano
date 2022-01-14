@@ -147,6 +147,9 @@ namespace aveng {
 		// When IMGui gets disabled this will be responsible for the initial PI
 		data.modPI = PI;
 
+		// Position the camera
+		viewerObject.transform.translation = { 0.0f, -0.75f, -67.0f };
+
 		// Keep the window open until shouldClose is truthy
 		while (!aveng_window.shouldClose()) {
 
@@ -219,52 +222,33 @@ namespace aveng {
 	*/
 	void XOne::loadAppObjects() 
 	{
-		/*
-		* TODO Group Objects
-		*		Remove textures arg
-		*/ 
-		std::shared_ptr<AvengModel> holyShipModel    = AvengModel::createModelFromFile(engineDevice, "3D/ship_demo.obj");
-		std::shared_ptr<AvengModel> plane    = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
-		//std::shared_ptr<AvengModel> coloredCubeModel = AvengModel::createModelFromFile(engineDevice, "3D/colored_cube.obj");
-		//std::shared_ptr<AvengModel> rc = AvengModel::createModelFromFile(engineDevice, "3D/rc.obj");
-		//std::shared_ptr<AvengModel> bc = AvengModel::createModelFromFile(engineDevice, "3D/bc.obj");
 
-		// Note: Translation is determined by the viewerObject. The ship locks itself to it.
-		playerObject.model = holyShipModel;
-		playerObject.meta.type = PLAYER;
-		viewerObject.transform.translation = GameplayFunctions::player_spawn_point();
-		playerObject.transform.scale = { 0.01f, 0.01f, 0.01f };
-		playerObject.transform.rotation = { 0.0f, 0.0f, 0.0f };
-		appObjects.push_back(std::move(playerObject));
+		auto triangle = AvengAppObject::createAppObject(1000);
+		triangle.meta.type = SCENE;
+		triangle.model = AvengModel::drawTriangle(engineDevice);
+		appObjects.push_back(std::move(triangle));
 
 		auto centerPlane = AvengAppObject::createAppObject(SURFACE_GRID_1);
 		centerPlane.meta.type = GROUND;
-		centerPlane.model = plane;
+		centerPlane.model = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
 		centerPlane.transform.translation = { 0.f, -.1f, 0.f};
 		appObjects.push_back(std::move(centerPlane));
 		
-		auto forwardPlane1 = AvengAppObject::createAppObject(SURFACE_GRID_1);
-		forwardPlane1.meta.type = GROUND;
-		forwardPlane1.model = plane;
-		forwardPlane1.transform.translation = { 0.f, -.1f, 136.f};
-		forwardPlane1.transform.rotation = { glm::radians(45.0f), 4.2f, 0.f};
-		appObjects.push_back(std::move(forwardPlane1));
-
 		auto forwardPlane2 = AvengAppObject::createAppObject(SURFACE_GRID_1);
 		forwardPlane2.meta.type = GROUND;
-		forwardPlane2.model = plane;
+		forwardPlane2.model = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
 		forwardPlane2.transform.translation = { 0.f, -.1f, 136.f };
 		appObjects.push_back(std::move(forwardPlane2));
 
 		auto forwardPlane3 = AvengAppObject::createAppObject(SURFACE_GRID_1);
 		forwardPlane3.meta.type = GROUND;
-		forwardPlane3.model = plane;
+		forwardPlane3.model = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
 		forwardPlane3.transform.translation = { 0.f, -.1f, 272.f };
 		appObjects.push_back(std::move(forwardPlane3));
 
 		auto forwardPlane4 = AvengAppObject::createAppObject(SURFACE_GRID_1);
 		forwardPlane4.meta.type = GROUND;
-		forwardPlane4.model = plane;
+		forwardPlane4.model = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
 		forwardPlane4.transform.translation = { 0.f, -.1f, 408.f };
 		appObjects.push_back(std::move(forwardPlane4));
 
@@ -316,14 +300,15 @@ namespace aveng {
 		int max_rows = _max_rows;
 		int row_modifier = 0;
 
-		std::shared_ptr<AvengModel> coloredCubeModel = AvengModel::createModelFromFile(engineDevice, "3D/colored_cube.obj");
+		//std::unique_ptr<AvengModel> coloredCubeModel = AvengModel::createModelFromFile(engineDevice, "3D/colored_cube.obj");
 
 		for (size_t i = 0; i < max_rows; i++)
 		{
 			//row_modifier = row_modifier % static_cast<int>(ceil(max_rows / 2) + 1);
 			for (size_t j = 0; j < 1; j++) {
 				auto gameObj = AvengAppObject::createAppObject(1000);
-				gameObj.model = coloredCubeModel;
+				//gameObj.model = coloredCubeModel;
+				gameObj.model = AvengModel::createModelFromFile(engineDevice, "3D/colored_cube.obj");
 				gameObj.meta.type = SCENE;
 
 				if (i >= std::floor(max_rows / 2))

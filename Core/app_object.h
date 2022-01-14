@@ -28,7 +28,7 @@ namespace aveng {
 		AvengAppObject& operator=(AvengAppObject&&) = default;
 
 		const id_t getId() { return id; }
-		std::shared_ptr<AvengModel> model{};
+		std::unique_ptr<AvengModel> model{};
 
 		int get_texture() { return texture_id; }
 		void set_texture(int texture) { texture_id = texture; }
@@ -36,9 +36,6 @@ namespace aveng {
 		glm::vec3 color{};
 		glm::vec3 getPosition();
 		glm::vec3 getRotation();
-
-		void spinLeft(float dt);
-		void spinRight(float dt);
 
 		MetaComponent meta{};
 		TransformComponent transform{};
