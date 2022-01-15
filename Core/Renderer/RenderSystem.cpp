@@ -19,12 +19,10 @@ namespace aveng {
 	RenderSystem::RenderSystem(
 		EngineDevice& device,
 		AvengAppObject& viewer,
-		AvengWindow& _aveng_window,
 		VkRenderPass renderPass, 
-		KeyboardController& _keyboardController,
 		VkDescriptorSetLayout globalDescriptorSetLayouts,
 		VkDescriptorSetLayout fragDescriptorSetLayouts) 
-			: engineDevice{ device }, aveng_window{ _aveng_window }, viewerObject{ viewer }, keyboard_controller{_keyboardController}
+			: engineDevice{ device }, viewerObject{ viewer }
 	{
 		VkDescriptorSetLayout descriptorSetLayouts[2] = { globalDescriptorSetLayouts , fragDescriptorSetLayouts };
 		createPipelineLayout(descriptorSetLayouts);
@@ -96,7 +94,7 @@ namespace aveng {
 		);
 	}
 
-	void RenderSystem::renderAppObjects(FrameContent& frame_content, std::vector<AvengAppObject>& appObjects, Data& data, AvengBuffer& fragBuffer)
+	void RenderSystem::renderAppObjects(FrameContent& frame_content, Data& data, AvengBuffer& fragBuffer)
 	{
 		int obj_no = 0;
 		int direction = 1;
@@ -120,13 +118,15 @@ namespace aveng {
 			0,
 			nullptr);
 
-		updateData(appObjects.size(), frame_content.frameTime, data);
+		updateData(frame_content.appObjects.size(), frame_content.frameTime, data);
 
 		/*
 		* Thread object bind/draw calls here
 		*/
-		for (auto& obj : appObjects) 
+		for (auto& kv : frame_content.appObjects)
 		{
+			auto& obj = kv.second;
+
 			// This object's dynamic offset in relation to the Dynamic UBO
 			uint32_t dynamicOffset = obj.get_texture() * static_cast<uint32_t>(deviceAlignment);
 			obj_no += 1;
@@ -144,8 +144,7 @@ namespace aveng {
 			push.modelMatrix  = obj.transform._mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
 
-			if (!BYPASS_FBO) {
-
+			{
 				if (dynamicOffset > engineDevice.properties.limits.maxUniformBufferRange) {
 					std::cout << "Range: " << engineDevice.properties.limits.maxUniformBufferRange << std::endl;
 					throw std::runtime_error("Attempting to allocate buffer beyond device uniform buffer memory limit.");

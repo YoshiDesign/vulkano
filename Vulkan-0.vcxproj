@@ -157,6 +157,7 @@
     <ClCompile Include="Core\GameplayFunctions.cpp" />
     <ClCompile Include="Core\Math\aveng_math.cpp" />
     <ClCompile Include="Core\Peripheral\Controller.cpp" />
+    <ClCompile Include="Core\Renderer\PointLightSystem.cpp" />
     <ClCompile Include="GUI\aveng_imgui.cpp" />
     <ClCompile Include="Core\aveng_model.cpp" />
     <ClCompile Include="Core\Peripheral\aveng_window.cpp" />
@@ -192,6 +193,7 @@
     <ClInclude Include="Core\GameplayFunctions.h" />
     <ClInclude Include="Core\Math\aveng_math.h" />
     <ClInclude Include="Core\Peripheral\Controller.h" />
+    <ClInclude Include="Core\Renderer\PointLightSystem.h" />
     <ClInclude Include="GUI\aveng_imgui.h" />
     <ClInclude Include="Core\aveng_model.h" />
     <ClInclude Include="Core\Camera\aveng_camera.h" />
@@ -241,12 +243,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="compile.bat" />
+    <None Include="shaders\point_light.frag" />
+    <None Include="shaders\point_light.vert" />
     <None Include="shaders\simple_shader.frag" />
     <None Include="shaders\simple_shader.vert" />
     <None Include="shaders\simple_shader2.frag" />
     <None Include="shaders\simple_shader2.vert" />
-    <None Include="shaders\simple_shader_objects.frag" />
-    <None Include="shaders\simple_shader_objects.vert" />
   </ItemGroup>
   <ItemGroup>
     <Text Include=".gitignore" />

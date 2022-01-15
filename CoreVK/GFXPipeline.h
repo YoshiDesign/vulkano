@@ -19,7 +19,8 @@ namespace aveng {
 		PipelineConfig() = default;
 		PipelineConfig(const PipelineConfig&) = delete;
 		PipelineConfig& operator=(const PipelineConfig&) = delete;
-
+		std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
+		std::vector<VkVertexInputBindingDescription> bindingDescriptions{};
 		VkPipelineViewportStateCreateInfo viewportInfo;
 		VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
 		VkPipelineRasterizationStateCreateInfo rasterizationInfo;

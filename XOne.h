@@ -6,6 +6,7 @@
 #include "Core/Renderer/RenderSystem.h"
 #include "CoreVK/aveng_descriptors.h"
 #include "Core/Renderer/AvengImageSystem.h"
+#include "Core/Renderer/PointLightSystem.h"
 #include "Core/app_object.h"
 #include "GUI/aveng_imgui.h"
 #include "Core/Peripheral/aveng_window.h"
@@ -23,7 +24,8 @@ namespace aveng {
 		static constexpr int HEIGHT = 600;
 
 		struct GlobalUbo {
-			glm::mat4 projectionView{ 1.f };
+			glm::mat4 projection{ 1.f };
+			glm::mat4 view{ 1.f };
 			glm::vec4 ambientLightColor{0.f, 0.f, 1.f, .04f};
 			glm::vec3 lightPosition{ 5.0f, -1.0f, 2.8f };
 			alignas(16) glm::vec4 lightColor{ 1.f, 1.f, 1.f, 1.f };
@@ -69,7 +71,7 @@ namespace aveng {
 
 		// This declaration must occur after the renderer initializes
 		std::unique_ptr<AvengDescriptorPool> globalPool{};
-		std::vector<AvengAppObject> appObjects;
+		AvengAppObject::Map appObjects;
 
 		// Band-aid when all seems lost
 		//auto minOffsetAlignment = std::lcm(

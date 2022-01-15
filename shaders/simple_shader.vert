@@ -12,7 +12,8 @@ layout(location = 2) out vec3 f_fragNormalWorld;
 layout(location = 3) out vec2 f_fragTexCoord;
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
-	mat4 projectionViewMatrix;
+	mat4 projection;
+	mat4 view;
 	vec4 ambientLightColor; // w is intensity
 	vec3 lightPosition;
 	vec4 lightColor;
@@ -26,7 +27,7 @@ layout(push_constant) uniform Push {
 
 void main() {
 	vec4 positionWorld = push.modelMatrix * vec4(position, 1.0);	// Translate this vertex from model space to world space
-	gl_Position = ubo.projectionViewMatrix * positionWorld;
+	gl_Position = ubo.projection * ubo.view * positionWorld;
 
 	f_fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
 	f_fragPosWorld    = positionWorld.xyz;

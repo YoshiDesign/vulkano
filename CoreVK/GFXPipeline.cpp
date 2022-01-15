@@ -76,8 +76,8 @@ namespace aveng {
 		shaderStages[1].pNext = nullptr;
 		shaderStages[1].pSpecializationInfo = nullptr;
 
-		auto bindingDescriptions = AvengModel::Vertex::getBindingDescriptions();
-		auto attributeDescriptions = AvengModel::Vertex::getAttributeDescriptions();
+		auto& bindingDescriptions = configInfo.bindingDescriptions;
+		auto& attributeDescriptions = configInfo.attributeDescriptions;
 
 		// Struct to describe how we interperet our vertex buffer data as initial input into our pipeline
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
@@ -268,6 +268,9 @@ namespace aveng {
 			static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
 		configInfo.dynamicStateInfo.flags = 0;
 
+		configInfo.bindingDescriptions = AvengModel::Vertex::getBindingDescriptions();
+		configInfo.attributeDescriptions = AvengModel::Vertex::getAttributeDescriptions();
+		
 	}
 
 }

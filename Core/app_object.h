@@ -13,6 +13,7 @@ namespace aveng {
 
 	public:
 		using id_t = unsigned int;
+		using Map = std::unordered_map<id_t, AvengAppObject>;
 
 		static AvengAppObject createAppObject(int texture_id)
 		{

@@ -110,11 +110,15 @@ namespace aveng {
 		RenderSystem renderSystem{
 			engineDevice,
 			viewerObject,
-			aveng_window,
 			renderer.getSwapChainRenderPass(),
-			keyboardController,
 			globalDescriptorSetLayout->getDescriptorSetLayout(),
 			fragDescriptorSetLayout->getDescriptorSetLayout()
+		};
+		
+		PointLightSystem pointLightSystem{
+			engineDevice,
+			renderer.getSwapChainRenderPass(),
+			globalDescriptorSetLayout->getDescriptorSetLayout(),
 		};
 
 		//camera.setViewTarget(glm::vec3(-1.f, -2.f, -20.f), glm::vec3(0.f, 0.f, 3.5f));
@@ -172,11 +176,14 @@ namespace aveng {
 					commandBuffer,
 					camera,
 					globalDescriptorSets[frameIndex],
-					fragDescriptorSets[frameIndex]
+					fragDescriptorSets[frameIndex],
+					appObjects
 				};
 
-				// Update our global uniform buffer
-				ubo.projectionView = camera.getProjection() * camera.getView();
+				ubo.projection = camera.getProjection();
+				ubo.view = camera.getView();
+
+				// Update our global uniform buffer 
 				uboBuffers[frameIndex]->writeToBuffer(&ubo);
 				uboBuffers[frameIndex]->flush();
 
@@ -184,9 +191,9 @@ namespace aveng {
 				renderer.beginSwapChainRenderPass(commandBuffer);
 				renderSystem.renderAppObjects(
 					frame_content, 
-					appObjects, 
 					data, 
 					*fragBuffers[frameIndex]);
+				pointLightSystem.render(frame_content);
 
 				aveng_imgui.newFrame();
 				aveng_imgui.runGUI(data);
@@ -224,13 +231,13 @@ namespace aveng {
 				grid.meta.type = GROUND;
 				grid.model = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
 				grid.transform.translation = { 136.0f * i, -.1f, 0.0f};
-				appObjects.push_back(std::move(grid));
+				appObjects.emplace(grid.getId(), std::move(grid));
 
 				auto grid2 = AvengAppObject::createAppObject(THEME_1);
 				grid2.meta.type = GROUND;
 				grid2.model = AvengModel::createModelFromFile(engineDevice, "3D/plane.obj");
 				grid2.transform.translation = { 150.0f, -.1f, 170.0f };
-				appObjects.push_back(std::move(grid2));
+				appObjects.emplace(grid2.getId(), std::move(grid2));
 
 			}
 
@@ -261,7 +268,7 @@ namespace aveng {
 					sphere.model = AvengModel::createModelFromFile(engineDevice, "3D/sphere.obj");
 					sphere.transform.translation = { static_cast<float>(i) * 1.5f, static_cast<float>(j) * -1.0f, static_cast<float>(k) * 2.0f };
 					sphere.transform.scale = {0.1f, 0.1f, 0.1f};
-					appObjects.push_back(std::move(sphere));
+					appObjects.emplace(sphere.getId(), std::move(sphere));
 				
 				}
 			
@@ -342,7 +349,7 @@ namespace aveng {
 				gameObj.transform.translation = { 0.0f, static_cast<float>((i * -1.0f)), 0.0f };
 				gameObj.transform.scale = { .4f, 0.4f, 0.4f };
 
-				appObjects.push_back(std::move(gameObj));
+				appObjects.emplace(gameObj.getId(), std::move(gameObj));
 			}
 			row_modifier++;
 		}

@@ -102,6 +102,9 @@
     <ClCompile Include="Core\Peripheral\Controller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Renderer\PointLightSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\Peripheral\aveng_window.h">
@@ -269,17 +272,20 @@
     <ClInclude Include="Core\Command.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Core\Renderer\PointLightSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\simple_shader.vert" />
     <None Include="shaders\simple_shader.frag" />
+    <None Include="shaders\simple_shader2.vert" />
+    <None Include="shaders\simple_shader2.frag" />
+    <None Include="shaders\point_light.vert" />
+    <None Include="shaders\point_light.frag" />
     <None Include="compile.bat">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="shaders\simple_shader2.vert" />
-    <None Include="shaders\simple_shader2.frag" />
-    <None Include="shaders\simple_shader_objects.vert" />
-    <None Include="shaders\simple_shader_objects.frag" />
   </ItemGroup>
   <ItemGroup>
     <Text Include=".gitignore" />

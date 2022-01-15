@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 
-
 namespace aveng {
 
     struct SwapChainSupportDetails {
@@ -40,11 +39,11 @@ namespace aveng {
 
     public:
 
-#ifdef NDEBUG
+//#ifdef NDEBUG
           const bool enableValidationLayers = false;
-#else
-          const bool enableValidationLayers = true;
-#endif
+//#else
+//          const bool enableValidationLayers = true;
+//#endif
 
         EngineDevice(AvengWindow &window);
         ~EngineDevice();

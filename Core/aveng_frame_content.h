@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Camera/aveng_camera.h"
+#include "app_object.h"
 
 namespace aveng {
 	struct FrameContent {
@@ -11,7 +12,7 @@ namespace aveng {
 		AvengCamera& camera;
 		VkDescriptorSet globalDescriptorSet;
 		VkDescriptorSet fragDescriptorSet;
-		float aspect;
+		AvengAppObject::Map& appObjects;
 
 	};
 }
