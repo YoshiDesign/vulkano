@@ -3,9 +3,6 @@
 #include "../Math/aveng_math.h"
 #include "../../avpch.h"
 
-#define exe GameplayFunctions
-
-#define LOG(x, y) std::cout << x << "\t" << y << std::endl
 namespace aveng{
 
 	KeyboardController::KeyboardController(AvengAppObject& _viewerObject, Data& _data) 

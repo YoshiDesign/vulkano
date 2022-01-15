@@ -3,11 +3,6 @@
 #include "../Utils/window_callbacks.h"
 #include "../GameplayFunctions.h"
 
-#define exe GameplayFunctions
-
-#define LOG(x, y) std::cout << x << "\t" << y << std::endl
-#define BYPASS_FBO 0
-
 namespace aveng {
 
 	struct SimplePushConstantData

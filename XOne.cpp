@@ -8,9 +8,6 @@
 #include "Core/Utils/window_callbacks.h"
 #include "Core/GameplayFunctions.h"
 
-#define INFO(ln, why) std::cout << "XOne.cpp::" << ln << ":\n" << why << std::endl;
-#define DBUG(x) std::cout << x << std::endl;
-
 namespace aveng {
 
 	// Dynamic Helpers on window callback keys
@@ -258,7 +255,7 @@ namespace aveng {
 
 		for (size_t i = 0; i < 10; i++)
 		{
-
+			
 			for (size_t j = 0; j < 10; j++) 
 			{
 
