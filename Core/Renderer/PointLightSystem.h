@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../app_object.h"
+#include "../Scene/app_object.h"
 #include "../aveng_frame_content.h"
 #include "../Camera/aveng_camera.h"
-#include "../Peripheral/aveng_window.h"
+#include "../aveng_window.h"
 #include "../Peripheral/KeyboardController.h"
 #include "../../CoreVK/EngineDevice.h"
 #include "../../CoreVK/GFXPipeline.h"

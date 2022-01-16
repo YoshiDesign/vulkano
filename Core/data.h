@@ -20,7 +20,7 @@ namespace aveng {
 		NO_TEXTURE
 	};
 
-	// Used by MetaComponents
+	// Used by Components System
 	enum types {
 		GROUND = 0,
 		PLAYER,
@@ -45,7 +45,7 @@ namespace aveng {
 		glm::vec3	forwardDir;
 		glm::vec3	modRot;
 		glm::vec3	modPos;
-		float		modPI;
+		float		modPI{PI};
 		float		player_modPI;
 		float		camera_modPI;
 

@@ -3,13 +3,13 @@
 #include <memory>
 #include <vector>
 
-#include "Core/Renderer/RenderSystem.h"
+#include "Core/Renderer/ObjectRenderSystem.h"
 #include "CoreVK/aveng_descriptors.h"
 #include "Core/Renderer/AvengImageSystem.h"
 #include "Core/Renderer/PointLightSystem.h"
-#include "Core/app_object.h"
+#include "Core/Scene/app_object.h"
 #include "GUI/aveng_imgui.h"
-#include "Core/Peripheral/aveng_window.h"
+#include "Core/aveng_window.h"
 #include "CoreVK/EngineDevice.h"
 #include "CoreVk/aveng_buffer.h"
 #include "Core/Renderer/Renderer.h"
@@ -33,7 +33,7 @@ namespace aveng {
 		};
 
 		XOne();
-		~XOne();
+		~XOne(){};
 
 		XOne(const XOne&) = delete;
 		XOne &operator=(const XOne&) = delete;
@@ -66,7 +66,7 @@ namespace aveng {
 		AvengImgui aveng_imgui{ engineDevice };
 		AvengCamera camera{};
 		GlobalUbo ubo{};
-		RenderSystem renderSystem{ engineDevice, viewerObject };
+		ObjectRenderSystem objectRenderSystem{ engineDevice, viewerObject };
 		PointLightSystem pointLightSystem{ engineDevice };
 		KeyboardController keyboardController{ viewerObject, data };
 
@@ -85,3 +85,17 @@ namespace aveng {
 	};
 
 }
+
+/*
+	Things to keep in mind:
+	Object Space - Objects initially exist at the origin of object space
+	World Space  - The model matrix created by the AppObject's transform component coordinates objects with World Space
+	Camera Space - The view transformation, applied to our objects, moves objects from World Space into the camera's perspective,
+				   where the camera is at the origin and all object's coord's are relative to their position and orientation
+
+			* The camera does not actually exist, we're just transforming objects AS IF the camera were there
+
+		We then apply the projection matrix, capturing whatever is contained by the viewing frustrum, which then transforms
+		it to the canonical view volume. As a final step the viewport transformation maps this region to actual pixel values.
+
+*/

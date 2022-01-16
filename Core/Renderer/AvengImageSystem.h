@@ -47,7 +47,6 @@ namespace aveng {
 		// mipLevels is one dependency keeping us from merging some of these functions with SwapChain's impelmentations of them
 
 		EngineDevice& engineDevice;
-
 		VkSampler textureSampler;
 		std::vector<VkImage> images;
 		std::vector<uint32_t> mipLevels;

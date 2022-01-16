@@ -6,6 +6,10 @@
 
 
 /*
+*	This class is not responsible for rendering. Here we are creating our VkImageSamplers and ImageViews
+*	Along with ImageDescriptors, TextureSamplers and the like. This enables the Sampler in our Frag. shader
+* 
+* From the Vulkan Tutorial:
 	All of the helper functions that submit commands so far have been set up to execute synchronously 
 	by waiting for the queue to become idle. For practical applications it is recommended to combine 
 	these operations in a single command buffer and execute them asynchronously for higher throughput, 

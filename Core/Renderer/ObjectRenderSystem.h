@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../app_object.h"
+#include "../Scene/app_object.h"
 #include "../aveng_frame_content.h"
 #include "../Peripheral/KeyboardController.h"
 #include "../../CoreVK/EngineDevice.h"
@@ -11,7 +11,7 @@
 
 namespace aveng {
 
-	class RenderSystem {
+	class ObjectRenderSystem {
 
 	public:
 
@@ -19,13 +19,13 @@ namespace aveng {
 			alignas(sizeof(int)) int imDex;
 		};
 
-		RenderSystem(EngineDevice& device, AvengAppObject& viewer);
-		~RenderSystem();
+		ObjectRenderSystem(EngineDevice& device, AvengAppObject& viewer);
+		~ObjectRenderSystem();
 
-		RenderSystem(const RenderSystem&) = delete;
+		ObjectRenderSystem(const ObjectRenderSystem&) = delete;
 		void initialize(VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout, VkDescriptorSetLayout fragDescriptorSetLayouts);
-		RenderSystem& operator=(const RenderSystem&) = delete;
-		void renderAppObjects(FrameContent& frame_content, Data& data, AvengBuffer& fragBuffer);
+		ObjectRenderSystem& operator=(const ObjectRenderSystem&) = delete;
+		void render(FrameContent& frame_content, Data& data, AvengBuffer& fragBuffer);
 		VkPipelineLayout getPipelineLayout() { return pipelineLayout; }
 
 	private:

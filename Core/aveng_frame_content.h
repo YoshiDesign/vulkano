@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Camera/aveng_camera.h"
-#include "app_object.h"
+#include "Scene/app_object.h"
 
 namespace aveng {
 	struct FrameContent {

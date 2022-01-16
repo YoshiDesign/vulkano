@@ -2,8 +2,8 @@
 
 #include "../CoreVK/EngineDevice.h"
 #include "../Core/data.h"
-#include "../Core/Peripheral/aveng_window.h"
-#include "../Core/Utils/window_callbacks.h"
+#include "../Core/aveng_window.h"
+#include "../Core/Events/window_callbacks.h"
 
 // libs
 #include <glm/glm.hpp>

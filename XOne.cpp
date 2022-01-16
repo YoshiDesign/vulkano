@@ -5,8 +5,8 @@
 #include "Core/Utils/aveng_utils.h"
 #include "Core/aveng_frame_content.h"
 #include "Core/Camera/aveng_camera.h"
-#include "Core/Utils/window_callbacks.h"
-#include "Core/GameplayFunctions.h"
+#include "Core/Events/window_callbacks.h"
+#include "Core/Player/GameplayFunctions.h"
 
 namespace aveng {
 
@@ -20,76 +20,45 @@ namespace aveng {
 
 	XOne::XOne() 
 	{
-		// Set callback functions for keys bound to the window
-		glfwSetKeyCallback(aveng_window.getGLFWwindow(), WindowCallbacks::testKeyCallback);
-
-		/*
-		* Call the pool builder to setup our pool for construction.
-		*/
-		globalPool = AvengDescriptorPool::Builder(engineDevice)
-			.setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT * 4)
-						 // Type							// Max no. of descriptor sets
-			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT * 8)
-			.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT * 16)
-			//.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, SwapChain::MAX_FRAMES_IN_FLIGHT * 8)
-			.build();
-
 		Setup();
-
 		loadAppObjects();
-
-	}
-
-	XOne::~XOne()
-	{
-		
 	}
 
 	void XOne::run()
 	{
+		// Set callback functions for keys bound to the window
+		glfwSetKeyCallback(aveng_window.getGLFWwindow(), WindowCallbacks::testKeyCallback);
+
 		//camera.setViewTarget(glm::vec3(-1.f, -2.f, -20.f), glm::vec3(0.f, 0.f, 3.5f));
-
-		/*
-			Things to keep in mind:
-			Object Space - Objects initially exist at the origin of object space
-			World Space  - The model matrix created by the AppObject's transform component coordinates objects with World Space
-			Camera Space - The view transformation, applied to our objects, moves objects from World Space into the camera's perspective,
-						   where the camera is at the origin and all object's coord's are relative to their position and orientation
-
-					* The camera does not actually exist, we're just transforming objects AS IF the camera were there
-					
-				We then apply the projection matrix, capturing whatever is contained by the viewing frustrum, which then transforms
-				it to the canonical view volume. As a final step the viewport transformation maps this region to actual pixel values.
-					
-		*/
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
 
-		// When IMGui gets disabled this will be responsible for the initial PI
-		data.modPI = PI;
-
-		// Position the camera
-		viewerObject.transform.translation.z = -2.5f;
+		// Initial camera position
+		viewerObject.transform.translation.z = -5.5f;
+		viewerObject.transform.translation.y = -2.5f;
 
 		// Keep the window open until shouldClose is truthy
 		while (!aveng_window.shouldClose()) {
 
-			// Keep this on top. It can block
+			// Potentially blocking
 			glfwPollEvents();
 
 			// Calculate time between iterations
 			auto newTime = std::chrono::high_resolution_clock::now();
 			frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
 			currentTime = newTime;
-			//frameTime = glm::min(frameTime, MAX_FRAME_TIME);	// Use this to lock to a specific max frame rate
 
 			// Data & Debug
 			updateCamera(frameTime, viewerObject, keyboardController, camera);
 			updateData();
 
-			auto commandBuffer = renderer.beginFrame();
+			// Get a command buffer for this frame
+			VkCommandBuffer commandBuffer = renderer.beginFrame();
+
 			if (commandBuffer != nullptr) {
+
 				int frameIndex = renderer.getFrameIndex();
+
 				FrameContent frame_content = {
 					frameIndex,
 					frameTime,
@@ -100,6 +69,7 @@ namespace aveng {
 					appObjects
 				};
 
+				// Pack our vertex shader uniform buffer
 				ubo.projection = camera.getProjection();
 				ubo.view = camera.getView();
 
@@ -110,11 +80,7 @@ namespace aveng {
 				// Render
 				renderer.beginSwapChainRenderPass(commandBuffer);
 
-				renderSystem.renderAppObjects(
-					frame_content, 
-					data, 
-					*fragBuffers[frameIndex]);
-
+				objectRenderSystem.render(frame_content, data, *fragBuffers[frameIndex]);
 				pointLightSystem.render(frame_content);
 
 				aveng_imgui.newFrame();
@@ -198,23 +164,6 @@ namespace aveng {
 
 		}
 
-		//int t = 0;
-		//for (int i = 0; i < 3; i++) 
-		//	for (int j = 0; j < 3; j++) 
-		//		for (int k = 0; k < 3; k++) {
-		//			
-		//			auto gameObj = AvengAppObject::createAppObject(1000);
-		//			gameObj.model = coloredCubeModel;
-		//			gameObj.meta.type = SCENE;
-		//			gameObj.transform.translation = { static_cast<float>(-1.5 + (i * 1.5f)), static_cast<float>(-7 + -(j * 1.5f)), static_cast<float>(-(k * 1.5f)) };
-		//			gameObj.transform.scale = { .4f, 0.4f, 0.4f };
-
-		//			appObjects.push_back(std::move(gameObj));
-		//			t = (t + 1) % 4;
-		//		}
-
-		// pendulum(engineDevice, 50);
-
 	}
 
 	void XOne::updateCamera(float frameTime, AvengAppObject& viewerObject, KeyboardController& keyboardController, AvengCamera& camera)
@@ -229,8 +178,8 @@ namespace aveng {
 	void XOne::updateData()
 	{
 		data.cameraView = camera.getCameraView();
-		data.cameraPos  = viewerObject.getPosition();
-		data.cameraRot  = viewerObject.getRotation();
+		data.cameraPos  = viewerObject.transform.translation;
+		data.cameraRot  = viewerObject.transform.rotation;
 		data.fly_mode   = WindowCallbacks::flightMode;
 	}
 
@@ -242,6 +191,18 @@ namespace aveng {
 	*/
 	void XOne::Setup()
 	{
+
+		/*
+		* Call the pool builder to setup our pool for construction.
+		*/
+		globalPool = AvengDescriptorPool::Builder(engineDevice)
+			.setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT * 4)
+			// Type							// Max no. of descriptor sets
+			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT * 8)
+			.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT * 16)
+			//.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, SwapChain::MAX_FRAMES_IN_FLIGHT * 8)
+			.build();
+
 		// Create global uniform buffers mapped into device memory
 		uboBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
 		fragBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -255,7 +216,7 @@ namespace aveng {
 		}
 		for (int i = 0; i < fragBuffers.size(); i++) {
 			fragBuffers[i] = std::make_unique<AvengBuffer>(engineDevice,
-				sizeof(RenderSystem::FragUbo) * 8000,
+				sizeof(ObjectRenderSystem::FragUbo) * 8000,
 				1,
 				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
@@ -291,24 +252,23 @@ namespace aveng {
 				.build(globalDescriptorSets[i]);
 
 			// Write second set - Also a uniform buffer
-			auto fragBufferInfo = fragBuffers[i]->descriptorInfo(sizeof(RenderSystem::FragUbo), 0);
+			auto fragBufferInfo = fragBuffers[i]->descriptorInfo(sizeof(ObjectRenderSystem::FragUbo), 0);
 			AvengDescriptorSetWriter(*fragDescriptorSetLayout, *globalPool)
 				.writeBuffer(0, &fragBufferInfo)
 				.build(fragDescriptorSets[i]);
 		}
 
-		// Note that the renderSystem is initialized with a pointer to the Render Pass
-		renderSystem.initialize(
+		// Rendering subsystem initializers
+		objectRenderSystem.initialize(
 			renderer.getSwapChainRenderPass(),
 			globalDescriptorSetLayout->getDescriptorSetLayout(),
 			fragDescriptorSetLayout->getDescriptorSetLayout()
 		);
-
 		pointLightSystem.initialize(
 			renderer.getSwapChainRenderPass(),
 			globalDescriptorSetLayout->getDescriptorSetLayout()
 		);
-
+		// GUI
 		aveng_imgui.init(
 			aveng_window,
 			renderer.getSwapChainRenderPass(),

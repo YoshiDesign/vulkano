@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../app_object.h"
-#include "aveng_window.h"
-#include "../Action.h"
+#include "../Scene/app_object.h"
+#include "../aveng_window.h"
+#include "../Player/Action.h"
 #include "../data.h"
 
 

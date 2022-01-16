@@ -46,7 +46,6 @@ namespace aveng {
 			std::vector<uint32_t> indices{};
 
 			void loadModel(const std::string& filepath);
-			void make2DTriangle();
 		};
 
 		//AvengModel(EngineDevice& device, const AvengModel::Builder& builder);

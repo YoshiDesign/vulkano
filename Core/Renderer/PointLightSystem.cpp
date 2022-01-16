@@ -1,7 +1,7 @@
 #include "PointLightSystem.h"
 #include "../Math/aveng_math.h"
-#include "../Utils/window_callbacks.h"
-#include "../GameplayFunctions.h"
+#include "../Events/window_callbacks.h"
+#include "../Player/GameplayFunctions.h"
 
 #define exe GameplayFunctions
 
@@ -76,7 +76,7 @@ namespace aveng {
 			"shaders/point_light.vert.spv",
 			"shaders/point_light.frag.spv",
 			pipelineConfig
-			);
+		);
 
 		// Another GFXPipeline
 		//gfxPipeline2 = std::make_unique<GFXPipeline>(
@@ -92,7 +92,6 @@ namespace aveng {
 
 		gfxPipeline->bind(frame_content.commandBuffer); // 0
 	
-
 		vkCmdBindDescriptorSets(
 			frame_content.commandBuffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,

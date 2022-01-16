@@ -1,13 +1,13 @@
 #include <cassert>
 #include <cstring>
 #include <iostream>
+#include <unordered_map>
 #include "aveng_model.h"
 #include "Utils/aveng_utils.h"
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_object_loader.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
-#include <unordered_map>
 
 namespace std {
 
@@ -227,12 +227,6 @@ namespace aveng {
 
 		return attributeDescriptions;
 
-	}
-
-	void AvengModel::Builder::make2DTriangle() 
-	{
-		vertices.clear();
-		indices.clear();
 	}
 
 	void AvengModel::Builder::loadModel(const std::string& filepath)

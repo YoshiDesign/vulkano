@@ -1,6 +1,6 @@
 #pragma once
 #include "Command.h"
-#include "app_object.h"
+#include "../Scene/app_object.h"
 
 namespace aveng {
 

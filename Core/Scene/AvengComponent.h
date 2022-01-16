@@ -47,8 +47,8 @@ namespace aveng {
 		float pendulum_extent;
 	};
 
-	struct MotionComponent {
-		float speed;
+	struct ResistanceComponent {
+		float force;
 	};
 
 	struct MetaComponent{
@@ -58,7 +58,8 @@ namespace aveng {
 	struct RigidBodyComponent
 	{
 		glm::vec2 velocity;
-		float mass{ 1.0f };
+		float mass;
+		float density;
 	};
 
 }

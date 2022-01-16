@@ -1,5 +1,5 @@
 #include "KeyboardController.h"
-#include "../GameplayFunctions.h"
+#include "../Player/GameplayFunctions.h"
 #include "../Math/aveng_math.h"
 #include "../../avpch.h"
 

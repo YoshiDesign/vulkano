@@ -1,6 +1,6 @@
 #pragma once
 
-#include "aveng_model.h"
+#include "../aveng_model.h"
 #include "AvengComponent.h"
 
 #include <memory>
@@ -22,7 +22,6 @@ namespace aveng {
 		}
 
 		AvengAppObject(id_t objId, int texture_id) : id{ objId }, texture_id{ texture_id } {}
-
 		AvengAppObject(const AvengAppObject&) = delete;
 		AvengAppObject& operator=(const AvengAppObject&) = delete;
 		AvengAppObject(AvengAppObject&&) = default;
@@ -35,13 +34,10 @@ namespace aveng {
 		void set_texture(int texture) { texture_id = texture; }
 
 		glm::vec3 color{};
-		glm::vec3 getPosition();
-		glm::vec3 getRotation();
 
 		MetaComponent meta{};
 		TransformComponent transform{};
 		VisualComponent visual{};
-		MotionComponent motion{};
 
 	private:
 

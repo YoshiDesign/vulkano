@@ -1,7 +1,7 @@
-#include "RenderSystem.h"
+#include "ObjectRenderSystem.h"
 #include "../Math/aveng_math.h"
-#include "../Utils/window_callbacks.h"
-#include "../GameplayFunctions.h"
+#include "../Events/window_callbacks.h"
+#include "../Player/GameplayFunctions.h"
 
 namespace aveng {
 
@@ -11,21 +11,20 @@ namespace aveng {
 		glm::mat4 normalMatrix{ 1.f };
 	};
 
-	RenderSystem::RenderSystem(EngineDevice& device, AvengAppObject& viewer)
+	ObjectRenderSystem::ObjectRenderSystem(EngineDevice& device, AvengAppObject& viewer)
 		: engineDevice{ device }, viewerObject{ viewer }
 	{
 
 	}
 
-	void RenderSystem::initialize( VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout, VkDescriptorSetLayout fragDescriptorSetLayout)
-		
+	void ObjectRenderSystem::initialize( VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout, VkDescriptorSetLayout fragDescriptorSetLayout)
 	{
 		VkDescriptorSetLayout descriptorSetLayouts[2] = { globalDescriptorSetLayout , fragDescriptorSetLayout };
 		createPipelineLayout(descriptorSetLayouts);
 		createPipeline(renderPass);
 	}
 
-	RenderSystem::~RenderSystem()
+	ObjectRenderSystem::~ObjectRenderSystem()
 	{
 		vkDestroyPipelineLayout(engineDevice.device(), pipelineLayout, nullptr);
 	}
@@ -35,7 +34,7 @@ namespace aveng {
 	 * Here we include our Push Constant information
 	 * as well as our descriptor set layouts.
 	 */
-	void RenderSystem::createPipelineLayout(VkDescriptorSetLayout* descriptorSetLayouts)
+	void ObjectRenderSystem::createPipelineLayout(VkDescriptorSetLayout* descriptorSetLayouts)
 	{
 
 		// Initialize push constant range(s)
@@ -63,7 +62,7 @@ namespace aveng {
 	* Call to the construction of a Graphics Pipeline.
 	* Note that shader filepaths are relative to the GFXPipeline.cpp file.
 	*/
-	void RenderSystem::createPipeline(VkRenderPass renderPass)
+	void ObjectRenderSystem::createPipeline(VkRenderPass renderPass)
 	{
 		// Initialize the pipeline 
 		assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
@@ -90,10 +89,8 @@ namespace aveng {
 		);
 	}
 
-	void RenderSystem::renderAppObjects(FrameContent& frame_content, Data& data, AvengBuffer& fragBuffer)
+	void ObjectRenderSystem::render(FrameContent& frame_content, Data& data, AvengBuffer& fragBuffer)
 	{
-		int obj_no = 0;
-		int direction = 1;
 
 		// Bind our current pipeline configuration
 		switch (data.cur_pipe)
@@ -121,17 +118,16 @@ namespace aveng {
 		*/
 		for (auto& kv : frame_content.appObjects)
 		{
-			auto& obj = kv.second;
+			AvengAppObject& obj = kv.second;
 
-			// This object's dynamic offset in relation to the Dynamic UBO
+			// This object's texture's dynamic offset in the Dynamic UBOs memory
 			uint32_t dynamicOffset = obj.get_texture() * static_cast<uint32_t>(deviceAlignment);
-			obj_no += 1;
 
 			FragUbo fubo{ obj.get_texture() };	// Texture information -- within our dynamic UBO (FragUbo is a bad name for this, but that's its only usecase right now)
 
 			SimplePushConstantData push{};
 			
-			// 1s tick
+			// 1s tick, convenient
 			if (last_sec != data.sec) {
 				last_sec  = data.sec;
 			}
@@ -142,10 +138,11 @@ namespace aveng {
 
 			{
 				if (dynamicOffset > engineDevice.properties.limits.maxUniformBufferRange) {
-					std::cout << "Range: " << engineDevice.properties.limits.maxUniformBufferRange << std::endl;
+					DEBUG("Max Uniform Buffer Range Exceeded.");
 					throw std::runtime_error("Attempting to allocate buffer beyond device uniform buffer memory limit.");
 				}
-
+				
+				// Bind the descriptor set for our pixel (fragment) shader
 				fragBuffer.writeToBuffer(&fubo, sizeof(FragUbo), dynamicOffset);
 				fragBuffer.flush();
 				vkCmdBindDescriptorSets(
@@ -173,7 +170,7 @@ namespace aveng {
 		}
 	}
 
-	void RenderSystem::updateData(size_t size, float frameTime, Data& data)
+	void ObjectRenderSystem::updateData(size_t size, float frameTime, Data& data)
 	{
 
 		data.num_objs = size;

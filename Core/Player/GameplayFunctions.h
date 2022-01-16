@@ -1,6 +1,6 @@
 #pragma once
-#include "app_object.h"
-#include "Peripheral/KeyboardController.h"
+#include "../Scene/app_object.h"
+#include "../Peripheral/KeyboardController.h"
 
 namespace aveng {
 

@@ -18,7 +18,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Peripheral\aveng_window.cpp">
+    <ClCompile Include="Core\aveng_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="XOne.cpp">
@@ -39,7 +39,7 @@
     <ClCompile Include="Core\Renderer\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Core\Renderer\RenderSystem.cpp">
+    <ClCompile Include="Core\Renderer\ObjectRenderSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Core\Camera\aveng_camera.cpp">
@@ -81,7 +81,7 @@
     <ClCompile Include="CoreVK\aveng_descriptors.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Core\app_object.cpp">
+    <ClCompile Include="Core\Scene\app_object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Core\Renderer\AvengImageSystem.cpp">
@@ -96,7 +96,7 @@
     <ClCompile Include="Core\Math\aveng_math.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Core\GameplayFunctions.cpp">
+    <ClCompile Include="Core\Player\GameplayFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Core\Peripheral\Controller.cpp">
@@ -107,7 +107,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Core\Peripheral\aveng_window.h">
+    <ClInclude Include="Core\aveng_window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="XOne.h">
@@ -125,13 +125,13 @@
     <ClInclude Include="Core\aveng_model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Core\app_object.h">
+    <ClInclude Include="Core\Scene\app_object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Core\Renderer\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Renderer\RenderSystem.h">
+    <ClInclude Include="Core\Renderer\ObjectRenderSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Core\Camera\aveng_camera.h">
@@ -239,7 +239,7 @@
     <ClInclude Include="Core\Renderer\AvengImageSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Utils\window_callbacks.h">
+    <ClInclude Include="Core\Events\window_callbacks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Core\Utils\threadpool.h">
@@ -251,7 +251,7 @@
     <ClInclude Include="Core\UUID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Core\AvengComponent.h">
+    <ClInclude Include="Core\Scene\AvengComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="avpch.h">
@@ -260,16 +260,16 @@
     <ClInclude Include="Core\Math\aveng_math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Core\GameplayFunctions.h">
+    <ClInclude Include="Core\Player\GameplayFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Core\Peripheral\Controller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Action.h">
+    <ClInclude Include="Core\Player\Action.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Command.h">
+    <ClInclude Include="Core\Player\Command.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Core\Renderer\PointLightSystem.h">
