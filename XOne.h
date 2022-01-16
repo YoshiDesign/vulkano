@@ -46,6 +46,7 @@ namespace aveng {
 	private:
 
 		void loadAppObjects();
+		void Setup();
 		void updateCamera(float frameTime, AvengAppObject& viewerObject, KeyboardController& cameraController, AvengCamera& camera);
 		void updateData();
 
@@ -53,30 +54,33 @@ namespace aveng {
 		AvengWindow aveng_window{ WIDTH, HEIGHT, "Vulkan 0" };
 		glm::vec3 clear_color = { 0.0f, 0.0f, 0.0f };
 
-		// !! Order of initialization matters !!
+		/*
+		* !! Order of member initialization matters !!
+		* section 12.6.2 of the C++ Standard
+		*/
 		Data data;
+		AvengAppObject viewerObject{ AvengAppObject::createAppObject(1000) };
 		EngineDevice engineDevice{ aveng_window };
 		ImageSystem imageSystem{ engineDevice };
 		Renderer renderer{ aveng_window, engineDevice };
 		AvengImgui aveng_imgui{ engineDevice };
 		AvengCamera camera{};
 		GlobalUbo ubo{};
+		RenderSystem renderSystem{ engineDevice, viewerObject };
+		PointLightSystem pointLightSystem{ engineDevice };
+		KeyboardController keyboardController{ viewerObject, data };
 
-		AvengAppObject viewerObject{ AvengAppObject::createAppObject(1000) };
-		// AvengAppObject playerObject{ AvengAppObject::createAppObject(THEME_3) };
-
-		// 
 		float aspect;
 		float frameTime;
+		AvengAppObject::Map appObjects;
 
 		// This declaration must occur after the renderer initializes
 		std::unique_ptr<AvengDescriptorPool> globalPool{};
-		AvengAppObject::Map appObjects;
 
-		// Band-aid when all seems lost
-		//auto minOffsetAlignment = std::lcm(
-		//	engineDevice.properties.limits.minUniformBufferOffsetAlignment,
-		//	engineDevice.properties.limits.nonCoherentAtomSize);
+		std::vector<std::unique_ptr<AvengBuffer>> uboBuffers;
+		std::vector<std::unique_ptr<AvengBuffer>> fragBuffers;
+		std::vector<VkDescriptorSet> globalDescriptorSets;
+		std::vector<VkDescriptorSet> fragDescriptorSets;
 
 	};
 

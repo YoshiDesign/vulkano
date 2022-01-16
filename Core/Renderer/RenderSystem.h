@@ -19,10 +19,11 @@ namespace aveng {
 			alignas(sizeof(int)) int imDex;
 		};
 
-		RenderSystem(EngineDevice &device, AvengAppObject& viewer, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout, VkDescriptorSetLayout fragDescriptorSetLayouts);
+		RenderSystem(EngineDevice& device, AvengAppObject& viewer);
 		~RenderSystem();
 
 		RenderSystem(const RenderSystem&) = delete;
+		void initialize(VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout, VkDescriptorSetLayout fragDescriptorSetLayouts);
 		RenderSystem& operator=(const RenderSystem&) = delete;
 		void renderAppObjects(FrameContent& frame_content, Data& data, AvengBuffer& fragBuffer);
 		VkPipelineLayout getPipelineLayout() { return pipelineLayout; }

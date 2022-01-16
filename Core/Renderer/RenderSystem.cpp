@@ -11,15 +11,16 @@ namespace aveng {
 		glm::mat4 normalMatrix{ 1.f };
 	};
 
-	RenderSystem::RenderSystem(
-		EngineDevice& device,
-		AvengAppObject& viewer,
-		VkRenderPass renderPass, 
-		VkDescriptorSetLayout globalDescriptorSetLayouts,
-		VkDescriptorSetLayout fragDescriptorSetLayouts) 
-			: engineDevice{ device }, viewerObject{ viewer }
+	RenderSystem::RenderSystem(EngineDevice& device, AvengAppObject& viewer)
+		: engineDevice{ device }, viewerObject{ viewer }
 	{
-		VkDescriptorSetLayout descriptorSetLayouts[2] = { globalDescriptorSetLayouts , fragDescriptorSetLayouts };
+
+	}
+
+	void RenderSystem::initialize( VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout, VkDescriptorSetLayout fragDescriptorSetLayout)
+		
+	{
+		VkDescriptorSetLayout descriptorSetLayouts[2] = { globalDescriptorSetLayout , fragDescriptorSetLayout };
 		createPipelineLayout(descriptorSetLayouts);
 		createPipeline(renderPass);
 	}

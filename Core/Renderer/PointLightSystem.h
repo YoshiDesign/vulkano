@@ -21,9 +21,9 @@ namespace aveng {
 			alignas(sizeof(int)) int imDex;
 		};
 
-		PointLightSystem(EngineDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout);
+		PointLightSystem(EngineDevice& device);
 		~PointLightSystem();
-
+		void initialize(VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayout);
 		PointLightSystem(const PointLightSystem&) = delete;
 		PointLightSystem& operator=(const PointLightSystem&) = delete;
 		void render(FrameContent& frame_content);

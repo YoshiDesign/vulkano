@@ -20,7 +20,6 @@ namespace aveng {
 
 	XOne::XOne() 
 	{
-
 		// Set callback functions for keys bound to the window
 		glfwSetKeyCallback(aveng_window.getGLFWwindow(), WindowCallbacks::testKeyCallback);
 
@@ -35,6 +34,8 @@ namespace aveng {
 			//.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, SwapChain::MAX_FRAMES_IN_FLIGHT * 8)
 			.build();
 
+		Setup();
+
 		loadAppObjects();
 
 	}
@@ -46,85 +47,7 @@ namespace aveng {
 
 	void XOne::run()
 	{
-
-		// Create global uniform buffers mapped into device memory
-		std::vector<std::unique_ptr<AvengBuffer>> uboBuffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
-		std::vector<std::unique_ptr<AvengBuffer>> fragBuffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
-		for (int i = 0; i < uboBuffers.size(); i++) {
-			uboBuffers[i] = std::make_unique<AvengBuffer>(engineDevice,
-														  sizeof(GlobalUbo),
-														  1,
-														  VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-														  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-			uboBuffers[i]->map();
-		}
-		for (int i = 0; i < fragBuffers.size(); i++) {
-			fragBuffers[i] = std::make_unique<AvengBuffer>(engineDevice,
-														   sizeof(RenderSystem::FragUbo) * 8000,
-														   1,
-														   VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-														   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-			fragBuffers[i]->map();
-		}
-
-		// Descriptor Layout 0 -- Global
-		std::unique_ptr<AvengDescriptorSetLayout> globalDescriptorSetLayout =							
-			AvengDescriptorSetLayout::Builder(engineDevice)
-				.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)			
-				.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 8)
-				//.addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
-				.build();	// Initialize the Descriptor Set Layout
-
-		// Descriptor Set 1 -- Per object
-		std::unique_ptr<AvengDescriptorSetLayout> fragDescriptorSetLayout =
-			AvengDescriptorSetLayout::Builder(engineDevice)
-				.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, VK_SHADER_STAGE_FRAGMENT_BIT)
-				.build();
-
-		// Write our descriptors according to the layout's bindings once for every possible frame in flight
-		std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
-		std::vector<VkDescriptorSet> fragDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
-
-		for (int i = 0; i < SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
-		{
-			// Write first set - Uniform Buffer containing our UBO and our Imager Sampler
-			auto bufferInfo	= uboBuffers[i]->descriptorInfo();
-			auto imageInfo	= imageSystem.descriptorInfoForAllImages();
-			AvengDescriptorSetWriter(*globalDescriptorSetLayout, *globalPool)
-				.writeBuffer(0, &bufferInfo)	// First Binding
-				.writeImage(1, imageInfo.data(), imageSystem.texture_paths.size()) // Second Binding
-				.build(globalDescriptorSets[i]);
-
-			// Write second set - Also a uniform buffer
-			auto fragBufferInfo = fragBuffers[i]->descriptorInfo(sizeof(RenderSystem::FragUbo), 0);
-			AvengDescriptorSetWriter(*fragDescriptorSetLayout, *globalPool)
-				.writeBuffer(0, &fragBufferInfo)
-				.build(fragDescriptorSets[i]);
-		}
-
-		KeyboardController keyboardController{viewerObject, data};
-		// Note that the renderSystem is initialized with a pointer to the Render Pass
-		RenderSystem renderSystem{
-			engineDevice,
-			viewerObject,
-			renderer.getSwapChainRenderPass(),
-			globalDescriptorSetLayout->getDescriptorSetLayout(),
-			fragDescriptorSetLayout->getDescriptorSetLayout()
-		};
-		
-		PointLightSystem pointLightSystem{
-			engineDevice,
-			renderer.getSwapChainRenderPass(),
-			globalDescriptorSetLayout->getDescriptorSetLayout(),
-		};
-
 		//camera.setViewTarget(glm::vec3(-1.f, -2.f, -20.f), glm::vec3(0.f, 0.f, 3.5f));
-
-		aveng_imgui.init (
-			aveng_window,
-			renderer.getSwapChainRenderPass(),
-			renderer.getImageCount() 
-		);
 
 		/*
 			Things to keep in mind:
@@ -186,10 +109,12 @@ namespace aveng {
 
 				// Render
 				renderer.beginSwapChainRenderPass(commandBuffer);
+
 				renderSystem.renderAppObjects(
 					frame_content, 
 					data, 
 					*fragBuffers[frameIndex]);
+
 				pointLightSystem.render(frame_content);
 
 				aveng_imgui.newFrame();
@@ -307,6 +232,88 @@ namespace aveng {
 		data.cameraPos  = viewerObject.getPosition();
 		data.cameraRot  = viewerObject.getRotation();
 		data.fly_mode   = WindowCallbacks::flightMode;
+	}
+
+	/*
+	* @function XOne::Setup()
+	* Write the descriptor set layouts, build the descriptor sets for our uniforms,
+	* and initialize each render system with their appropriate descriptor set layouts.
+	* Finally, initialize ImGUI
+	*/
+	void XOne::Setup()
+	{
+		// Create global uniform buffers mapped into device memory
+		uboBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+		fragBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < uboBuffers.size(); i++) {
+			uboBuffers[i] = std::make_unique<AvengBuffer>(engineDevice,
+				sizeof(GlobalUbo),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+			uboBuffers[i]->map();
+		}
+		for (int i = 0; i < fragBuffers.size(); i++) {
+			fragBuffers[i] = std::make_unique<AvengBuffer>(engineDevice,
+				sizeof(RenderSystem::FragUbo) * 8000,
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+			fragBuffers[i]->map();
+		}
+
+		// Descriptor Layout 0 -- Global
+		std::unique_ptr<AvengDescriptorSetLayout> globalDescriptorSetLayout =
+			AvengDescriptorSetLayout::Builder(engineDevice)
+			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 8)
+			//.addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
+			.build();	// Initialize the Descriptor Set Layout
+
+		// Descriptor Set 1 -- Per object
+		std::unique_ptr<AvengDescriptorSetLayout> fragDescriptorSetLayout =
+			AvengDescriptorSetLayout::Builder(engineDevice)
+			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, VK_SHADER_STAGE_FRAGMENT_BIT)
+			.build();
+
+		// Write our descriptors according to the layout's bindings once for every possible frame in flight
+		globalDescriptorSets.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+		fragDescriptorSets.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+
+		for (int i = 0; i < SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			// Write first set - Uniform Buffer containing our UBO and our Imager Sampler
+			auto bufferInfo = uboBuffers[i]->descriptorInfo();
+			auto imageInfo = imageSystem.descriptorInfoForAllImages();
+			AvengDescriptorSetWriter(*globalDescriptorSetLayout, *globalPool)
+				.writeBuffer(0, &bufferInfo)	// First Binding
+				.writeImage(1, imageInfo.data(), imageSystem.texture_paths.size()) // Second Binding
+				.build(globalDescriptorSets[i]);
+
+			// Write second set - Also a uniform buffer
+			auto fragBufferInfo = fragBuffers[i]->descriptorInfo(sizeof(RenderSystem::FragUbo), 0);
+			AvengDescriptorSetWriter(*fragDescriptorSetLayout, *globalPool)
+				.writeBuffer(0, &fragBufferInfo)
+				.build(fragDescriptorSets[i]);
+		}
+
+		// Note that the renderSystem is initialized with a pointer to the Render Pass
+		renderSystem.initialize(
+			renderer.getSwapChainRenderPass(),
+			globalDescriptorSetLayout->getDescriptorSetLayout(),
+			fragDescriptorSetLayout->getDescriptorSetLayout()
+		);
+
+		pointLightSystem.initialize(
+			renderer.getSwapChainRenderPass(),
+			globalDescriptorSetLayout->getDescriptorSetLayout()
+		);
+
+		aveng_imgui.init(
+			aveng_window,
+			renderer.getSwapChainRenderPass(),
+			renderer.getImageCount()
+		);
 	}
 
 	void XOne::pendulum(EngineDevice& engineDevice, int _max_rows)

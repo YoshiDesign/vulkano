@@ -10,11 +10,10 @@
 
 namespace aveng {
 
-	PointLightSystem::PointLightSystem(
-		EngineDevice& device,
-		VkRenderPass renderPass,
-		VkDescriptorSetLayout globalDescriptorSetLayouts)
-		: engineDevice{ device }
+	PointLightSystem::PointLightSystem(EngineDevice& device) : engineDevice{ device } 
+	{}
+
+	void PointLightSystem::initialize(VkRenderPass renderPass, VkDescriptorSetLayout globalDescriptorSetLayouts)
 	{
 		VkDescriptorSetLayout descriptorSetLayouts[1] = { globalDescriptorSetLayouts };
 		createPipelineLayout(descriptorSetLayouts);
